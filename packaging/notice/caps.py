@@ -192,6 +192,33 @@ if mm:
 ha = w.menuBar().actions()[-1].menu()
 ha.popup(w.mapToGlobal(QPoint(600, 30))); pump(5); save(ha.grab(), '11-aide.jpg'); ha.hide()
 
+
+# 13-14 — mode présentation (plein écran)
+w = win(EX + 'exemple-grafcet.pdf', theme='bleu nuit', cat='GRAFCET')
+w.toggle_presentation(True)
+pump(5)
+w._pres_timer.stop()
+w.showNormal(); w.resize(1680, 980); pump(5)
+w.menuBar().hide()
+for b in w.findChildren(QToolBar):
+    b.hide()
+for d in w.findChildren(QDockWidget):
+    d.hide()
+w.statusBar().hide(); pump(5)
+w.zoom_page(); pump(3); w.render_visible(); pump(3)
+hint = getattr(w, "_pres_hint", None)
+if hint:
+    hint.setFixedWidth(760); hint.adjustSize(); hint.move((w.width() - hint.width()) // 2, 40); hint.show(); hint.raise_()
+pump(3)
+save(w.grab(), '13-plein-ecran.jpg')
+if hint: hint.hide()
+w.menuBar().show()
+for b in w._pres_bars: b.show()
+pump(5); w.render_visible(); pump(3)
+img = w.grab().toImage()
+save(callouts(img, [(rect_of(w, w.menuBar(), 1), 1)]), '14-plein-ecran-menu.jpg')
+w.close()
+
 # 12 — don
 def grab_dlg():
     from PySide6.QtWidgets import QDialog

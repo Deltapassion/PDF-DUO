@@ -3484,3 +3484,43 @@ _CONV = {
 for _k, _v in _CONV.items():
     for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
         TR.setdefault(_l, {})[_k] = _t
+
+# --- 1.0.0 : action conditionnelle, bec Bunsen avec flamme, trépied
+_ADD = {
+ "Action conditionnelle (condition au-dessus)": ("Conditional action (condition above)", "Acción condicional (condición encima)", "Ação condicional (condição em cima)", "Bedingte Aktion (Bedingung oben)", "Azione condizionata (condizione sopra)"),
+ "Bec Bunsen (avec flamme)": ("Bunsen burner (with flame)", "Mechero Bunsen (con llama)", "Bico de Bunsen (com chama)", "Bunsenbrenner (mit Flamme)", "Becco Bunsen (con fiamma)"),
+ "Flamme": ("Flame", "Llama", "Chama", "Flamme", "Fiamma"),
+ "bleue (virole ouverte)": ("blue (air hole open)", "azul (virola abierta)", "azul (anel aberto)", "blau (Luftzufuhr offen)", "blu (ghiera aperta)"),
+ "jaune (virole fermée)": ("yellow (air hole closed)", "amarilla (virola cerrada)", "amarela (anel fechado)", "gelb (Luftzufuhr geschlossen)", "gialla (ghiera chiusa)"),
+ "éteint": ("off", "apagado", "apagado", "aus", "spento"),
+ "Trépied avec toile métallique": ("Tripod with wire gauze", "Trípode con rejilla", "Tripé com rede metálica", "Dreifuß mit Drahtnetz", "Treppiede con reticella"),
+ "Condition (en haut)": ("Condition (top)", "Condición (arriba)", "Condição (em cima)", "Bedingung (oben)", "Condizione (in alto)"),
+}
+for _k, _v in _ADD.items():
+    for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
+        TR.setdefault(_l, {})[_k] = _t
+_PRES = {
+ "Mode présentation (plein écran)": ("Presentation mode (full screen)", "Modo presentación (pantalla completa)", "Modo de apresentação (ecrã inteiro)", "Präsentationsmodus (Vollbild)", "Modalità presentazione (schermo intero)"),
+ "Mode présentation (plein écran) — F11 ; Échap pour quitter": ("Presentation mode (full screen) — F11; Esc to exit", "Modo presentación (pantalla completa) — F11; Esc para salir", "Modo de apresentação (ecrã inteiro) — F11; Esc para sair", "Präsentationsmodus (Vollbild) — F11; Esc zum Beenden", "Modalità presentazione (schermo intero) — F11; Esc per uscire"),
+ "Mode présentation — touchez le haut de l'écran avec la souris pour les menus et le zoom · Ctrl + molette pour zoomer · F11 ou Échap pour quitter": (
+   "Presentation mode — move the mouse to the top of the screen for menus and zoom · Ctrl + wheel to zoom · F11 or Esc to exit",
+   "Modo presentación — lleve el ratón al borde superior para los menús y el zoom · Ctrl + rueda para hacer zoom · F11 o Esc para salir",
+   "Modo de apresentação — leve o rato ao topo do ecrã para os menus e o zoom · Ctrl + roda para ampliar · F11 ou Esc para sair",
+   "Präsentationsmodus — Maus an den oberen Bildschirmrand für Menüs und Zoom · Strg + Mausrad zum Zoomen · F11 oder Esc zum Beenden",
+   "Modalità presentazione — porta il mouse in alto per i menu e lo zoom · Ctrl + rotella per lo zoom · F11 o Esc per uscire"),
+}
+for _k, _v in _PRES.items():
+    for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
+        TR.setdefault(_l, {})[_k] = _t
+_SEC = {
+ "Ce lien n'a pas été ouvert par sécurité : seuls les liens web (http, https) et les adresses e-mail sont autorisés.": (
+   "This link was not opened for security reasons: only web links (http, https) and e-mail addresses are allowed.",
+   "Este enlace no se ha abierto por seguridad: solo se permiten enlaces web (http, https) y direcciones de correo.",
+   "Esta ligação não foi aberta por segurança: só são permitidas ligações web (http, https) e endereços de e-mail.",
+   "Dieser Link wurde aus Sicherheitsgründen nicht geöffnet: Nur Weblinks (http, https) und E-Mail-Adressen sind erlaubt.",
+   "Questo link non è stato aperto per sicurezza: sono ammessi solo link web (http, https) e indirizzi e-mail."),
+ "Ouvrir ce lien dans le navigateur ?": ("Open this link in the browser?", "¿Abrir este enlace en el navegador?", "Abrir esta ligação no navegador?", "Diesen Link im Browser öffnen?", "Aprire questo link nel browser?"),
+}
+for _k, _v in _SEC.items():
+    for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
+        TR.setdefault(_l, {})[_k] = _t

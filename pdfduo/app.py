@@ -776,6 +776,10 @@ class View(QGraphicsView):
     def keyPressEvent(self, e):
         k, mods = e.key(), e.modifiers()
         if k == Qt.Key_Escape:
+            if (getattr(self.mw, "presenting", False) and self.tool == "select" and self.temp is None
+                    and self.ghost is None):
+                self.mw.toggle_presentation(False)
+                return
             if self.tool in ("wire", "wall") and self.temp is not None:
                 self.finish_poly()
             self.mw.set_tool("select")
@@ -993,12 +997,15 @@ class MainWindow(QMainWindow):
         act(m, T("Pleine largeur"), self.zoom_width, "Ctrl+1")
         act(m, T("Page entière"), self.zoom_page, "Ctrl+2")
         m.addSeparator()
+        self.present_action = act(m, T("Mode présentation (plein écran)"), lambda: self.toggle_presentation(), "F11")
+        self.present_action.setCheckable(True)
+        m.addSeparator()
         self.palettes_menu = m.addMenu(T("Palettes (afficher / masquer)"))
         tm = m.addMenu(T("Thème"))
         tg = QActionGroup(self)
         for name in th.THEMES:
             a = QAction(T(name.capitalize()), self, checkable=True)
-            a.setChecked(name == self.settings.value("theme", "clair"))
+            a.setChecked(name == self.settings.value("theme", "bleu nuit"))
             a.triggered.connect(lambda _=False, n=name: self.set_theme(n))
             tg.addAction(a)
             tm.addAction(a)
@@ -1127,6 +1134,10 @@ class MainWindow(QMainWindow):
             a.triggered.connect(fn)
             qb.addAction(a)
             self.quick_actions[key] = a
+        pres_btn = QToolButton(text=" ⛶ ")
+        pres_btn.setToolTip(T("Mode présentation (plein écran) — F11 ; Échap pour quitter"))
+        pres_btn.clicked.connect(lambda: self.toggle_presentation())
+        self._pres_btn = pres_btn
         sym_btn = QToolButton(text=" Ω √ ")
         sym_btn.setToolTip(T("Caractères spéciaux (Ω, φ, π, √…) : insérés dans le texte sélectionné ou le champ actif"))
         sym_btn.setPopupMode(QToolButton.InstantPopup)
@@ -1138,6 +1149,7 @@ class MainWindow(QMainWindow):
         sym_btn.setMenu(sm)
         qb.addSeparator()
         qb.addWidget(sym_btn)
+        qb.addWidget(pres_btn)
 
         st = QToolBar(T("Style"))
         st.setObjectName("style")
@@ -1510,7 +1522,7 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ apparence
     def apply_theme(self):
-        t = self.settings.value("theme", "clair")
+        t = self.settings.value("theme", "bleu nuit")
         if t not in th.THEMES:
             t = "clair"
         app = QApplication.instance()
@@ -1731,9 +1743,7 @@ class MainWindow(QMainWindow):
                 return
         elif t == "field_link":
             if d.get("url"):
-                from PySide6.QtGui import QDesktopServices
-                from PySide6.QtCore import QUrl
-                QDesktopServices.openUrl(QUrl(d["url"]))
+                self.open_link_safely(d["url"])
             else:
                 self.goto_page(int(d.get("page") or 1) - 1)
             return
@@ -2352,7 +2362,7 @@ class MainWindow(QMainWindow):
             fill_row.addWidget(fb)
             f.addRow(T("Remplissage"), fill_row)
             sh = d.get("shape")
-            if sh == "action":
+            if sh in ("action", "action_cond"):
                 qe = QLineEdit(d.get("qual", ""))
                 qe.setPlaceholderText("S, R, D=3s, C, L…")
                 qe.textChanged.connect(lambda v: changed("qual", v))
@@ -2362,8 +2372,9 @@ class MainWindow(QMainWindow):
                 le.setPlaceholderText("(1)")
                 le.textChanged.connect(lambda v: changed("label", v))
                 f.addRow(T("Numéro de transition"), le)
-            if sh == "step_cond":
+            if sh in ("step_cond", "action_cond"):
                 ce = QLineEdit(d.get("cond", ""))
+                ce.setPlaceholderText("ex. a . b")
                 ce.textChanged.connect(lambda v: changed("cond", v))
                 f.addRow(T("Condition (en haut)"), ce)
             if sh in ("step", "step_init", "step_cond"):
@@ -3353,6 +3364,95 @@ class MainWindow(QMainWindow):
             "<b>Capture</b> : outil Capture puis glisser ; l'image va au presse-papiers (Ctrl+V).<br>"
             "<b>Copier</b> (Ctrl+C) : les éléments se recollent dans PDF DUO <i>et</i> comme image dans Word.<br>"
             "<b>Zoom</b> : Ctrl+molette ; molette = défilement ; bouton du milieu = déplacer la vue."))
+
+    # ------------------------------------------------------------ mode présentation (plein écran)
+    def toggle_presentation(self, on=None):
+        """Plein écran sans palettes : seule la page reste visible. Le haut (menus, zoom, annuler…)
+        réapparaît quand la souris touche le bord supérieur de l'écran."""
+        if on is None:
+            on = not getattr(self, "presenting", False)
+        if on == getattr(self, "presenting", False):
+            return
+        self.presenting = on
+        self.present_action.setChecked(on)
+        if on:
+            self._pres_state = self.saveState(99)
+            self._pres_max = self.isMaximized()
+            self._pres_bars = [b for b in self.findChildren(QToolBar)
+                               if b.isVisible() and b is not self.quick_bar and self.toolBarArea(b) == Qt.TopToolBarArea]
+            for w in self.findChildren(QDockWidget) + self.findChildren(QToolBar):
+                if w is not self.quick_bar:
+                    w.hide()
+            self.statusBar().hide()
+            self.menuBar().hide()
+            self.showFullScreen()
+            if not hasattr(self, "_pres_timer"):
+                self._pres_timer = QTimer(self, interval=120, timeout=self._presentation_hover)
+            self._pres_timer.start()
+            self._pres_shown = False
+            QTimer.singleShot(250, self.zoom_page)
+            self._presentation_hint()
+        else:
+            self._pres_timer.stop()
+            self.menuBar().show()
+            self.statusBar().show()
+            if self.isFullScreen():
+                self.showMaximized() if self._pres_max else self.showNormal()
+            self.restoreState(self._pres_state, 99)
+            hint = getattr(self, "_pres_hint", None)
+            if hint:
+                hint.hide()
+
+    def _presentation_hover(self):
+        """Affiche le haut quand la souris est contre le bord supérieur, le masque ensuite."""
+        from PySide6.QtGui import QCursor
+        y = self.mapFromGlobal(QCursor.pos()).y()
+        if not self._pres_shown and y <= 4:
+            self.menuBar().show()
+            for b in self._pres_bars:
+                b.show()
+            self._pres_shown = True
+        elif self._pres_shown:
+            bottom = self.menuBar().height() + sum(b.height() for b in self._pres_bars) + 30
+            if y > bottom and QApplication.activePopupWidget() is None and not self.menuBar().activeAction():
+                self.menuBar().hide()
+                for b in self._pres_bars:
+                    b.hide()
+                self._pres_shown = False
+
+    def _presentation_hint(self):
+        hint = getattr(self, "_pres_hint", None)
+        if hint is None:
+            hint = self._pres_hint = QLabel(self)
+            hint.setStyleSheet("QLabel{background:rgba(20,30,45,210);color:white;border-radius:10px;padding:10px 18px;font-size:13px}")
+            hint.setAttribute(Qt.WA_TransparentForMouseEvents)
+        hint.setText(T("Mode présentation — touchez le haut de l'écran avec la souris pour les menus et le zoom · "
+                       "Ctrl + molette pour zoomer · F11 ou Échap pour quitter"))
+        hint.setWordWrap(True)
+        hint.setAlignment(Qt.AlignCenter)
+
+        def place():
+            hint.setFixedWidth(min(760, self.width() - 40))
+            hint.adjustSize()
+            hint.move((self.width() - hint.width()) // 2, 40)
+            hint.show()
+            hint.raise_()
+        QTimer.singleShot(400, place)
+        QTimer.singleShot(5000, hint.hide)
+
+    def open_link_safely(self, url):
+        """Ouvre un lien venant d'un document. Seuls http, https et mailto s'ouvrent directement :
+        un lien vers un fichier ou un programme (file:, smb:, javascript:…) pourrait lancer un logiciel
+        malveillant caché dans un PDF reçu, donc on le refuse."""
+        from PySide6.QtCore import QUrl
+        u = QUrl.fromUserInput(str(url).strip())
+        if u.scheme().lower() not in ("http", "https", "mailto") or not u.isValid():
+            QMessageBox.warning(self, APP_NAME, T("Ce lien n'a pas été ouvert par sécurité : seuls les liens web (http, https) "
+                                                  "et les adresses e-mail sont autorisés.") + "\n\n" + str(url)[:300])
+            return
+        r = QMessageBox.question(self, APP_NAME, T("Ouvrir ce lien dans le navigateur ?") + "\n\n" + u.toDisplayString()[:300])
+        if r == QMessageBox.Yes:
+            self.open_url(u.toString())
 
     def open_url(self, url):
         from PySide6.QtGui import QDesktopServices

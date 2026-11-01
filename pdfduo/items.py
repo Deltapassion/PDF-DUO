@@ -692,7 +692,7 @@ class PItem(QGraphicsItem):
             return [QPointF(w * 0.86, -4 * MM), QPointF(w, h / 2), QPointF(w / 2, h), QPointF(0, h / 2)]
         if sh in ("and_bar", "or_bar"):
             return [QPointF(w * k, y) for y in (0, h) for k in (1 / 6, 0.5, 5 / 6)]
-        if sh == "action":
+        if sh in ("action", "action_cond"):
             return [QPointF(0, h / 2)]
         if sh == "renvoi":
             return [QPointF(0, h / 2)]
@@ -714,7 +714,7 @@ class PItem(QGraphicsItem):
             th = fm.lineSpacing() * len(lines) * fs / 100
             x = r.width() / 2 + 6 * MM
             return QRectF(x, r.height() / 2 - th / 2, tw + 2, th), Qt.AlignLeft | Qt.AlignVCenter
-        if sh == "action":
+        if sh in ("action", "action_cond"):
             stub = 5 * MM
             q = self.d.get("qual")
             x = stub + (8 * MM if q else 0)
@@ -732,6 +732,8 @@ class PItem(QGraphicsItem):
         r = self.local_rect().united(box)
         if self.d.get("shape") == "step_cond":
             r = r.united(QRectF(0, -4.5 * MM, 45 * MM, 4.5 * MM))
+        if self.d.get("shape") == "action_cond":
+            r = r.united(QRectF(0, -5.5 * MM, self.local_rect().width() + 40 * MM, 5.5 * MM))
         if self.d.get("shape") == "transition" and self.d.get("label"):
             r = r.united(QRectF(-14 * MM, 0, 14 * MM, self.local_rect().height()))
         return r
@@ -796,6 +798,20 @@ class PItem(QGraphicsItem):
             k = min(w, h) * 0.25
             p.drawPolygon(QPolygonF([QPointF(0, 0), QPointF(w - k, 0), QPointF(w, k), QPointF(w, h), QPointF(0, h)]))
             p.drawPolyline(QPolygonF([QPointF(w - k, 0), QPointF(w - k, k), QPointF(w, k)]))
+        elif sh == "action_cond":
+            # action conditionnelle (NF EN 60848) : trait vertical au-dessus du rectangle d'action,
+            # la condition (assignation) s'écrit à droite du trait
+            stub = 5 * MM
+            p.drawLine(QPointF(0, h / 2), QPointF(stub, h / 2))
+            p.drawRect(QRectF(stub, 0, w - stub, h))
+            if self.d.get("qual"):
+                p.drawLine(QPointF(stub + 8 * MM, 0), QPointF(stub + 8 * MM, h))
+                self._draw_text(p, QRectF(stub, 0, 8 * MM, h), self.d["qual"], Qt.AlignCenter, 0.85)
+            xc = stub + (w - stub) / 2
+            p.drawLine(QPointF(xc, 0), QPointF(xc, -5 * MM))
+            if self.d.get("cond"):
+                self._draw_text(p, QRectF(xc + 1.5 * MM, -5 * MM, 40 * MM, 4.5 * MM), self.d["cond"],
+                                Qt.AlignLeft | Qt.AlignVCenter, 0.85)
         elif sh == "action":
             stub = 5 * MM
             p.drawLine(QPointF(0, h / 2), QPointF(stub, h / 2))

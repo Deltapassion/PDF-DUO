@@ -1072,9 +1072,33 @@ add("burette", "Burette graduée", CH, 30, 100,
 add("potence", "Support (potence) avec pince", CH, 60, 100,
     '<rect x="4" y="90" width="52" height="6" fill="#90a4ae"/><path d="M12 90 V6" stroke-width="2.2"/>'
     '<path d="M12 30 H44" stroke-width="1.6"/><path d="M44 26 Q50 30 44 34" />')
-add("bec_bunsen", "Bec Bunsen", CH, 40, 80,
-    '<path d="M16 30 V70 M24 30 V70 M8 76 H32 L28 70 H12 Z"/><path d="M20 30 Q12 18 20 4 Q28 18 20 30 Z" fill="#64b5f6" stroke="none"/>'
-    '<path d="M24 60 H34"/>')
+def _bunsen(p):
+    """Bec Bunsen : flamme bleue (virole ouverte), jaune (virole fermée) ou éteint."""
+    fl = p.get("flamme", "bleue (virole ouverte)")
+    flame = ""
+    if fl.startswith("bleue"):
+        flame = ('<path d="M20 34 C10 26 12 12 20 1 C28 12 30 26 20 34 Z" fill="#9fd0ff" fill-opacity="0.85" stroke="#5aa9f0" stroke-width="0.6"/>'
+                 '<path d="M20 34 C15.5 29 16.5 21 20 14 C23.5 21 24.5 29 20 34 Z" fill="#1e5fd6" stroke="none"/>')
+    elif fl.startswith("jaune"):
+        flame = ('<path d="M20 34 C8 27 11 15 17 8 C16 13 19 14 20 1 C24 10 31 16 29 25 C28 30 24 33 20 34 Z" '
+                 'fill="#ffb300" stroke="#f57c00" stroke-width="0.6"/>'
+                 '<path d="M20 34 C14 30 15 22 19 15 C20 21 23 22 22 17 C26 23 26 30 20 34 Z" fill="#ffe082" stroke="none"/>')
+    return (40, 90,
+            flame +
+            '<rect x="16.5" y="34" width="7" height="44" fill="#cfd8dc"/>'                      # cheminée
+            '<rect x="15" y="58" width="10" height="8" rx="1" fill="#90a4ae"/>'                  # virole (bague d'air)
+            '<circle cx="20" cy="62" r="1.8" fill="#37474f" stroke="none"/>'
+            '<path d="M6 86 H34 L30 78 H10 Z" fill="#78909c"/>'                                 # socle
+            '<path d="M30 82 H39" stroke-width="2.4"/>')                                       # arrivée de gaz
+
+
+add("bec_bunsen", "Bec Bunsen (avec flamme)", CH,
+    params=[("flamme", "Flamme", "bleue (virole ouverte)", ["bleue (virole ouverte)", "jaune (virole fermée)", "éteint"])],
+    func=_bunsen)
+add("trepied", "Trépied avec toile métallique", CH, 70, 50,
+    '<path d="M6 8 H64" stroke-width="2.6"/>'
+    '<path d="M8 6 H62" stroke-width="0.6" stroke-dasharray="1.5 1.2"/>'
+    '<path d="M14 9 L6 48 M35 9 V48 M56 9 L64 48" stroke-width="1.8"/>')
 add("cristallisoir", "Cristallisoir", CH, 80, 30, '<path d="M4 4 V26 H76 V4"/>')
 add("verre_montre", "Verre de montre", CH, 60, 20, '<path d="M4 6 Q30 22 56 6"/>')
 add("spatule", "Spatule", CH, 80, 20, '<path d="M4 10 H54"/><path d="M54 6 H74 Q78 10 74 14 H54 Z"/>')

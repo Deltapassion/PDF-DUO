@@ -58,7 +58,7 @@ Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
   auto-maintien 13-14, contacts F 95-96 / 97-98, arrêt d'urgence, bobines A1/A2, bornier, transformateur de commande.
 - **Réseau informatique (CIEL)** : poste, portable, serveur, switch, routeur, Wi-Fi, box, pare-feu, Internet, imprimante,
   téléphone IP, caméra IP, NAS, hub, panneau de brassage, baie, API, CPL, prise RJ45.
-- **GRAFCET** : étape initiale, étape, transition + réceptivité, actions (S/R, D, C), divergences ET / OU, macro-étape,
+- **GRAFCET** : étape initiale, étape, transition + réceptivité, actions (S/R, D), action conditionnelle (condition au-dessus de l'action), divergences ET / OU, macro-étape,
   renvoi, commentaire ; **Ctrl+G** ajoute transition + étape sous l'étape sélectionnée, déjà reliées et numérotées.
 - **Algorigramme**, **logigramme** (portes à 2 et 3 entrées, mémoire RS) et **carte mentale** (liaisons courbes).
 - **Portes et fenêtres dans les murs** : elles s'alignent sur le mur, prennent son épaisseur et s'ouvrent du côté de la souris.
@@ -75,7 +75,7 @@ Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
   plus deux plaques corrigées.
 - **Sciences** : multimètre (grandeur et valeur affichée réglables), oscilloscope (signaux des 2 voies), GBF (forme et
   fréquence), alimentation stabilisée 0-30 V, piles 9 V et 1,5 V, rhéostat ; verrerie de chimie avec niveau de liquide
-  réglable (bécher, erlenmeyer, ballons, éprouvette, fiole jaugée, tube…), agitateur magnétique, burette, potence… ;
+  réglable (bécher, erlenmeyer, ballons, éprouvette, fiole jaugée, tube…), agitateur magnétique, burette, potence, bec Bunsen avec flamme bleue ou jaune, trépied… ;
   optique (lentilles, miroirs, prisme, rayons, objet AB…) ; mécanique (masses, ressort, poulie, plan incliné, forces…).
 - **Caractères spéciaux** (Ω ω Φ φ Π π Δ μ ° ± ≈ ≤ ≥…) et **racine carrée sur tout le nombre** : écrire √{…}.
 - **Agrandissement proportionnel à la souris** : poignée bleue en bas à droite de l'élément sélectionné (Maj = proportionnel aussi pour rectangles et champs).
@@ -94,6 +94,8 @@ Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
 - **Aéronautique – câblage** : disjoncteurs à bouton, connecteurs P / J, connecteur multibroches et circulaire, épissure,
   masse structure GD, métallisation, fil blindé, paires torsadées, cosse, bornier, barre bus, relais, générateur, batterie…
 - **Annuler / rétablir** illimité (150 étapes).
+- **Mode présentation** (F11 ou bouton ⛶) : plein écran avec la page seule, zoom à la molette ; les menus réapparaissent
+  quand la souris touche le haut de l'écran, Échap pour quitter.
 
 Les dessins sont enregistrés **en vectoriel** dans le PDF (nets à toutes les échelles et à l'impression).
 Le fichier garde aussi une copie modifiable : en le rouvrant dans PDF DUO, tous les éléments
