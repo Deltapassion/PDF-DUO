@@ -172,9 +172,7 @@ index = f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta nam
 <script data-goatcounter="https://deltapassion.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body></html>"""
 open(OUT_WEB + "/index.html", "w", encoding="utf-8").write(index)
-# les anciennes pages par langue redirigent vers la notice unique
 for l in T:
-    open(f"{OUT_WEB}/notice-{l}.html", "w", encoding="utf-8").write(
-        f'<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0; url=index.html?lang={l}">'
-        f'<link rel="canonical" href="index.html?lang={l}"><a href="index.html?lang={l}">PDF DUO</a>')
+    try: os.remove(f"{OUT_WEB}/notice-{l}.html")
+    except OSError: pass
 print("index.html ok")
