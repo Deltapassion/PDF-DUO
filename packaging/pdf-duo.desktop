@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=PDF DUO
+Comment=PDF, schémas électriques, GRAFCET et plans
+Exec=pdf-duo %f
+Icon=pdf-duo
+Terminal=false
+Categories=Office;Graphics;Education;Electronics;
+MimeType=application/pdf;
