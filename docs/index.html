@@ -171,6 +171,10 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 .hero .osnote{margin:12px 0 0;font-size:14px;color:#dbe8f3}
 .hero .osnote a{color:#fff}
 
+.langsel{font:inherit;font-size:14px;font-weight:600;color:#fff;background:rgba(10,30,50,.45);border:1px solid rgba(255,255,255,.45);
+  border-radius:10px;padding:7px 8px;cursor:pointer;backdrop-filter:blur(4px)}
+.langsel option{color:#111;background:#fff}
+
 @media (max-width:820px){
   .shots{grid-template-columns:1fr}
   .shots .big{grid-column:auto}
@@ -183,25 +187,29 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 <header class="hero">
   <nav>
     <a class="brand" href="#"><img src="icon.png" alt="">PDF DUO</a>
-    <a class="l" href="#fonctions">Fonctions</a>
-    <a class="l" href="#bibliotheques">Bibliothèques</a>
-    <a class="l" href="#captures">Captures</a>
-    <a class="l" href="#lycee">Lycée & MDL</a>
-    <a class="l" href="#telecharger">Télécharger</a>
-    <a class="l" href="notice/index.html">Notice</a>
+    <a class="l" href="#fonctions"><span data-i="nf">Fonctions</span></a>
+    <a class="l" href="#bibliotheques"><span data-i="nb">Bibliothèques</span></a>
+    <a class="l" href="#captures"><span data-i="nc">Captures</span></a>
+    <a class="l" href="#lycee"><span data-i="nl">Lycée & MDL</span></a>
+    <a class="l" href="#telecharger"><span data-i="nt">Télécharger</span></a>
+    <a class="l" id="navNotice" href="notice/index.html"><span data-i="nn">Notice</span></a>
     <a class="l" href="https://github.com/Deltapassion/PDF-DUO">GitHub</a>
-    <a class="give" href="https://ko-fi.com/djlatinjazz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4h2c.7-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg><span>Faire un don</span></a>
+    <select id="lang" class="langsel" aria-label="Langue / Language">
+      <option value="fr">🇫🇷 FR</option><option value="en">🇬🇧 EN</option><option value="es">🇪🇸 ES</option>
+      <option value="pt">🇵🇹 PT</option><option value="de">🇩🇪 DE</option><option value="it">🇮🇹 IT</option>
+    </select>
+    <a class="give" href="https://ko-fi.com/djlatinjazz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4h2c.7-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg><span><span data-i="don">Faire un don</span></span></a>
   </nav>
   <div class="inner">
-    <span class="kicker">Version 1.0.0 · Logiciel libre · Windows · Linux · macOS</span>
+    <span class="kicker"><span data-i="kick">Version 1.0.0 · Logiciel libre · Windows · Linux · macOS</span></span>
     <h1>PDF DUO</h1>
-    <p class="lead">Lire, annoter, signer et remplir des PDF. Dessiner des schémas électriques, pneumatiques, réseau, des GRAFCET et des plans de logement. Convertir Word et ODF dans les deux sens. Pensé pour la classe, gratuit pour tous.</p>
+    <p class="lead"><span data-i="lead">Lire, annoter, signer et remplir des PDF. Dessiner des schémas électriques, pneumatiques, réseau, des GRAFCET et des plans de logement. Convertir Word et ODF dans les deux sens. Pensé pour la classe, gratuit pour tous.</span></p>
     <div class="btns">
       <a class="btn primary dlmain-h" id="heroDl" href="#telecharger">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg>
         <span class="dltxt">Télécharger</span>
       </a>
-      <a class="btn ghost" href="https://github.com/Deltapassion/PDF-DUO">Voir le code sur GitHub</a>
+      <a class="btn ghost" href="https://github.com/Deltapassion/PDF-DUO"><span data-i="code">Voir le code sur GitHub</span></a>
     </div>
     <p class="osnote" id="heroNote"><a href="#telecharger">Toutes les versions : Windows, macOS, Linux</a></p>
   </div>
@@ -210,65 +218,65 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 
 <section id="fonctions">
   <div class="wrap">
-    <h2>Un seul logiciel, du PDF au schéma</h2>
-    <p class="sub">Les dessins sont enregistrés en vectoriel dans le PDF : nets à toutes les échelles, et encore modifiables quand on rouvre le fichier dans PDF DUO.</p>
+    <h2><span data-i="h2f">Un seul logiciel, du PDF au schéma</span></h2>
+    <p class="sub"><span data-i="subf">Les dessins sont enregistrés en vectoriel dans le PDF : nets à toutes les échelles, et encore modifiables quand on rouvre le fichier dans PDF DUO.</span></p>
     <div class="grid">
       <div class="card"><div class="ic" style="background:#e53935">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/></svg></div>
-        <h3>PDF complet</h3><p>Ouvrir, annoter, surligner, pages (fusionner, extraire, pivoter), impression, PDF protégés.</p></div>
+        <h3><span data-i="c1t">PDF complet</span></h3><p><span data-i="c1">Ouvrir, annoter, surligner, pages (fusionner, extraire, pivoter), impression, PDF protégés.</span></p></div>
       <div class="card"><div class="ic" style="background:#1f6fa8">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 17c2-6 4-7 5-3s3 4 4 1 3-6 4-3h5"/></svg></div>
-        <h3>Signature et formulaires</h3><p>Signature dessinée ou importée, champs texte, cases, listes, boutons radio, zones de signature et liens, remplissables.</p></div>
+        <h3><span data-i="c2t">Signature et formulaires</span></h3><p><span data-i="c2">Signature dessinée ou importée, champs texte, cases, listes, boutons radio, zones de signature et liens, remplissables.</span></p></div>
       <div class="card"><div class="ic" style="background:#2f6b4f">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 12h6m8 0h6M16 12 8 6"/></svg></div>
-        <h3>Schémas électriques</h3><p>Fils accrochés aux bornes, liaisons automatiques, jonctions, couleurs de conducteurs, repères KM1 et numéros de bornes.</p></div>
+        <h3><span data-i="c3t">Schémas électriques</span></h3><p><span data-i="c3">Fils accrochés aux bornes, liaisons automatiques, jonctions, couleurs de conducteurs, repères KM1 et numéros de bornes.</span></p></div>
       <div class="card"><div class="ic" style="background:#7e57c2">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="8" y="2" width="8" height="6"/><path d="M12 8v4M8 12h8M12 12v4"/><rect x="8" y="16" width="8" height="6"/></svg></div>
-        <h3>GRAFCET et algorigrammes</h3><p>Étapes, transitions, actions, divergences ET / OU ; <b>Ctrl+G</b> ajoute transition + étape déjà reliées et numérotées.</p></div>
+        <h3><span data-i="c4t">GRAFCET et algorigrammes</span></h3><p><span data-i="c4">Étapes, transitions, actions, divergences ET / OU ; <b>Ctrl+G</b> ajoute transition + étape déjà reliées et numérotées.</span></p></div>
       <div class="card"><div class="ic" style="background:#f57c00">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M3 21V9h18v12M3 9l9-6 9 6"/></svg></div>
-        <h3>Plans de logement</h3><p>Murs à l'échelle, cotes réelles, portes et fenêtres qui se posent seules dans les murs, symboles NF C 15-100.</p></div>
+        <h3><span data-i="c5t">Plans de logement</span></h3><p><span data-i="c5">Murs à l'échelle, cotes réelles, portes et fenêtres qui se posent seules dans les murs, symboles NF C 15-100.</span></p></div>
       <div class="card"><div class="ic" style="background:#00897b">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M4 7h16M4 12h10M4 17h7"/><path d="m17 14 3 3-3 3"/></svg></div>
-        <h3>Word ↔ PDF ↔ ODF</h3><p>Conversions dans les deux sens avec LibreOffice et pdf2docx ; images vers PDF, pages vers PNG.</p></div>
+        <h3>Word ↔ PDF ↔ ODF</h3><p><span data-i="c6">Conversions dans les deux sens avec LibreOffice et pdf2docx ; images vers PDF, pages vers PNG.</span></p></div>
       <div class="card"><div class="ic" style="background:#455a64">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="8"/></svg></div>
-        <h3>Précis</h3><p>Grille aimantée, rotation libre sur 360°, miroir, agrandissement proportionnel, capture de zone et copier-coller vers Word.</p></div>
+        <h3><span data-i="c7t">Précis</span></h3><p><span data-i="c7">Grille aimantée, rotation libre sur 360°, miroir, agrandissement proportionnel, capture de zone et copier-coller vers Word.</span></p></div>
       <div class="card"><div class="ic" style="background:#d81b60">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></svg></div>
-        <h3>Six langues</h3><p>Français, anglais, espagnol, portugais, allemand, italien. Thèmes clair, sombre, bleu nuit, sable.</p></div>
+        <h3><span data-i="c8t">Six langues</span></h3><p><span data-i="c8">Français, anglais, espagnol, portugais, allemand, italien. Thèmes clair, sombre, bleu nuit, sable.</span></p></div>
     </div>
   </div>
 </section>
 
 <section id="lycee">
   <div class="wrap">
-    <h2>Pour la classe… et pour tout le lycée</h2>
-    <p class="sub">Gratuit, sans compte et installable sur tous les postes : PDF DUO sert aux élèves et aux professeurs, mais aussi à la vie du lycée.</p>
+    <h2><span data-i="h2l">Pour la classe… et pour tout le lycée</span></h2>
+    <p class="sub"><span data-i="subl">Gratuit, sans compte et installable sur tous les postes : PDF DUO sert aux élèves et aux professeurs, mais aussi à la vie du lycée.</span></p>
     <div class="uses">
-      <div class="use"><span class="tag">Élèves et professeurs</span><h3>Bacs pro MELEC et CIEL</h3>
-        <p>Schémas électriques et pneumatiques, plans d'installation, GRAFCET, réseau, sciences : des documents propres, rendus en PDF ou imprimés.</p></div>
-      <div class="use"><span class="tag">Maison des lycéens</span><h3>La MDL</h3>
-        <p>Affiches et flyers en PDF, bulletins d'adhésion à remplir, autorisations et comptes rendus signés, conversion des documents Word du bureau de la MDL.</p></div>
-      <div class="use"><span class="tag">Vie scolaire et CDI</span><h3>Tous les services</h3>
-        <p>Remplir et signer un formulaire, fusionner ou découper des PDF, convertir un fichier Word ou LibreOffice, sans logiciel payant.</p></div>
+      <div class="use"><span class="tag"><span data-i="u1g">Élèves et professeurs</span></span><h3><span data-i="u1t">Bacs pro MELEC et CIEL</span></h3>
+        <p><span data-i="u1">Schémas électriques et pneumatiques, plans d'installation, GRAFCET, réseau, sciences : des documents propres, rendus en PDF ou imprimés.</span></p></div>
+      <div class="use"><span class="tag"><span data-i="u2g">Maison des lycéens</span></span><h3><span data-i="u2t">La MDL</span></h3>
+        <p><span data-i="u2">Affiches et flyers en PDF, bulletins d'adhésion à remplir, autorisations et comptes rendus signés, conversion des documents Word du bureau de la MDL.</span></p></div>
+      <div class="use"><span class="tag"><span data-i="u3g">Vie scolaire et CDI</span></span><h3><span data-i="u3t">Tous les services</span></h3>
+        <p><span data-i="u3">Remplir et signer un formulaire, fusionner ou découper des PDF, convertir un fichier Word ou LibreOffice, sans logiciel payant.</span></p></div>
     </div>
   </div>
 </section>
 
 <section id="bibliotheques" style="background:#101822;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
   <div class="wrap">
-    <h2>Plus de 360 symboles prêts à poser</h2>
-    <p class="sub">Dessinés d'après les fiches utilisées en lycée professionnel (bacs pro MELEC et CIEL), et complétés au fil des retours d'un enseignant.</p>
+    <h2><span data-i="h2b">Plus de 360 symboles prêts à poser</span></h2>
+    <p class="sub"><span data-i="subb">Dessinés d'après les fiches utilisées en lycée professionnel (bacs pro MELEC et CIEL), et complétés au fil des retours d'un enseignant.</span></p>
     <div class="libs" style="margin-bottom:34px">
-      <span class="chip">Électricité – schémas</span><span class="chip">Triphasé / puissance</span>
-      <span class="chip">Tableau / protection</span><span class="chip">Domestique (schéma développé)</span>
-      <span class="chip">Plan électrique – logement</span><span class="chip">Architecture</span>
-      <span class="chip">Fonctions logiques / logigramme</span><span class="chip">GRAFCET</span>
-      <span class="chip">Algorigramme</span><span class="chip">Carte mentale</span>
-      <span class="chip">Réseau informatique (CIEL)</span><span class="chip">Pneumatique ISO 1219</span>
-      <span class="chip">Aéronautique – câblage</span><span class="chip">Appareils de mesure</span>
-      <span class="chip">Chimie (verrerie)</span><span class="chip">Optique</span><span class="chip">Mécanique</span>
+      <span class="chip"><span data-i="k1">Électricité – schémas</span></span><span class="chip"><span data-i="k2">Triphasé / puissance</span></span>
+      <span class="chip"><span data-i="k3">Tableau / protection</span></span><span class="chip"><span data-i="k4">Domestique (schéma développé)</span></span>
+      <span class="chip"><span data-i="k5">Plan électrique – logement</span></span><span class="chip"><span data-i="k6">Architecture</span></span>
+      <span class="chip"><span data-i="k7">Fonctions logiques / logigramme</span></span><span class="chip">GRAFCET</span>
+      <span class="chip"><span data-i="k9">Algorigramme</span></span><span class="chip"><span data-i="k10">Carte mentale</span></span>
+      <span class="chip"><span data-i="k11">Réseau informatique (CIEL)</span></span><span class="chip">Pneumatique ISO 1219</span>
+      <span class="chip"><span data-i="k13">Aéronautique – câblage</span></span><span class="chip"><span data-i="k14">Appareils de mesure</span></span>
+      <span class="chip"><span data-i="k15">Chimie (verrerie)</span></span><span class="chip"><span data-i="k16">Optique</span></span><span class="chip"><span data-i="k17">Mécanique</span></span>
     </div>
     <div class="plates">
       <img src="captures/planche-4.png" alt="Planche triphasé et puissance" loading="lazy">
@@ -281,44 +289,44 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 
 <section id="captures">
   <div class="wrap">
-    <h2>En images</h2>
-    <p class="sub">Exemples fournis avec le logiciel : démarrage deux sens de marche, GRAFCET et carte mentale, vidéosurveillance sur fibre.</p>
+    <h2><span data-i="h2c">En images</span></h2>
+    <p class="sub"><span data-i="subc">Exemples fournis avec le logiciel : démarrage deux sens de marche, GRAFCET et carte mentale, vidéosurveillance sur fibre.</span></p>
     <div class="shots">
       <figure class="big"><img src="captures/interface-schema.jpg" alt="Interface : schéma d'inversion de sens de marche" loading="lazy">
-        <figcaption>Thème clair : démarrage direct deux sens de marche, puissance et commande.</figcaption></figure>
+        <figcaption><span data-i="f1">Thème clair : démarrage direct deux sens de marche, puissance et commande.</span></figcaption></figure>
       <figure><img src="captures/interface-grafcet.jpg" alt="Interface : GRAFCET, algorigramme et carte mentale" loading="lazy">
-        <figcaption>Thème sombre : GRAFCET, algorigramme, carte mentale.</figcaption></figure>
+        <figcaption><span data-i="f2">Thème sombre : GRAFCET, algorigramme, carte mentale.</span></figcaption></figure>
       <figure><img src="captures/interface-reseau.jpg" alt="Interface : schéma réseau de vidéosurveillance" loading="lazy">
-        <figcaption>Thème bleu nuit : réseau de vidéosurveillance (section CIEL).</figcaption></figure>
+        <figcaption><span data-i="f3">Thème bleu nuit : réseau de vidéosurveillance (section CIEL).</span></figcaption></figure>
     </div>
   </div>
 </section>
 
 <section id="telecharger" class="dl">
   <div class="wrap">
-    <h2>Télécharger PDF DUO</h2>
-    <p class="sub">Gratuit, sans publicité, sans compte. Conversion Word → PDF intégrée ; pour une conversion la plus fidèle et pour l'ODT, installer aussi <a href="https://fr.libreoffice.org/">LibreOffice</a> (gratuit).</p>
+    <h2><span data-i="h2d">Télécharger PDF DUO</span></h2>
+    <p class="sub"><span data-i="subd">Gratuit, sans publicité, sans compte. Conversion Word → PDF intégrée ; pour une conversion la plus fidèle et pour l'ODT, installer aussi <a href="https://fr.libreoffice.org/">LibreOffice</a> (gratuit).</span></p>
     <div class="mainrow"><a class="btn big dlmain" id="mainDl" href="#telecharger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12m0 0-5-5m5 5 5-5M4 19h16"/></svg><span class="dltxt">Télécharger</span></a><span class="alt" id="mainAlt">Choisissez votre système ci-dessous.</span></div>
-    <div class="counter" id="counter" hidden>⬇ <b id="total">—</b> <span>téléchargements</span></div>
+    <div class="counter" id="counter" hidden>⬇ <b id="total">—</b> <span><span data-i="cnt">téléchargements</span></span></div>
     <div class="dlgrid">
       <a class="dlc" data-os="win" data-asset="PDF-DUO-Windows-Setup.exe" href="https://github.com/Deltapassion/PDF-DUO/releases/latest/download/PDF-DUO-Windows-Setup.exe">
-        <span class="os"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10 4.5v7H3zM11 4.3 21 3v8.5H11zM3 12.5h7v7l-7-1zM11 12.5h10V21l-10-1.4z"/></svg><strong>Windows</strong><span class="badge">Pour vous</span></span><span>Installeur (.exe) — Windows 10 et 11, raccourcis menu Démarrer et bureau</span><em></em></a>
+        <span class="os"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10 4.5v7H3zM11 4.3 21 3v8.5H11zM3 12.5h7v7l-7-1zM11 12.5h10V21l-10-1.4z"/></svg><strong>Windows</strong><span class="badge"><span data-i="badge">Pour vous</span></span></span><span><span data-i="w1">Installeur (.exe) — Windows 10 et 11, raccourcis menu Démarrer et bureau</span></span><em></em></a>
       <a class="dlc" data-os="win-zip" data-asset="PDF-DUO-Windows.zip" href="https://github.com/Deltapassion/PDF-DUO/releases/latest/download/PDF-DUO-Windows.zip">
-        <span class="os"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10 4.5v7H3zM11 4.3 21 3v8.5H11zM3 12.5h7v7l-7-1zM11 12.5h10V21l-10-1.4z"/></svg><strong>Windows portable</strong><span class="badge">Pour vous</span></span><span>Archive .zip sans installation : décompresser puis lancer « PDF DUO.exe »</span><em></em></a>
+        <span class="os"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5 10 4.5v7H3zM11 4.3 21 3v8.5H11zM3 12.5h7v7l-7-1zM11 12.5h10V21l-10-1.4z"/></svg><strong>Windows portable</strong><span class="badge"><span data-i="badge">Pour vous</span></span></span><span><span data-i="w2">Archive .zip sans installation : décompresser puis lancer « PDF DUO.exe »</span></span><em></em></a>
       <a class="dlc" data-os="deb" data-asset="pdf-duo_amd64.deb" href="https://github.com/Deltapassion/PDF-DUO/releases/latest/download/pdf-duo_amd64.deb">
-        <span class="os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2 0-3 2-3 4.5 0 2-1.5 3-2.5 5S4 17 5.5 18.5 9 20 12 20s5-0 6.5-1.5S19 14.5 17.5 12.5 15 9.5 15 7.5C15 5 14 3 12 3z"/><circle cx="10.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="13.5" cy="7.5" r=".6" fill="currentColor"/></svg><strong>Linux .deb</strong><span class="badge">Pour vous</span></span><span>Debian, Ubuntu, Linux Mint — double-clic pour installer</span><em></em></a>
+        <span class="os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2 0-3 2-3 4.5 0 2-1.5 3-2.5 5S4 17 5.5 18.5 9 20 12 20s5-0 6.5-1.5S19 14.5 17.5 12.5 15 9.5 15 7.5C15 5 14 3 12 3z"/><circle cx="10.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="13.5" cy="7.5" r=".6" fill="currentColor"/></svg><strong>Linux .deb</strong><span class="badge"><span data-i="badge">Pour vous</span></span></span><span><span data-i="l1">Debian, Ubuntu, Linux Mint — double-clic pour installer</span></span><em></em></a>
       <a class="dlc" data-os="appimage" data-asset="PDF-DUO-x86_64.AppImage" href="https://github.com/Deltapassion/PDF-DUO/releases/latest/download/PDF-DUO-x86_64.AppImage">
-        <span class="os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2 0-3 2-3 4.5 0 2-1.5 3-2.5 5S4 17 5.5 18.5 9 20 12 20s5-0 6.5-1.5S19 14.5 17.5 12.5 15 9.5 15 7.5C15 5 14 3 12 3z"/><circle cx="10.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="13.5" cy="7.5" r=".6" fill="currentColor"/></svg><strong>Linux AppImage</strong><span class="badge">Pour vous</span></span><span>Toutes distributions : rendre exécutable puis lancer</span><em></em></a>
+        <span class="os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2 0-3 2-3 4.5 0 2-1.5 3-2.5 5S4 17 5.5 18.5 9 20 12 20s5-0 6.5-1.5S19 14.5 17.5 12.5 15 9.5 15 7.5C15 5 14 3 12 3z"/><circle cx="10.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="13.5" cy="7.5" r=".6" fill="currentColor"/></svg><strong>Linux AppImage</strong><span class="badge"><span data-i="badge">Pour vous</span></span></span><span><span data-i="l2">Toutes distributions : rendre exécutable puis lancer</span></span><em></em></a>
       <a class="dlc" data-os="targz" data-asset="PDF-DUO-Linux-x86_64.tar.gz" href="https://github.com/Deltapassion/PDF-DUO/releases/latest/download/PDF-DUO-Linux-x86_64.tar.gz">
-        <span class="os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2 0-3 2-3 4.5 0 2-1.5 3-2.5 5S4 17 5.5 18.5 9 20 12 20s5-0 6.5-1.5S19 14.5 17.5 12.5 15 9.5 15 7.5C15 5 14 3 12 3z"/><circle cx="10.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="13.5" cy="7.5" r=".6" fill="currentColor"/></svg><strong>Linux .tar.gz</strong><span class="badge">Pour vous</span></span><span>Archive portable : décompresser puis lancer « PDF DUO »</span><em></em></a>
+        <span class="os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-2 0-3 2-3 4.5 0 2-1.5 3-2.5 5S4 17 5.5 18.5 9 20 12 20s5-0 6.5-1.5S19 14.5 17.5 12.5 15 9.5 15 7.5C15 5 14 3 12 3z"/><circle cx="10.5" cy="7.5" r=".6" fill="currentColor"/><circle cx="13.5" cy="7.5" r=".6" fill="currentColor"/></svg><strong>Linux .tar.gz</strong><span class="badge"><span data-i="badge">Pour vous</span></span></span><span><span data-i="l3">Archive portable : décompresser puis lancer « PDF DUO »</span></span><em></em></a>
       <a class="dlc" data-os="mac-arm" data-asset="PDF-DUO-macOS-AppleSilicon.zip" href="https://github.com/Deltapassion/PDF-DUO/releases/latest/download/PDF-DUO-macOS-AppleSilicon.zip">
-        <span class="os"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.3 5.6 8.2 4.8 9.6c-1.6 2.8-.4 6.9 1.2 9.1.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7s1.7.7 2.9.7 2-1.1 2.7-2.2c.9-1.3 1.2-2.5 1.2-2.6 0 0-2-.8-2-3.6zM14.3 5.6c.6-.7 1-1.7.9-2.6-.9 0-1.9.6-2.6 1.3-.6.6-1.1 1.6-.9 2.5 1 .1 2-.5 2.6-1.2z"/></svg><strong>macOS Apple Silicon</strong><span class="badge">Pour vous</span></span><span>Mac M1, M2, M3, M4… — glisser dans Applications, puis clic droit › Ouvrir</span><em></em></a>
+        <span class="os"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.3 5.6 8.2 4.8 9.6c-1.6 2.8-.4 6.9 1.2 9.1.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7s1.7.7 2.9.7 2-1.1 2.7-2.2c.9-1.3 1.2-2.5 1.2-2.6 0 0-2-.8-2-3.6zM14.3 5.6c.6-.7 1-1.7.9-2.6-.9 0-1.9.6-2.6 1.3-.6.6-1.1 1.6-.9 2.5 1 .1 2-.5 2.6-1.2z"/></svg><strong>macOS Apple Silicon</strong><span class="badge"><span data-i="badge">Pour vous</span></span></span><span><span data-i="m1">Mac M1, M2, M3, M4… — glisser dans Applications, puis clic droit › Ouvrir</span></span><em></em></a>
       <a class="dlc" data-os="mac-intel" data-asset="PDF-DUO-macOS-Intel.zip" href="https://github.com/Deltapassion/PDF-DUO/releases/latest/download/PDF-DUO-macOS-Intel.zip">
-        <span class="os"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.3 5.6 8.2 4.8 9.6c-1.6 2.8-.4 6.9 1.2 9.1.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7s1.7.7 2.9.7 2-1.1 2.7-2.2c.9-1.3 1.2-2.5 1.2-2.6 0 0-2-.8-2-3.6zM14.3 5.6c.6-.7 1-1.7.9-2.6-.9 0-1.9.6-2.6 1.3-.6.6-1.1 1.6-.9 2.5 1 .1 2-.5 2.6-1.2z"/></svg><strong>macOS Intel</strong><span class="badge">Pour vous</span></span><span>Mac à processeur Intel — glisser dans Applications, puis clic droit › Ouvrir</span><em></em></a>
+        <span class="os"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.5 12.6c0-2.4 2-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.9-3.5.9s-1.8-.9-3-.8C7 7.3 5.6 8.2 4.8 9.6c-1.6 2.8-.4 6.9 1.2 9.1.8 1.1 1.7 2.3 2.8 2.3 1.1 0 1.6-.7 2.9-.7s1.7.7 2.9.7 2-1.1 2.7-2.2c.9-1.3 1.2-2.5 1.2-2.6 0 0-2-.8-2-3.6zM14.3 5.6c.6-.7 1-1.7.9-2.6-.9 0-1.9.6-2.6 1.3-.6.6-1.1 1.6-.9 2.5 1 .1 2-.5 2.6-1.2z"/></svg><strong>macOS Intel</strong><span class="badge"><span data-i="badge">Pour vous</span></span></span><span><span data-i="m2">Mac à processeur Intel — glisser dans Applications, puis clic droit › Ouvrir</span></span><em></em></a>
       <a class="dlc" href="https://github.com/Deltapassion/PDF-DUO/releases/latest">
-        <span class="os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5"/></svg><strong>Toutes les versions</strong></span><span>Notes de version, code source, anciennes versions</span></a>
+        <span class="os"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m8 7-5 5 5 5M16 7l5 5-5 5"/></svg><strong><span data-i="allt">Toutes les versions</span></strong></span><span><span data-i="all">Notes de version, code source, anciennes versions</span></span></a>
     </div>
-    <h3 id="notice" style="margin:6px 0 4px">Notice d'utilisation</h3>
+    <h3 id="notice" style="margin:6px 0 4px"><span data-i="nh">Notice d'utilisation</span></h3>
     <div class="notices">
       <a href="notice/index.html?lang=fr">🇫🇷 Français</a>
       <a href="notice/index.html?lang=en">🇬🇧 English</a>
@@ -327,12 +335,12 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
       <a href="notice/index.html?lang=de">🇩🇪 Deutsch</a>
       <a href="notice/index.html?lang=it">🇮🇹 Italiano</a>
     </div>
-    <p style="margin-top:-14px;font-size:14px;color:#cfe0ee">Chaque notice existe aussi en PDF ; elle est incluse dans le logiciel (Aide › Notice d'utilisation, touche F1).</p>
-    <p><b>Sans installeur, avec Python 3.9 ou plus :</b></p>
+    <p style="margin-top:-14px;font-size:14px;color:#cfe0ee"><span data-i="np">Chaque notice existe aussi en PDF ; elle est incluse dans le logiciel (Aide › Notice d'utilisation, touche F1).</span></p>
+    <p><b><span data-i="py">Sans installeur, avec Python 3.9 ou plus :</span></b></p>
     <ol>
-      <li>Télécharger le code source et le décompresser.</li>
-      <li>Dans le dossier, lancer <code>pip install -r requirements.txt</code></li>
-      <li>Puis <code>python pdfduo.py</code> (ou double-clic sur <code>lancer-windows.bat</code>).</li>
+      <li><span data-i="py1">Télécharger le code source et le décompresser.</span></li>
+      <li><span data-i="py2">Dans le dossier, lancer <code>pip install -r requirements.txt</code></span></li>
+      <li><span data-i="py3">Puis <code>python pdfduo.py</code> (ou double-clic sur <code>lancer-windows.bat</code>).</span></li>
     </ol>
   </div>
 </section>
@@ -341,14 +349,14 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   <div class="wrap">
     <div class="support">
       <div class="big"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4h2c.7-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg></div>
-      <div><div class="k">Soutenir</div>
-        <h2>PDF DUO est gratuit et le restera</h2>
-        <p>Si le logiciel vous rend service, en classe, à la MDL ou ailleurs, un petit don aide à le faire évoluer : nouveaux symboles, nouvelles langues, corrections.</p>
-        <small>Dons sur Ko-fi : montant libre, par carte bancaire ou PayPal, sans créer de compte.</small></div>
+      <div><div class="k"><span data-i="sk">Soutenir</span></div>
+        <h2><span data-i="sh">PDF DUO est gratuit et le restera</span></h2>
+        <p><span data-i="sp">Si le logiciel vous rend service, en classe, à la MDL ou ailleurs, un petit don aide à le faire évoluer : nouveaux symboles, nouvelles langues, corrections.</span></p>
+        <small><span data-i="ss">Dons sur Ko-fi : montant libre, par carte bancaire ou PayPal, sans créer de compte.</span></small></div>
       <div class="sbtn">
-        <a class="btn pri" href="https://ko-fi.com/djlatinjazz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:20px;height:20px"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4h2c.7-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg><span>Faire un don sur Ko-fi</span></a>
-        <a class="btn soft" href="https://github.com/Deltapassion/PDF-DUO" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9L12 2.8Z"/></svg><span>Une étoile sur GitHub</span></a>
-        <a class="btn soft" href="https://github.com/Deltapassion/PDF-DUO/issues/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="13" rx="5"/><path d="M12 11v9M9 4l1.5 3M15 4l-1.5 3M3 12h4M17 12h4M4 18l3.5-2M20 18l-3.5-2M4 7l3.5 2M20 7l-3.5 2"/></svg><span>Signaler un bug</span></a>
+        <a class="btn pri" href="https://ko-fi.com/djlatinjazz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="width:20px;height:20px"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4h2c.7-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg><span><span data-i="kofi">Faire un don sur Ko-fi</span></span></a>
+        <a class="btn soft" href="https://github.com/Deltapassion/PDF-DUO" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 2.8 2.8 5.8 6.3.9-4.6 4.4 1.1 6.3L12 17.2l-5.6 3 1.1-6.3L2.9 9.5l6.3-.9L12 2.8Z"/></svg><span><span data-i="star">Une étoile sur GitHub</span></span></a>
+        <a class="btn soft" href="https://github.com/Deltapassion/PDF-DUO/issues/new" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="7" y="7" width="10" height="13" rx="5"/><path d="M12 11v9M9 4l1.5 3M15 4l-1.5 3M3 12h4M17 12h4M4 18l3.5-2M20 18l-3.5-2M4 7l3.5 2M20 7l-3.5 2"/></svg><span><span data-i="bug">Signaler un bug</span></span></a>
       </div>
     </div>
   </div>
@@ -359,19 +367,19 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
     <a class="platine" href="https://deltapassion.github.io/Platine-Duo/" target="_blank" rel="noopener">
       <div class="disc" aria-hidden="true"><span></span></div>
       <div class="txt">
-        <span class="tag">Du même auteur</span>
+        <span class="tag"><span data-i="same">Du même auteur</span></span>
         <h3>Platine Duo</h3>
-        <p>Le logiciel libre de mix DJ de DJ LATIN JAZZ, créé lui aussi avec Claude.ai : mix sur 2 ou 4 voies, contrôleurs DJ, mode timeline avec export WAV et MP3. Gratuit, pour Windows, Linux et macOS.</p>
+        <p><span data-i="pd">Le logiciel libre de mix DJ de DJ LATIN JAZZ, créé lui aussi avec Claude.ai : mix sur 2 ou 4 voies, contrôleurs DJ, mode timeline avec export WAV et MP3. Gratuit, pour Windows, Linux et macOS.</span></p>
       </div>
-      <span class="go">Découvrir Platine Duo →</span>
+      <span class="go"><span data-i="pdgo">Découvrir Platine Duo →</span></span>
     </a>
   </div>
 </section>
 
 <footer>
   <div class="wrap">
-    <span>PDF DUO — Jacques Branas, en collaboration avec Claude.ai · Licence GNU GPL v3</span>
-    <span>Du même auteur : <a href="https://deltapassion.github.io/Platine-Duo/">Platine Duo</a> · Contact : <a href="mailto:deltapassion@gmx.com">deltapassion@gmx.com</a></span>
+    <span><span data-i="ft1">PDF DUO — Jacques Branas, en collaboration avec Claude.ai · Licence GNU GPL v3</span></span>
+    <span><span data-i="ft2">Du même auteur : <a href="https://deltapassion.github.io/Platine-Duo/">Platine Duo</a> · Contact : <a href="mailto:deltapassion@gmx.com">deltapassion@gmx.com</a></span></span>
   </div>
 </footer>
 
@@ -380,18 +388,24 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   <div class="box">
     <button class="x" aria-label="Fermer" data-close>×</button>
     <div class="heart"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4h2c.7-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg></div>
-    <h3 id="donT">Merci de télécharger PDF DUO !</h3>
-    <p>Le téléchargement démarre. PDF DUO est gratuit, libre et sans publicité : si le logiciel vous rend service, un petit don aide à ajouter des symboles, des langues et des corrections.</p>
-    <a class="btn pri" href="https://ko-fi.com/djlatinjazz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4h2c.7-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg><span>Faire un don sur Ko-fi</span></a>
-    <button class="later" data-close>Non merci, peut-être plus tard</button>
+    <h3 id="donT"><span data-i="mt">Merci de télécharger PDF DUO !</span></h3>
+    <p><span data-i="mp">Le téléchargement démarre. PDF DUO est gratuit, libre et sans publicité : si le logiciel vous rend service, un petit don aide à ajouter des symboles, des langues et des corrections.</span></p>
+    <a class="btn pri" href="https://ko-fi.com/djlatinjazz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.1 0 3.6 1.1 4.3 2.4h2c.7-1.3 2.2-2.4 4.3-2.4 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21Z"/></svg><span><span data-i="kofi">Faire un don sur Ko-fi</span></span></a>
+    <button class="later" data-close><span data-i="ml">Non merci, peut-être plus tard</span></button>
   </div>
 </div>
 
 <script>
 (function(){
+  var T = {"en": {"nf": "Features", "nb": "Libraries", "nc": "Screenshots", "nl": "School & clubs", "nt": "Download", "nn": "User guide", "don": "Donate", "kick": "Version 1.0.0 · Free software · Windows · Linux · macOS", "lead": "Read, annotate, sign and fill in PDFs. Draw electrical, pneumatic and network diagrams, GRAFCETs and floor plans. Convert Word and ODF both ways. Designed for the classroom, free for everyone.", "code": "View the code on GitHub", "h2f": "One program, from PDF to diagram", "subf": "Drawings are saved as vectors in the PDF: sharp at any scale, and still editable when the file is reopened in PDF DUO.", "c1t": "Full PDF", "c1": "Open, annotate, highlight, pages (merge, extract, rotate), printing, protected PDFs.", "c2t": "Signature and forms", "c2": "Drawn or imported signature, text fields, check boxes, lists, radio buttons, signature areas and links, all fillable.", "c3t": "Electrical diagrams", "c3": "Wires attached to terminals, automatic connections, junctions, conductor colours, KM1 labels and terminal numbers.", "c4t": "GRAFCET and flowcharts", "c4": "Steps, transitions, actions, AND / OR divergences; <b>Ctrl+G</b> adds a transition + step, already connected and numbered.", "c5t": "Floor plans", "c5": "Walls to scale, real dimensions, doors and windows that fit into walls by themselves, NF C 15-100 symbols.", "c6": "Conversions both ways with LibreOffice and pdf2docx; images to PDF, pages to PNG.", "c7t": "Precise", "c7": "Snap grid, free 360° rotation, mirror, proportional resizing, area capture and copy-paste into Word.", "c8t": "Six languages", "c8": "French, English, Spanish, Portuguese, German, Italian. Light, dark, midnight blue and sand themes.", "h2l": "For the classroom… and the whole school", "subl": "Free, no account, installable on every computer: PDF DUO serves students and teachers, and school life too.", "u1g": "Students and teachers", "u1t": "Vocational electrical and IT courses", "u1": "Electrical and pneumatic diagrams, installation plans, GRAFCET, networks, science: clean documents, handed in as PDF or printed.", "u2g": "Student association", "u2t": "Student clubs", "u2": "Posters and flyers as PDF, membership forms to fill in, signed permissions and minutes, conversion of the committee's Word documents.", "u3g": "School office and library", "u3t": "All departments", "u3": "Fill in and sign a form, merge or split PDFs, convert a Word or LibreOffice file, without paid software.", "h2b": "Over 360 symbols ready to place", "subb": "Drawn from the worksheets used in French vocational schools (electrical and IT courses), and refined with a teacher's feedback.", "k1": "Electrical – diagrams", "k2": "Three-phase / power", "k3": "Switchboard / protection", "k4": "Domestic (schematic)", "k5": "Electrical floor plan", "k6": "Architecture", "k7": "Logic functions / logic diagram", "k9": "Flowchart", "k10": "Mind map", "k11": "Computer network", "k13": "Aircraft wiring", "k14": "Measuring instruments", "k15": "Chemistry (glassware)", "k16": "Optics", "k17": "Mechanics", "h2c": "In pictures", "subc": "Examples supplied with the program: two-direction motor starter, GRAFCET and mind map, CCTV over fibre.", "f1": "Light theme: direct-on-line reversing starter, power and control.", "f2": "Dark theme: GRAFCET, flowchart, mind map.", "f3": "Midnight blue theme: CCTV network.", "h2d": "Download PDF DUO", "subd": "Free, no ads, no account. Built-in Word → PDF conversion; for the most faithful conversion and for ODT, also install <a href=\"https://www.libreoffice.org/\">LibreOffice</a> (free).", "cnt": "downloads", "w1": "Installer (.exe) — Windows 10 and 11, Start menu and desktop shortcuts", "w2": ".zip archive, no installation: unzip and run “PDF DUO.exe”", "l1": "Debian, Ubuntu, Linux Mint — double-click to install", "l2": "All distributions: make executable, then run", "l3": "Portable archive: unpack and run “PDF DUO”", "m1": "Mac M1, M2, M3, M4… — drag to Applications, then right-click › Open", "m2": "Intel Mac — drag to Applications, then right-click › Open", "allt": "All versions", "all": "Release notes, source code, older versions", "badge": "For you", "nh": "User guide", "np": "Each guide is also available as a PDF, and is included in the program (Help › User guide, F1 key).", "py": "Without an installer, with Python 3.9 or later:", "py1": "Download the source code and unzip it.", "py2": "In the folder, run <code>pip install -r requirements.txt</code>", "py3": "Then <code>python pdfduo.py</code> (or double-click <code>lancer-windows.bat</code>).", "sk": "Support", "sh": "PDF DUO is free and will stay free", "sp": "If the program helps you, in class, in school clubs or elsewhere, a small donation helps it grow: new symbols, new languages, fixes.", "ss": "Donations on Ko-fi: any amount, by card or PayPal, no account needed.", "kofi": "Donate on Ko-fi", "star": "Star it on GitHub", "bug": "Report a bug", "same": "By the same author", "pd": "DJ LATIN JAZZ's free DJ mixing software, also made with Claude.ai: 2 or 4-deck mixing, DJ controllers, timeline mode with WAV and MP3 export. Free, for Windows, Linux and macOS.", "pdgo": "Discover Platine Duo →", "ft1": "PDF DUO — Jacques Branas, in collaboration with Claude.ai · GNU GPL v3 licence", "ft2": "By the same author: <a href=\"https://deltapassion.github.io/Platine-Duo/\">Platine Duo</a> · Contact: <a href=\"mailto:deltapassion@gmx.com\">deltapassion@gmx.com</a>", "mt": "Thank you for downloading PDF DUO!", "mp": "Your download is starting. PDF DUO is free, open and ad-free: if it helps you, a small donation helps add symbols, languages and fixes.", "ml": "No thanks, maybe later"}, "es": {"nf": "Funciones", "nb": "Bibliotecas", "nc": "Capturas", "nl": "Centro y alumnos", "nt": "Descargar", "nn": "Manual", "don": "Donar", "kick": "Versión 1.0.0 · Software libre · Windows · Linux · macOS", "lead": "Leer, anotar, firmar y rellenar PDF. Dibujar esquemas eléctricos, neumáticos y de red, GRAFCET y planos de vivienda. Convertir Word y ODF en ambos sentidos. Pensado para el aula, gratuito para todos.", "code": "Ver el código en GitHub", "h2f": "Un solo programa, del PDF al esquema", "subf": "Los dibujos se guardan en vectorial en el PDF: nítidos a cualquier escala y todavía editables al reabrir el archivo en PDF DUO.", "c1t": "PDF completo", "c1": "Abrir, anotar, resaltar, páginas (unir, extraer, girar), impresión, PDF protegidos.", "c2t": "Firma y formularios", "c2": "Firma dibujada o importada, campos de texto, casillas, listas, botones de opción, zonas de firma y enlaces, rellenables.", "c3t": "Esquemas eléctricos", "c3": "Cables unidos a los bornes, conexiones automáticas, uniones, colores de conductores, referencias KM1 y números de bornes.", "c4t": "GRAFCET y diagramas de flujo", "c4": "Etapas, transiciones, acciones, divergencias Y / O; <b>Ctrl+G</b> añade transición + etapa ya conectadas y numeradas.", "c5t": "Planos de vivienda", "c5": "Muros a escala, cotas reales, puertas y ventanas que se colocan solas en los muros, símbolos NF C 15-100.", "c6": "Conversiones en ambos sentidos con LibreOffice y pdf2docx; imágenes a PDF, páginas a PNG.", "c7t": "Preciso", "c7": "Cuadrícula magnética, rotación libre de 360°, espejo, ampliación proporcional, captura de zona y copiar-pegar en Word.", "c8t": "Seis idiomas", "c8": "Francés, inglés, español, portugués, alemán, italiano. Temas claro, oscuro, azul noche, arena.", "h2l": "Para el aula… y para todo el centro", "subl": "Gratuito, sin cuenta e instalable en todos los equipos: PDF DUO sirve a alumnos y profesores, y también a la vida del centro.", "u1g": "Alumnos y profesores", "u1t": "FP de electricidad e informática", "u1": "Esquemas eléctricos y neumáticos, planos de instalación, GRAFCET, redes, ciencias: documentos limpios, entregados en PDF o impresos.", "u2g": "Asociación de alumnos", "u2t": "La asociación", "u2": "Carteles y folletos en PDF, fichas de inscripción para rellenar, autorizaciones y actas firmadas, conversión de los documentos Word de la junta.", "u3g": "Secretaría y biblioteca", "u3t": "Todos los servicios", "u3": "Rellenar y firmar un formulario, unir o dividir PDF, convertir un archivo Word o LibreOffice, sin software de pago.", "h2b": "Más de 360 símbolos listos para colocar", "subb": "Dibujados a partir de las fichas usadas en formación profesional (electricidad e informática) y completados con las observaciones de un profesor.", "k1": "Electricidad – esquemas", "k2": "Trifásica / potencia", "k3": "Cuadro / protección", "k4": "Doméstica (esquema)", "k5": "Plano eléctrico – vivienda", "k6": "Arquitectura", "k7": "Funciones lógicas / logigrama", "k9": "Diagrama de flujo", "k10": "Mapa mental", "k11": "Red informática", "k13": "Aeronáutica – cableado", "k14": "Aparatos de medida", "k15": "Química (material de vidrio)", "k16": "Óptica", "k17": "Mecánica", "h2c": "En imágenes", "subc": "Ejemplos incluidos: arranque en dos sentidos de giro, GRAFCET y mapa mental, videovigilancia por fibra.", "f1": "Tema claro: arranque directo en dos sentidos, potencia y mando.", "f2": "Tema oscuro: GRAFCET, diagrama de flujo, mapa mental.", "f3": "Tema azul noche: red de videovigilancia.", "h2d": "Descargar PDF DUO", "subd": "Gratuito, sin publicidad, sin cuenta. Conversión Word → PDF integrada; para la conversión más fiel y para ODT, instale también <a href=\"https://es.libreoffice.org/\">LibreOffice</a> (gratuito).", "cnt": "descargas", "w1": "Instalador (.exe) — Windows 10 y 11, accesos en menú Inicio y escritorio", "w2": "Archivo .zip sin instalación: descomprimir y abrir «PDF DUO.exe»", "l1": "Debian, Ubuntu, Linux Mint — doble clic para instalar", "l2": "Todas las distribuciones: hacer ejecutable y abrir", "l3": "Archivo portable: descomprimir y abrir «PDF DUO»", "m1": "Mac M1, M2, M3, M4… — arrastrar a Aplicaciones y clic derecho › Abrir", "m2": "Mac con procesador Intel — arrastrar a Aplicaciones y clic derecho › Abrir", "allt": "Todas las versiones", "all": "Notas de versión, código fuente, versiones anteriores", "badge": "Para usted", "nh": "Manual de uso", "np": "Cada manual existe también en PDF y está incluido en el programa (Ayuda › Manual de uso, tecla F1).", "py": "Sin instalador, con Python 3.9 o superior:", "py1": "Descargar el código fuente y descomprimirlo.", "py2": "En la carpeta, ejecutar <code>pip install -r requirements.txt</code>", "py3": "Después <code>python pdfduo.py</code> (o doble clic en <code>lancer-windows.bat</code>).", "sk": "Apoyar", "sh": "PDF DUO es gratuito y lo seguirá siendo", "sp": "Si el programa le resulta útil, en clase, en la asociación de alumnos o en otro lugar, una pequeña donación ayuda a mejorarlo: nuevos símbolos, nuevos idiomas, correcciones.", "ss": "Donaciones en Ko-fi: importe libre, con tarjeta o PayPal, sin crear cuenta.", "kofi": "Donar en Ko-fi", "star": "Una estrella en GitHub", "bug": "Informar de un error", "same": "Del mismo autor", "pd": "El software libre de mezcla DJ de DJ LATIN JAZZ, creado también con Claude.ai: mezcla a 2 o 4 canales, controladores DJ, modo timeline con exportación WAV y MP3. Gratuito, para Windows, Linux y macOS.", "pdgo": "Descubrir Platine Duo →", "ft1": "PDF DUO — Jacques Branas, en colaboración con Claude.ai · Licencia GNU GPL v3", "ft2": "Del mismo autor: <a href=\"https://deltapassion.github.io/Platine-Duo/\">Platine Duo</a> · Contacto: <a href=\"mailto:deltapassion@gmx.com\">deltapassion@gmx.com</a>", "mt": "¡Gracias por descargar PDF DUO!", "mp": "La descarga comienza. PDF DUO es gratuito, libre y sin publicidad: si le resulta útil, una pequeña donación ayuda a añadir símbolos, idiomas y correcciones.", "ml": "No, gracias, quizá más tarde"}, "pt": {"nf": "Funções", "nb": "Bibliotecas", "nc": "Capturas", "nl": "Escola e alunos", "nt": "Transferir", "nn": "Manual", "don": "Fazer um donativo", "kick": "Versão 1.0.0 · Software livre · Windows · Linux · macOS", "lead": "Ler, anotar, assinar e preencher PDF. Desenhar esquemas elétricos, pneumáticos e de rede, GRAFCET e plantas de habitação. Converter Word e ODF nos dois sentidos. Pensado para a sala de aula, gratuito para todos.", "code": "Ver o código no GitHub", "h2f": "Um só programa, do PDF ao esquema", "subf": "Os desenhos são guardados em vetorial no PDF: nítidos em qualquer escala e ainda editáveis ao reabrir o ficheiro no PDF DUO.", "c1t": "PDF completo", "c1": "Abrir, anotar, realçar, páginas (juntar, extrair, rodar), impressão, PDF protegidos.", "c2t": "Assinatura e formulários", "c2": "Assinatura desenhada ou importada, campos de texto, caixas, listas, botões de opção, zonas de assinatura e ligações, preenchíveis.", "c3t": "Esquemas elétricos", "c3": "Fios ligados aos terminais, ligações automáticas, junções, cores dos condutores, referências KM1 e números de terminais.", "c4t": "GRAFCET e fluxogramas", "c4": "Etapas, transições, ações, divergências E / OU; <b>Ctrl+G</b> adiciona transição + etapa já ligadas e numeradas.", "c5t": "Plantas de habitação", "c5": "Paredes à escala, cotas reais, portas e janelas que se colocam sozinhas nas paredes, símbolos NF C 15-100.", "c6": "Conversões nos dois sentidos com LibreOffice e pdf2docx; imagens para PDF, páginas para PNG.", "c7t": "Preciso", "c7": "Grelha magnética, rotação livre de 360°, espelho, ampliação proporcional, captura de zona e copiar-colar para o Word.", "c8t": "Seis idiomas", "c8": "Francês, inglês, espanhol, português, alemão, italiano. Temas claro, escuro, azul-noite, areia.", "h2l": "Para a sala de aula… e para toda a escola", "subl": "Gratuito, sem conta e instalável em todos os computadores: o PDF DUO serve alunos e professores, e também a vida da escola.", "u1g": "Alunos e professores", "u1t": "Cursos profissionais de eletricidade e informática", "u1": "Esquemas elétricos e pneumáticos, plantas de instalação, GRAFCET, redes, ciências: documentos limpos, entregues em PDF ou impressos.", "u2g": "Associação de estudantes", "u2t": "A associação", "u2": "Cartazes e folhetos em PDF, fichas de inscrição para preencher, autorizações e atas assinadas, conversão dos documentos Word da direção.", "u3g": "Secretaria e biblioteca", "u3t": "Todos os serviços", "u3": "Preencher e assinar um formulário, juntar ou dividir PDF, converter um ficheiro Word ou LibreOffice, sem software pago.", "h2b": "Mais de 360 símbolos prontos a colocar", "subb": "Desenhados a partir das fichas usadas no ensino profissional (eletricidade e informática) e completados com as observações de um professor.", "k1": "Eletricidade – esquemas", "k2": "Trifásica / potência", "k3": "Quadro / proteção", "k4": "Doméstica (esquema)", "k5": "Planta elétrica – habitação", "k6": "Arquitetura", "k7": "Funções lógicas / logigrama", "k9": "Fluxograma", "k10": "Mapa mental", "k11": "Rede informática", "k13": "Aeronáutica – cablagem", "k14": "Aparelhos de medida", "k15": "Química (material de vidro)", "k16": "Ótica", "k17": "Mecânica", "h2c": "Em imagens", "subc": "Exemplos incluídos: arranque nos dois sentidos de marcha, GRAFCET e mapa mental, videovigilância por fibra.", "f1": "Tema claro: arranque direto nos dois sentidos, potência e comando.", "f2": "Tema escuro: GRAFCET, fluxograma, mapa mental.", "f3": "Tema azul-noite: rede de videovigilância.", "h2d": "Transferir o PDF DUO", "subd": "Gratuito, sem publicidade, sem conta. Conversão Word → PDF integrada; para a conversão mais fiel e para ODT, instale também o <a href=\"https://pt.libreoffice.org/\">LibreOffice</a> (gratuito).", "cnt": "transferências", "w1": "Instalador (.exe) — Windows 10 e 11, atalhos no menu Iniciar e ambiente de trabalho", "w2": "Arquivo .zip sem instalação: descomprimir e abrir «PDF DUO.exe»", "l1": "Debian, Ubuntu, Linux Mint — duplo clique para instalar", "l2": "Todas as distribuições: tornar executável e abrir", "l3": "Arquivo portátil: descomprimir e abrir «PDF DUO»", "m1": "Mac M1, M2, M3, M4… — arrastar para Aplicações e clique direito › Abrir", "m2": "Mac com processador Intel — arrastar para Aplicações e clique direito › Abrir", "allt": "Todas as versões", "all": "Notas de versão, código-fonte, versões anteriores", "badge": "Para si", "nh": "Manual de utilização", "np": "Cada manual existe também em PDF e está incluído no programa (Ajuda › Manual de utilização, tecla F1).", "py": "Sem instalador, com Python 3.9 ou superior:", "py1": "Transferir o código-fonte e descomprimi-lo.", "py2": "Na pasta, executar <code>pip install -r requirements.txt</code>", "py3": "Depois <code>python pdfduo.py</code> (ou duplo clique em <code>lancer-windows.bat</code>).", "sk": "Apoiar", "sh": "O PDF DUO é gratuito e vai continuar a ser", "sp": "Se o programa lhe for útil, na aula, na associação de estudantes ou noutro lado, um pequeno donativo ajuda a melhorá-lo: novos símbolos, novos idiomas, correções.", "ss": "Donativos no Ko-fi: valor livre, por cartão ou PayPal, sem criar conta.", "kofi": "Doar no Ko-fi", "star": "Uma estrela no GitHub", "bug": "Comunicar um erro", "same": "Do mesmo autor", "pd": "O software livre de mistura DJ do DJ LATIN JAZZ, criado também com o Claude.ai: mistura em 2 ou 4 canais, controladores DJ, modo timeline com exportação WAV e MP3. Gratuito, para Windows, Linux e macOS.", "pdgo": "Descobrir o Platine Duo →", "ft1": "PDF DUO — Jacques Branas, em colaboração com o Claude.ai · Licença GNU GPL v3", "ft2": "Do mesmo autor: <a href=\"https://deltapassion.github.io/Platine-Duo/\">Platine Duo</a> · Contacto: <a href=\"mailto:deltapassion@gmx.com\">deltapassion@gmx.com</a>", "mt": "Obrigado por transferir o PDF DUO!", "mp": "A transferência está a começar. O PDF DUO é gratuito, livre e sem publicidade: se lhe for útil, um pequeno donativo ajuda a acrescentar símbolos, idiomas e correções.", "ml": "Não, obrigado, talvez mais tarde"}, "de": {"nf": "Funktionen", "nb": "Bibliotheken", "nc": "Bilder", "nl": "Schule & Schülervertretung", "nt": "Download", "nn": "Anleitung", "don": "Spenden", "kick": "Version 1.0.0 · Freie Software · Windows · Linux · macOS", "lead": "PDFs lesen, kommentieren, unterschreiben und ausfüllen. Schalt-, Pneumatik- und Netzwerkpläne, GRAFCETs und Grundrisse zeichnen. Word und ODF in beide Richtungen konvertieren. Für den Unterricht gedacht, kostenlos für alle.", "code": "Code auf GitHub ansehen", "h2f": "Ein Programm, vom PDF bis zum Schaltplan", "subf": "Zeichnungen werden als Vektoren im PDF gespeichert: scharf in jeder Größe und weiter bearbeitbar, wenn die Datei in PDF DUO geöffnet wird.", "c1t": "Vollständiges PDF", "c1": "Öffnen, kommentieren, markieren, Seiten (zusammenführen, extrahieren, drehen), Drucken, geschützte PDFs.", "c2t": "Unterschrift und Formulare", "c2": "Gezeichnete oder importierte Unterschrift, Textfelder, Kontrollkästchen, Listen, Optionsfelder, Unterschriftsbereiche und Links, ausfüllbar.", "c3t": "Schaltpläne", "c3": "Leitungen an den Klemmen, automatische Verbindungen, Verbindungspunkte, Leiterfarben, Kennzeichnungen KM1 und Klemmennummern.", "c4t": "GRAFCET und Ablaufdiagramme", "c4": "Schritte, Übergänge, Aktionen, UND- / ODER-Verzweigungen; <b>Strg+G</b> fügt Übergang + Schritt verbunden und nummeriert hinzu.", "c5t": "Grundrisse", "c5": "Maßstabsgerechte Wände, echte Maße, Türen und Fenster, die sich selbst in Wände setzen, Symbole NF C 15-100.", "c6": "Konvertierung in beide Richtungen mit LibreOffice und pdf2docx; Bilder zu PDF, Seiten zu PNG.", "c7t": "Präzise", "c7": "Magnetisches Raster, freie 360°-Drehung, Spiegeln, proportionales Vergrößern, Bereichsaufnahme und Kopieren nach Word.", "c8t": "Sechs Sprachen", "c8": "Französisch, Englisch, Spanisch, Portugiesisch, Deutsch, Italienisch. Designs hell, dunkel, nachtblau, sand.", "h2l": "Für den Unterricht… und die ganze Schule", "subl": "Kostenlos, ohne Konto, auf allen Rechnern installierbar: PDF DUO hilft Schülern und Lehrkräften und auch im Schulleben.", "u1g": "Schüler und Lehrkräfte", "u1t": "Berufsausbildung Elektro und IT", "u1": "Schalt- und Pneumatikpläne, Installationspläne, GRAFCET, Netzwerke, Naturwissenschaften: saubere Dokumente als PDF oder gedruckt.", "u2g": "Schülervertretung", "u2t": "Die Schülervertretung", "u2": "Plakate und Flyer als PDF, ausfüllbare Mitgliedsformulare, unterschriebene Genehmigungen und Protokolle, Konvertierung der Word-Dokumente des Vorstands.", "u3g": "Sekretariat und Bibliothek", "u3t": "Alle Bereiche", "u3": "Formulare ausfüllen und unterschreiben, PDFs zusammenführen oder teilen, Word- oder LibreOffice-Dateien konvertieren, ohne kostenpflichtige Software.", "h2b": "Über 360 Symbole zum Platzieren", "subb": "Nach den Arbeitsblättern französischer Berufsschulen (Elektro und IT) gezeichnet und mit den Rückmeldungen eines Lehrers ergänzt.", "k1": "Elektro – Schaltpläne", "k2": "Drehstrom / Leistung", "k3": "Verteiler / Schutz", "k4": "Haushalt (Stromlaufplan)", "k5": "Elektroplan – Wohnung", "k6": "Architektur", "k7": "Logikfunktionen / Logikplan", "k9": "Ablaufdiagramm", "k10": "Mindmap", "k11": "Computernetzwerk", "k13": "Luftfahrt – Verkabelung", "k14": "Messgeräte", "k15": "Chemie (Glasgeräte)", "k16": "Optik", "k17": "Mechanik", "h2c": "In Bildern", "subc": "Mitgelieferte Beispiele: Wendeschützschaltung, GRAFCET und Mindmap, Videoüberwachung über Glasfaser.", "f1": "Helles Design: Wendeschützschaltung, Haupt- und Steuerstromkreis.", "f2": "Dunkles Design: GRAFCET, Ablaufdiagramm, Mindmap.", "f3": "Design Nachtblau: Videoüberwachungsnetz.", "h2d": "PDF DUO herunterladen", "subd": "Kostenlos, ohne Werbung, ohne Konto. Eingebaute Konvertierung Word → PDF; für die genaueste Konvertierung und für ODT zusätzlich <a href=\"https://de.libreoffice.org/\">LibreOffice</a> installieren (kostenlos).", "cnt": "Downloads", "w1": "Installationsprogramm (.exe) — Windows 10 und 11, Verknüpfungen im Startmenü und auf dem Desktop", "w2": ".zip-Archiv ohne Installation: entpacken und „PDF DUO.exe“ starten", "l1": "Debian, Ubuntu, Linux Mint — Doppelklick zum Installieren", "l2": "Alle Distributionen: ausführbar machen und starten", "l3": "Portables Archiv: entpacken und „PDF DUO“ starten", "m1": "Mac M1, M2, M3, M4… — in Programme ziehen, dann Rechtsklick › Öffnen", "m2": "Mac mit Intel-Prozessor — in Programme ziehen, dann Rechtsklick › Öffnen", "allt": "Alle Versionen", "all": "Versionshinweise, Quellcode, ältere Versionen", "badge": "Für Sie", "nh": "Bedienungsanleitung", "np": "Jede Anleitung gibt es auch als PDF; sie ist im Programm enthalten (Hilfe › Bedienungsanleitung, Taste F1).", "py": "Ohne Installationsprogramm, mit Python 3.9 oder neuer:", "py1": "Quellcode herunterladen und entpacken.", "py2": "Im Ordner <code>pip install -r requirements.txt</code> ausführen", "py3": "Dann <code>python pdfduo.py</code> (oder Doppelklick auf <code>lancer-windows.bat</code>).", "sk": "Unterstützen", "sh": "PDF DUO ist kostenlos und bleibt es", "sp": "Wenn Ihnen das Programm hilft, im Unterricht, in der Schülervertretung oder anderswo, unterstützt eine kleine Spende die Weiterentwicklung: neue Symbole, neue Sprachen, Korrekturen.", "ss": "Spenden über Ko-fi: beliebiger Betrag, per Karte oder PayPal, ohne Konto.", "kofi": "Auf Ko-fi spenden", "star": "Ein Stern auf GitHub", "bug": "Fehler melden", "same": "Vom selben Autor", "pd": "Die freie DJ-Mixsoftware von DJ LATIN JAZZ, ebenfalls mit Claude.ai entstanden: Mixen mit 2 oder 4 Decks, DJ-Controller, Timeline-Modus mit WAV- und MP3-Export. Kostenlos für Windows, Linux und macOS.", "pdgo": "Platine Duo entdecken →", "ft1": "PDF DUO — Jacques Branas, in Zusammenarbeit mit Claude.ai · Lizenz GNU GPL v3", "ft2": "Vom selben Autor: <a href=\"https://deltapassion.github.io/Platine-Duo/\">Platine Duo</a> · Kontakt: <a href=\"mailto:deltapassion@gmx.com\">deltapassion@gmx.com</a>", "mt": "Danke, dass Sie PDF DUO herunterladen!", "mp": "Der Download startet. PDF DUO ist kostenlos, frei und werbefrei: Wenn es Ihnen hilft, unterstützt eine kleine Spende neue Symbole, Sprachen und Korrekturen.", "ml": "Nein danke, vielleicht später"}, "it": {"nf": "Funzioni", "nb": "Librerie", "nc": "Immagini", "nl": "Scuola e studenti", "nt": "Scarica", "nn": "Manuale", "don": "Fai una donazione", "kick": "Versione 1.0.0 · Software libero · Windows · Linux · macOS", "lead": "Leggere, annotare, firmare e compilare PDF. Disegnare schemi elettrici, pneumatici e di rete, GRAFCET e piante di abitazioni. Convertire Word e ODF nei due sensi. Pensato per la classe, gratuito per tutti.", "code": "Vedi il codice su GitHub", "h2f": "Un solo programma, dal PDF allo schema", "subf": "I disegni sono salvati in vettoriale nel PDF: nitidi a qualsiasi scala e ancora modificabili riaprendo il file in PDF DUO.", "c1t": "PDF completo", "c1": "Aprire, annotare, evidenziare, pagine (unire, estrarre, ruotare), stampa, PDF protetti.", "c2t": "Firma e moduli", "c2": "Firma disegnata o importata, campi di testo, caselle, elenchi, pulsanti di opzione, aree firma e link, compilabili.", "c3t": "Schemi elettrici", "c3": "Fili agganciati ai morsetti, collegamenti automatici, giunzioni, colori dei conduttori, sigle KM1 e numeri dei morsetti.", "c4t": "GRAFCET e diagrammi di flusso", "c4": "Tappe, transizioni, azioni, divergenze AND / OR; <b>Ctrl+G</b> aggiunge transizione + tappa già collegate e numerate.", "c5t": "Piante di abitazioni", "c5": "Muri in scala, quote reali, porte e finestre che si inseriscono da sole nei muri, simboli NF C 15-100.", "c6": "Conversioni nei due sensi con LibreOffice e pdf2docx; immagini in PDF, pagine in PNG.", "c7t": "Preciso", "c7": "Griglia magnetica, rotazione libera a 360°, specchio, ingrandimento proporzionale, cattura di zone e copia-incolla in Word.", "c8t": "Sei lingue", "c8": "Francese, inglese, spagnolo, portoghese, tedesco, italiano. Temi chiaro, scuro, blu notte, sabbia.", "h2l": "Per la classe… e per tutta la scuola", "subl": "Gratuito, senza account e installabile su tutti i computer: PDF DUO serve a studenti e docenti, e anche alla vita della scuola.", "u1g": "Studenti e docenti", "u1t": "Istituti professionali elettrico e informatico", "u1": "Schemi elettrici e pneumatici, piante d'impianto, GRAFCET, reti, scienze: documenti puliti, consegnati in PDF o stampati.", "u2g": "Associazione studentesca", "u2t": "L'associazione", "u2": "Manifesti e volantini in PDF, moduli d'iscrizione da compilare, autorizzazioni e verbali firmati, conversione dei documenti Word del direttivo.", "u3g": "Segreteria e biblioteca", "u3t": "Tutti i servizi", "u3": "Compilare e firmare un modulo, unire o dividere PDF, convertire un file Word o LibreOffice, senza software a pagamento.", "h2b": "Oltre 360 simboli pronti da posizionare", "subb": "Disegnati dalle schede usate negli istituti professionali (elettrico e informatico) e completati con i suggerimenti di un docente.", "k1": "Elettricità – schemi", "k2": "Trifase / potenza", "k3": "Quadro / protezione", "k4": "Domestica (schema)", "k5": "Pianta elettrica – abitazione", "k6": "Architettura", "k7": "Funzioni logiche / logigramma", "k9": "Diagramma di flusso", "k10": "Mappa mentale", "k11": "Rete informatica", "k13": "Aeronautica – cablaggio", "k14": "Strumenti di misura", "k15": "Chimica (vetreria)", "k16": "Ottica", "k17": "Meccanica", "h2c": "In immagini", "subc": "Esempi forniti: avviamento a due sensi di marcia, GRAFCET e mappa mentale, videosorveglianza su fibra.", "f1": "Tema chiaro: avviamento diretto a due sensi, potenza e comando.", "f2": "Tema scuro: GRAFCET, diagramma di flusso, mappa mentale.", "f3": "Tema blu notte: rete di videosorveglianza.", "h2d": "Scarica PDF DUO", "subd": "Gratuito, senza pubblicità, senza account. Conversione Word → PDF integrata; per la conversione più fedele e per l'ODT installare anche <a href=\"https://it.libreoffice.org/\">LibreOffice</a> (gratuito).", "cnt": "download", "w1": "Programma di installazione (.exe) — Windows 10 e 11, collegamenti nel menu Start e sul desktop", "w2": "Archivio .zip senza installazione: estrarre e avviare «PDF DUO.exe»", "l1": "Debian, Ubuntu, Linux Mint — doppio clic per installare", "l2": "Tutte le distribuzioni: rendere eseguibile e avviare", "l3": "Archivio portatile: estrarre e avviare «PDF DUO»", "m1": "Mac M1, M2, M3, M4… — trascinare in Applicazioni, poi clic destro › Apri", "m2": "Mac con processore Intel — trascinare in Applicazioni, poi clic destro › Apri", "allt": "Tutte le versioni", "all": "Note di versione, codice sorgente, versioni precedenti", "badge": "Per te", "nh": "Manuale d'uso", "np": "Ogni manuale esiste anche in PDF ed è incluso nel programma (Aiuto › Manuale d'uso, tasto F1).", "py": "Senza installazione, con Python 3.9 o superiore:", "py1": "Scaricare il codice sorgente ed estrarlo.", "py2": "Nella cartella, eseguire <code>pip install -r requirements.txt</code>", "py3": "Poi <code>python pdfduo.py</code> (o doppio clic su <code>lancer-windows.bat</code>).", "sk": "Sostenere", "sh": "PDF DUO è gratuito e lo resterà", "sp": "Se il programma ti è utile, in classe, nell'associazione studentesca o altrove, una piccola donazione aiuta a migliorarlo: nuovi simboli, nuove lingue, correzioni.", "ss": "Donazioni su Ko-fi: importo libero, con carta o PayPal, senza creare un account.", "kofi": "Dona su Ko-fi", "star": "Una stella su GitHub", "bug": "Segnala un bug", "same": "Dello stesso autore", "pd": "Il software libero di mix DJ di DJ LATIN JAZZ, creato anch'esso con Claude.ai: mix a 2 o 4 canali, controller DJ, modalità timeline con esportazione WAV e MP3. Gratuito, per Windows, Linux e macOS.", "pdgo": "Scopri Platine Duo →", "ft1": "PDF DUO — Jacques Branas, in collaborazione con Claude.ai · Licenza GNU GPL v3", "ft2": "Dello stesso autore: <a href=\"https://deltapassion.github.io/Platine-Duo/\">Platine Duo</a> · Contatto: <a href=\"mailto:deltapassion@gmx.com\">deltapassion@gmx.com</a>", "mt": "Grazie per aver scaricato PDF DUO!", "mp": "Il download sta iniziando. PDF DUO è gratuito, libero e senza pubblicità: se ti è utile, una piccola donazione aiuta ad aggiungere simboli, lingue e correzioni.", "ml": "No grazie, forse più tardi"}};
+  var DYN = {"fr": {"dl": "Télécharger", "dlFor": "Télécharger pour ", "pc": "Versions pour ordinateur", "pick": "Choisissez votre système ci-dessous.", "mob": "PDF DUO fonctionne sur ordinateur : Windows, macOS et Linux.", "soonOs": "La version {os} arrive bientôt ; choisissez une autre version ci-dessous.", "ok": "Votre ordinateur a été reconnu. Autre système ? Choisissez ci-dessous.", "not": "Pas sous {os} ?", "allv": "Toutes les versions : Windows, macOS, Linux", "soon": "Bientôt disponible", "d1": "téléchargement", "dn": "téléchargements", "loc": "fr-FR"}, "en": {"dl": "Download", "dlFor": "Download for ", "pc": "Desktop versions", "pick": "Choose your system below.", "mob": "PDF DUO runs on computers: Windows, macOS and Linux.", "soonOs": "The {os} version is coming soon; choose another version below.", "ok": "Your computer was detected. Another system? Choose below.", "not": "Not on {os}?", "allv": "All versions: Windows, macOS, Linux", "soon": "Coming soon", "d1": "download", "dn": "downloads", "loc": "en-GB"}, "es": {"dl": "Descargar", "dlFor": "Descargar para ", "pc": "Versiones para ordenador", "pick": "Elija su sistema a continuación.", "mob": "PDF DUO funciona en ordenador: Windows, macOS y Linux.", "soonOs": "La versión {os} llegará pronto; elija otra versión abajo.", "ok": "Se ha reconocido su ordenador. ¿Otro sistema? Elija abajo.", "not": "¿No usa {os}?", "allv": "Todas las versiones: Windows, macOS, Linux", "soon": "Próximamente", "d1": "descarga", "dn": "descargas", "loc": "es-ES"}, "pt": {"dl": "Transferir", "dlFor": "Transferir para ", "pc": "Versões para computador", "pick": "Escolha o seu sistema abaixo.", "mob": "O PDF DUO funciona em computador: Windows, macOS e Linux.", "soonOs": "A versão {os} chega em breve; escolha outra versão abaixo.", "ok": "O seu computador foi reconhecido. Outro sistema? Escolha abaixo.", "not": "Não usa {os}?", "allv": "Todas as versões: Windows, macOS, Linux", "soon": "Em breve", "d1": "transferência", "dn": "transferências", "loc": "pt-PT"}, "de": {"dl": "Herunterladen", "dlFor": "Herunterladen für ", "pc": "Versionen für den Computer", "pick": "Wählen Sie unten Ihr System.", "mob": "PDF DUO läuft auf Computern: Windows, macOS und Linux.", "soonOs": "Die Version für {os} kommt bald; wählen Sie unten eine andere Version.", "ok": "Ihr Computer wurde erkannt. Anderes System? Unten wählen.", "not": "Nicht {os}?", "allv": "Alle Versionen: Windows, macOS, Linux", "soon": "Bald verfügbar", "d1": "Download", "dn": "Downloads", "loc": "de-DE"}, "it": {"dl": "Scarica", "dlFor": "Scarica per ", "pc": "Versioni per computer", "pick": "Scegli il tuo sistema qui sotto.", "mob": "PDF DUO funziona su computer: Windows, macOS e Linux.", "soonOs": "La versione {os} arriverà presto; scegli un'altra versione qui sotto.", "ok": "Il tuo computer è stato riconosciuto. Altro sistema? Scegli qui sotto.", "not": "Non usi {os}?", "allv": "Tutte le versioni: Windows, macOS, Linux", "soon": "Presto disponibile", "d1": "download", "dn": "download", "loc": "it-IT"}};
+  var LANGS = ["fr","en","es","pt","de","it"], FR = {}, lang = "fr";
+  var els = document.querySelectorAll("[data-i]");
+  els.forEach(function(e){ FR[e.getAttribute("data-i")] = e.innerHTML; });
+  function D(k){ return (DYN[lang] && DYN[lang][k]) || DYN.fr[k]; }
+  function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch(e){ return null; } }
   var REPO = "Deltapassion/PDF-DUO";
   var BASE = "https://github.com/" + REPO + "/releases/latest/download/";
-  function fmt(n){ return n.toLocaleString("fr-FR"); }
   var NAMES = {win:"Windows", "win-zip":"Windows", deb:"Linux (.deb)", appimage:"Linux", targz:"Linux",
                "mac-arm":"Mac Apple Silicon", "mac-intel":"Mac Intel"};
   function isAppleSilicon(){
@@ -407,44 +421,70 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
     if (/linux|x11|cros/i.test(p + ua)) return /ubuntu|debian|mint/i.test(ua) ? "deb" : "appimage";
     return null;
   }
-  var mine = detect(), mainBtns = [document.getElementById("heroDl"), document.getElementById("mainDl")];
-  function point(os, ok){
-    var card = os && document.querySelector('.dlc[data-os="' + os + '"]');
+  var mine = detect(), mineOk = true, mainBtns = [document.getElementById("heroDl"), document.getElementById("mainDl")];
+  var counts = null, latest = null;
+  function fmt(n){ return n.toLocaleString(D("loc")); }
+  function render(){
+    var os = mine, card = os && document.querySelector('.dlc[data-os="' + os + '"]');
     document.querySelectorAll(".dlc.mine").forEach(function(c){ c.classList.remove("mine"); });
-    if (!card || !ok){
+    var note = document.getElementById("heroNote");
+    if (!card || !mineOk){
       mainBtns.forEach(function(b){ b.href = "#telecharger"; b.removeAttribute("data-asset");
-        b.querySelector(".dltxt").textContent = os === "mobile" ? "Versions pour ordinateur" : "Télécharger"; });
-      document.getElementById("mainAlt").textContent = os === "mobile"
-        ? "PDF DUO fonctionne sur ordinateur : Windows, macOS et Linux."
-        : (os && NAMES[os] ? "La version " + NAMES[os] + " arrive bientôt ; choisissez une autre version ci-dessous." : "Choisissez votre système ci-dessous.");
-      return;
+        b.querySelector(".dltxt").textContent = os === "mobile" ? D("pc") : D("dl"); });
+      document.getElementById("mainAlt").textContent = os === "mobile" ? D("mob")
+        : (os && NAMES[os] ? D("soonOs").replace("{os}", NAMES[os]) : D("pick"));
+      note.innerHTML = '<a href="#telecharger">' + D("allv") + '</a>';
+    } else {
+      card.classList.add("mine");
+      mainBtns.forEach(function(b){ b.href = BASE + card.dataset.asset; b.dataset.asset = card.dataset.asset;
+        b.querySelector(".dltxt").textContent = D("dlFor") + NAMES[os]; });
+      document.getElementById("mainAlt").textContent = D("ok");
+      note.innerHTML = D("not").replace("{os}", NAMES[os]) + ' <a href="#telecharger">' + D("allv") + '</a>';
     }
-    card.classList.add("mine");
-    mainBtns.forEach(function(b){ b.href = BASE + card.dataset.asset; b.dataset.asset = card.dataset.asset;
-      b.querySelector(".dltxt").textContent = "Télécharger pour " + NAMES[os]; });
-    document.getElementById("mainAlt").innerHTML = "Votre ordinateur a été reconnu. Autre système ? Choisissez ci-dessous.";
-    document.getElementById("heroNote").innerHTML = 'Pas sous ' + NAMES[os] + ' ? <a href="#telecharger">Toutes les versions : Windows, macOS, Linux</a>';
+    document.querySelectorAll(".dlc[data-asset]").forEach(function(el){
+      var em = el.querySelector("em");
+      if (el.dataset.soon) em.textContent = D("soon");
+      else if (counts && counts.per[el.dataset.asset] !== undefined){ var n = counts.per[el.dataset.asset]; em.textContent = fmt(n) + " " + (n > 1 ? D("dn") : D("d1")); }
+    });
+    if (counts && counts.total > 0){ document.getElementById("total").textContent = fmt(counts.total); document.getElementById("counter").hidden = false; }
   }
-  point(mine, true);
+  function setLang(l){
+    if (LANGS.indexOf(l) < 0) l = "fr";
+    lang = l;
+    els.forEach(function(e){ var k = e.getAttribute("data-i"); e.innerHTML = (l !== "fr" && T[l] && T[l][k] != null) ? T[l][k] : FR[k]; });
+    document.documentElement.lang = l;
+    document.getElementById("lang").value = l;
+    document.getElementById("navNotice").href = "notice/index.html?lang=" + l;
+    store("pdfduo-lang", l);
+    render();
+  }
+  function firstLang(){
+    var q = new URLSearchParams(location.search).get("lang"); if (LANGS.indexOf(q) >= 0) return q;
+    var s = store("pdfduo-lang"); if (LANGS.indexOf(s) >= 0) return s;
+    var n = navigator.languages || [navigator.language || "fr"];
+    for (var i = 0; i < n.length; i++){ var c = String(n[i]).slice(0, 2).toLowerCase(); if (LANGS.indexOf(c) >= 0) return c; }
+    return "fr";
+  }
+  document.getElementById("lang").addEventListener("change", function(e){ setLang(e.target.value); });
+  setLang(firstLang());
   fetch("https://api.github.com/repos/" + REPO + "/releases?per_page=100")
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(rel){
       if (!rel) return;
-      var total = 0, per = {}, latest = {};
+      var total = 0, per = {}, lt = {};
       var pub = rel.filter(function(r){ return !r.draft && !r.prerelease; });
-      if (pub[0]) (pub[0].assets || []).forEach(function(a){ latest[a.name] = true; });
+      if (pub[0]) (pub[0].assets || []).forEach(function(a){ lt[a.name] = true; });
       rel.forEach(function(r){ (r.assets || []).forEach(function(a){
         total += a.download_count; per[a.name] = (per[a.name] || 0) + a.download_count; }); });
-      document.querySelectorAll(".dlc[data-asset]").forEach(function(el){
-        var n = per[el.dataset.asset], em = el.querySelector("em");
-        if (pub[0] && !latest[el.dataset.asset]){
-          el.classList.add("soon"); el.href = "https://github.com/" + REPO + "/releases"; el.dataset.soon = "1";
-          em.textContent = "Bientôt disponible";
-        } else if (n !== undefined) em.textContent = fmt(n) + " téléchargement" + (n > 1 ? "s" : "");
-      });
-      if (pub[0] && mine) point(mine, !!latest[(document.querySelector('.dlc[data-os="' + mine + '"]') || {dataset:{}}).dataset.asset]);
-      if (total > 0){ document.getElementById("total").textContent = fmt(total);
-                      document.getElementById("counter").hidden = false; }
+      counts = {total: total, per: per};
+      if (pub[0]){
+        document.querySelectorAll(".dlc[data-asset]").forEach(function(el){
+          if (!lt[el.dataset.asset]){ el.classList.add("soon"); el.href = "https://github.com/" + REPO + "/releases"; el.dataset.soon = "1"; }
+        });
+        var mc = mine && document.querySelector('.dlc[data-os="' + mine + '"]');
+        mineOk = !!(mc && lt[mc.dataset.asset]);
+      }
+      render();
     }).catch(function(){});
   var modal = document.getElementById("don");
   function close(){ modal.classList.remove("open"); }
