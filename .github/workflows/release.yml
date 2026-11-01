@@ -1,0 +1,113 @@
+# Fabrique toutes les versions installables à chaque nouvelle étiquette « v… » (ex. v1.0.0)
+name: Versions installables
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            kind: windows
+          - os: ubuntu-22.04
+            kind: linux
+          - os: macos-14            # Apple Silicon (M1, M2…)
+            kind: mac
+            mac_name: AppleSilicon
+          - os: macos-15-intel      # Intel
+            kind: mac
+            mac_name: Intel
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Version
+        shell: bash
+        run: |
+          V="${GITHUB_REF_NAME#v}"
+          case "$V" in [0-9]*) ;; *) V="$(grep -oP 'APP_VERSION = "\K[^"]+' pdfduo/app.py || echo 0.0.0)";; esac
+          echo "VERSION=$V" >> "$GITHUB_ENV"
+      - name: Dépendances
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller pillow
+      - name: Construction (PyInstaller)
+        shell: bash
+        run: >
+          pyinstaller --noconfirm --windowed --name "PDF DUO"
+          --icon ${{ matrix.kind == 'windows' && 'packaging/icon.ico' || 'pdfduo/icon.png' }}
+          --osx-bundle-identifier io.github.deltapassion.pdfduo
+          --add-data "pdfduo/icon.png:pdfduo"
+          --add-data "pdfduo/notices:pdfduo/notices"
+          --collect-submodules pdf2docx
+          --collect-data pymupdf
+          --exclude-module PySide6.QtWebEngineCore
+          --exclude-module PySide6.QtWebEngineWidgets
+          --exclude-module PySide6.QtQuick
+          --exclude-module PySide6.QtQml
+          --exclude-module PySide6.Qt3DCore
+          --exclude-module PySide6.QtMultimedia
+          --exclude-module tkinter
+          pdfduo.py
+
+      # ---------- Windows
+      - name: Windows — archive portable
+        if: matrix.kind == 'windows'
+        shell: pwsh
+        run: |
+          Copy-Item README.md, LICENSE "dist/PDF DUO/"
+          Compress-Archive -Path "dist/PDF DUO" -DestinationPath PDF-DUO-Windows.zip
+      - name: Windows — installeur (Inno Setup)
+        if: matrix.kind == 'windows'
+        shell: pwsh
+        run: |
+          choco install innosetup -y --no-progress
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "/DMyVersion=$env:VERSION" packaging\pdfduo.iss
+          Move-Item packaging\Output\PDF-DUO-Windows-Setup.exe .
+
+      # ---------- Linux
+      - name: Linux — .deb
+        if: matrix.kind == 'linux'
+        run: bash packaging/build_deb.sh "$VERSION"
+      - name: Linux — AppImage et .tar.gz
+        if: matrix.kind == 'linux'
+        run: bash packaging/build_appimage.sh "$VERSION"
+
+      # ---------- macOS
+      - name: macOS — archive .zip
+        if: matrix.kind == 'mac'
+        run: |
+          codesign --force --deep --sign - "dist/PDF DUO.app" || true
+          ditto -c -k --sequesterRsrc --keepParent "dist/PDF DUO.app" "PDF-DUO-macOS-${{ matrix.mac_name }}.zip"
+
+      - name: Conservation des fichiers (essai manuel)
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdf-duo-${{ matrix.kind }}-${{ matrix.mac_name || 'x64' }}
+          path: |
+            PDF-DUO-*
+            pdf-duo_*.deb
+          if-no-files-found: ignore
+      - name: Ajout à la Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            PDF-DUO-Windows-Setup.exe
+            PDF-DUO-Windows.zip
+            pdf-duo_amd64.deb
+            PDF-DUO-x86_64.AppImage
+            PDF-DUO-Linux-x86_64.tar.gz
+            PDF-DUO-macOS-AppleSilicon.zip
+            PDF-DUO-macOS-Intel.zip
+          fail_on_unmatched_files: false
