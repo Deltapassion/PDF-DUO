@@ -416,6 +416,10 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   function D(k){ return (DYN[lang] && DYN[lang][k]) || DYN.fr[k]; }
   function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch(e){ return null; } }
   var REPO = "Deltapassion/PDF-DUO";
+  // Téléchargements déjà faits sur des fichiers remplacés ou supprimés (GitHub les oublie) :
+  // DEJA_TOTAL s'ajoute au total, DEJA[fichier] au compteur de chaque carte. À modifier ici si besoin.
+  var DEJA_TOTAL = 43;
+  var DEJA = {"pdf-duo_amd64.deb": 1, "PDF-DUO-x86_64.AppImage": 1};
   var BASE = "https://github.com/" + REPO + "/releases/latest/download/";
   var NAMES = {win:"Windows", "win-zip":"Windows", deb:"Linux (.deb)", appimage:"Linux", targz:"Linux",
                "mac-arm":"Mac Apple Silicon", "mac-intel":"Mac Intel"};
@@ -489,6 +493,8 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
       if (pub[0]) (pub[0].assets || []).forEach(function(a){ lt[a.name] = true; });
       rel.forEach(function(r){ (r.assets || []).forEach(function(a){
         total += a.download_count; per[a.name] = (per[a.name] || 0) + a.download_count; }); });
+      Object.keys(DEJA).forEach(function(k){ per[k] = (per[k] || 0) + DEJA[k]; total += DEJA[k]; });
+      total += DEJA_TOTAL;
       counts = {total: total, per: per};
       if (pub[0]){
         document.querySelectorAll(".dlc[data-asset]").forEach(function(el){
