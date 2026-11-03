@@ -3,7 +3,7 @@ name: Versions installables
 
 on:
   push:
-    tags: ["v*"]
+    tags: ["v*", "Version_*"]
   workflow_dispatch:
 
 permissions:
