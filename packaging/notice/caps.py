@@ -1,5 +1,5 @@
 import sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.insert(0, '/home/claude/pdfduo')
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
 import faulthandler; faulthandler.dump_traceback_later(500, exit=True)
 LANG = sys.argv[1]
@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QApplication, QDockWidget, QToolBar, QWidget
 from PySide6.QtCore import QPoint, QRect, QRectF, QPointF, Qt, QTimer
 from PySide6.QtGui import QPainter, QPen, QColor, QFont, QImage, QIcon
 app = QApplication([])
-app.setWindowIcon(QIcon(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'pdfduo', 'icon.png')))
+app.setWindowIcon(QIcon('/home/claude/pdfduo/pdfduo/icon.png'))
 from PySide6.QtCore import QSettings
 QSettings("Jacques Branas", "PDF DUO").clear()
 from pdfduo import i18n; i18n.set_language(LANG)
@@ -15,8 +15,8 @@ import pdfduo.app as A
 A.MainWindow.maybe_save = lambda self: True
 A.install_qt_translator(app)
 from pdfduo.items import MM
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', LANG) + '/'; os.makedirs(OUT, exist_ok=True)
-EX = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'exemples') + '/'
+OUT = f'/tmp/claude-0/notice/img/{LANG}/'; os.makedirs(OUT, exist_ok=True)
+EX = '/home/claude/pdfduo/'
 RED = QColor('#e53935')
 
 def pump(n=3):
@@ -232,6 +232,60 @@ w = win(None, theme='bleu nuit', cat='Organigramme')
 w.new_doc((595.28, 841.89), 1, ask=False); pump()
 w.insert_orgchart(); pump(); w.view.set_zoom(1.15); w.view.centerOn(QPointF(105 * MM, 80 * MM)); pump(); w.render_visible(); pump()
 save(w.grab(), '16-organigramme.jpg'); w.close()
+
+# 17/18 — tableau avec calculs
+TBL = {"fr": ("Matériel", "Qté", "Prix unitaire (€)", "Total (€)", "Câble 2,5 mm²", "Disjoncteur 16 A", "Prise 2P+T", "TOTAL"),
+       "en": ("Item", "Qty", "Unit price (€)", "Total (€)", "2.5 mm² cable", "16 A breaker", "Socket outlet", "TOTAL"),
+       "es": ("Material", "Cant.", "Precio unitario (€)", "Total (€)", "Cable 2,5 mm²", "Magnetotérmico 16 A", "Enchufe", "TOTAL"),
+       "pt": ("Material", "Qtd.", "Preço unitário (€)", "Total (€)", "Cabo 2,5 mm²", "Disjuntor 16 A", "Tomada", "TOTAL"),
+       "de": ("Material", "Menge", "Einzelpreis (€)", "Summe (€)", "Kabel 2,5 mm²", "LS-Schalter 16 A", "Steckdose", "GESAMT"),
+       "it": ("Materiale", "Q.tà", "Prezzo unitario (€)", "Totale (€)", "Cavo 2,5 mm²", "Interruttore 16 A", "Presa", "TOTALE")}[LANG]
+from pdfduo.table import new_table, TableDialog
+w = win(None, theme='bleu nuit')
+w.new_doc((595.28, 841.89), 1, ask=False); pump()
+pg = w.page_items[0]; x0, y0 = pg.pos().x(), pg.pos().y()
+d = new_table(5, 4, x0 + 20 * MM, y0 + 25 * MM, 170 * MM, 42 * MM)
+sm = "SOMME" if LANG == "fr" else "SUM"
+d["cells"] = {"0,0": TBL[0], "0,1": TBL[1], "0,2": TBL[2], "0,3": TBL[3],
+              "1,0": TBL[4], "1,1": "25", "1,2": "0,85" if LANG != "en" else "0.85", "1,3": "=B2*C2",
+              "2,0": TBL[5], "2,1": "4", "2,2": "8,90" if LANG != "en" else "8.90", "2,3": "=B3 x C3",
+              "3,0": TBL[6], "3,1": "6", "3,2": "4,20" if LANG != "en" else "4.20", "3,3": "=B4*C4",
+              "4,0": TBL[7], "4,3": f"={sm}(D2:D4)"}
+d["spans"] = {"4,0": [1, 3]}
+d["colw"] = [1.6, 0.6, 1.0, 1.0]
+t = w.add_item(d); t.setSelected(True); w.commit(); pump()
+w.view.set_zoom(1.2); w.view.centerOn(QPointF(x0 + 105 * MM, y0 + 50 * MM)); pump(); w.render_visible(); pump()
+img = w.grab().toImage()
+tm = [a for a in w.menuBar().actions() if a.text() == i18n.T("&Tableau")]
+marks = [(rect_of(w, dock(w, 'props')), 2)] if dock(w, 'props') else []
+if tm:
+    g = w.menuBar().actionGeometry(tm[0]); p0 = w.menuBar().mapTo(w, QPoint(0, 0))
+    marks.insert(0, (QRect(p0.x() + g.x() - 2, p0.y() + g.y() - 2, g.width() + 4, g.height() + 4), 1))
+save(callouts(img, marks), '17-tableau.jpg')
+dlg = TableDialog(t.d, w); dlg.resize(980, 520); dlg.show(); dlg.tw.setCurrentCell(4, 3); pump(5)
+save(dlg.grab(), '18-tableau-edition.jpg'); dlg.close()
+# 19 — calculatrice graphique
+from pdfduo.calculator import CalculatorDialog
+from PySide6.QtWidgets import QTabWidget
+c = CalculatorDialog(w); c.resize(900, 560); c.show(); pump()
+c.disp.setText("(2+3)×√(16)"); c.equals(); c.disp.setText("sin(30)"); c.equals()
+c.fx[2].setText("3sin(x)"); c.replot(); c.auto_y()
+save(c.grab(), '19-calculatrice.jpg')
+c.findChild(QTabWidget).setCurrentIndex(1); pump(5)
+save(c.grab(), '20-graphique.jpg'); c.close(); w.close()
+# 21 — prévention électrique, manutention, outils
+w = win(None, theme='bleu nuit', cat='Prévention électrique – EPI, EIS, ECS')
+w.new_doc((841.89, 595.28), 1, ask=False); pump()
+pg = w.page_items[0]; x0, y0 = pg.pos().x(), pg.pos().y()
+ids = ["epi_casque", "epi_gants", "epi_vetement", "epi_chaussures", "eis_tapis", "eis_cadenas", "eis_vat", "eis_macaron",
+       "ecs_barriere", "ecs_pancarte", "ecs_malt", "sig_danger_elec", "emb_haut", "emb_fragile", "ghs_inflammable", "log_chariot",
+       "dent_partielle", "oel_pince_denuder", "haut_echafaudage", "oinf_pince_rj45"]
+for k, sid in enumerate(ids):
+    dd = w.symbol_dict(sid); dd.update(x=x0 + (18 + (k % 5) * 52) * MM, y=y0 + (18 + (k // 5) * 44) * MM, scale=2.2)
+    w.add_item(dd)
+w.commit(); pump(); w.zoom_page(); pump(); w.render_visible(); pump()
+img = w.grab().toImage()
+save(callouts(img, [(rect_of(w, dock(w, 'biblio')), 1)]), '21-prevention.jpg'); w.close()
 
 # 12 — don
 def grab_dlg():

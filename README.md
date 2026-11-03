@@ -6,13 +6,13 @@
 
 Logiciel libre pour **lire, annoter, signer et remplir des PDF**, **dessiner des schémas électriques, pneumatiques,
 réseau, des GRAFCET et des plans de logement**, et **convertir Word / ODF ↔ PDF**.
-Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
+Pensé pour l'enseignement dans toutes les sections de lycée professionnel : par exemple les bacs pro MELEC et CIEL, prothésiste dentaire, logistique et magasinier.
 
 *Jacques Branas, en collaboration avec Claude.ai* — licence GNU GPL v3 ou ultérieure.
 
 ![PDF DUO](docs/captures/interface-schema.jpg)
 
-## Fonctions (version 1.1.0)
+## Fonctions (version 1.2.1)
 
 - **PDF** : ouvrir, zoomer, faire défiler, imprimer ; PDF protégés par mot de passe.
 - **Annoter / dessiner** : texte, trait, flèche, fil de schéma à angles droits, rectangle, ellipse,
@@ -20,7 +20,7 @@ Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
 - **Rotation libre sur 360°** et **miroir** horizontal / vertical de tout élément
   (R = 90°, E = 15°, H / V = miroir, angle précis au dixième de degré dans Propriétés).
 - **Grille et aimantation** (pas de 2,5 mm pour les schémas, 1 mm, 5 mm, ou pas réels de 10 / 25 / 50 cm pour les plans).
-- **Bibliothèques de symboles** (près de 400 symboles et 42 formes avec texte) :
+- **Bibliothèques de symboles** (plus de 500 symboles et 42 formes avec texte) :
   - Électricité – schémas : contacts NO / NF, boutons poussoirs, bobine KM, relais thermique,
     fusible, disjoncteur, lampe, résistance, condensateurs, diodes, LED, transistors, moteur,
     transformateur, appareils de mesure, masse, terre…
@@ -102,6 +102,29 @@ Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
   en symbole et en vue réaliste.
 - **Organigramme d'entreprise** pour le rapport de stage : *Insertion › Organigramme d'entreprise* pose un modèle relié
   (direction, services, tuteur, stagiaire) à compléter ; exemple : `exemples/exemple-organigramme.pdf`.
+- **Prévention électrique** : EPI (casque à écran facial, gants isolants, vêtement, chaussures, lunettes),
+  EIS (tapis, outils isolés 1000 V, cadenas de consignation, nappe, tabouret, VAT, macaron « Défense de manœuvrer »),
+  ECS (barrière, chaîne, pancarte « Danger de mort », dispositif MALT-CCT, cône) ;
+  exemple : `exemples/exemple-consignation.pdf` (les 5 étapes de la consignation et un devis calculé).
+- **Travail en hauteur** : échafaudage roulant, plateforme individuelle roulante (PIRL), escabeau, échelle, nacelles
+  (ciseaux, articulée, télescopique, mât vertical, camion, remorque), panneaux « harnais obligatoire » et « chute ».
+- **Manutention et sécurité** : pictogrammes d'emballage (haut, fragile, humidité, chaleur, centre de gravité, élingage,
+  gerbage limité, ne pas retourner…), signalisation (danger, interdiction, obligation) et produits dangereux (SGH01 à SGH09,
+  infectieux, radioactif).
+- **Logistique** : chariot élévateur, transpalette, diable, table élévatrice, convoyeur, camion, entrepôt, rayonnage,
+  palette, colis, scanner et étiquette code-barres, balance, levage de conteneur, bon de livraison.
+- **Prothésiste dentaire** : schéma dentaire des deux mâchoires avec la numérotation FDI (11 à 48), prothèse partielle amovible à crochets, dents, couronne, bridge, implant, prothèse amovible, appareil orthodontique, articulateur,
+  porte-empreinte, modèle en plâtre, pièce à main, fraise, fauteuil, radiographie, instruments.
+- **Outils** de l'électricien, isolés 1000 V (malette, tournevis, pinces coupante, à bec, universelle, à dénuder, à sertir, tournevis testeur, couronne de câble, ruban isolant, ampoules, VAT, mètre, niveau, perceuse, tire-fil), du mécanicien (clés plate, mixte,
+  à molette, à cliquet, dynamométrique, marteau, pince-étau, scie, lime, pied à coulisse, étau) et de l'informatique
+  (pince à sertir RJ45, connecteur 8P8C, testeur, outil d'insertion, bracelet antistatique).
+  Tous ces pictogrammes sont des **dessins originaux** inspirés des normes, libres d'utilisation.
+- **Tableaux avec calculs** (menu *Tableau*) : lignes et colonnes, ajout et suppression, fusion de cases, en-tête coloré ;
+  formules comme dans un tableur : `=B2*C2`, `=B3 x C3`, `=(A1+A2)/2`, `=√(144)`, `=A1^2`, `=SOMME(D2:D4)`,
+  `=MOYENNE(…)`, `=MAX(…)`, `=MIN(…)`, pourcentages ; les résultats se mettent à jour dans la page.
+- **Calculatrice scientifique et graphique** (Ctrl+K) : sin, cos, tan et inverses, ln, log, √, puissances, π, degrés ou
+  radians, historique ; tracé de trois courbes, zoom à la molette, et insertion du graphique dans la page.
+  Les calculs passent par un évaluateur sûr (aucun code n'est exécuté).
 - **Annuler / rétablir** illimité (150 étapes).
 - **Mode présentation** (F11 ou bouton ⛶) : plein écran avec la page seule, zoom à la molette ; les menus réapparaissent
   quand la souris touche le haut de l'écran, Échap pour quitter.

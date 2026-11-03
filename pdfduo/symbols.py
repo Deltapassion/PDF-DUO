@@ -7,6 +7,8 @@ Chaque symbole est un petit dessin SVG.
 
 Le mot-clé CC est remplacé par la couleur du trait.
 """
+import math
+
 
 TXT = 'fill="CC" stroke="none" font-family="Helvetica, Arial, sans-serif" text-anchor="middle"'
 
@@ -1847,6 +1849,772 @@ def _alt_vue(p):
 
 add("pvt_alternateur", "Alternateur voiture / bateau (vue)", SOLT, params=[("modele", "Modèle", "14 V – 90 A", None)],
     func=_alt_vue, pins=[(100, 23), (87, 70)], pin_names="")
+
+# ================================================================ v1.2.0 : prévention, manutention, logistique,
+# dentaire, outils. Dessins originaux (inspirés des pictogrammes normalisés, sans copie d'images).
+PREV = "Prévention électrique – EPI, EIS, ECS"
+EMB = "Manutention – pictogrammes d'emballage"
+SIGN = "Sécurité – signalisation et produits dangereux"
+LOG = "Logistique – équipements"
+DENT = "Prothésiste dentaire"
+OEL = "Outils – électricien"
+OMEC = "Outils – mécanicien"
+OINF = "Outils – informatique et réseau"
+_K = "#212121"
+
+
+def _frame(body, w=60, h=60):
+    return f'<rect x="2" y="2" width="{w - 4}" height="{h - 4}" fill="#ffffff" stroke="CC" stroke-width="1.6"/>' + body
+
+
+def _cross(x1=12, y1=12, x2=48, y2=48):
+    return (f'<path d="M{x1} {y1} L{x2} {y2} M{x2} {y1} L{x1} {y2}" stroke="CC" stroke-width="3.2"/>')
+
+
+def _forklift(x=0, y=0, s=1.0, col="CC"):
+    g = (f'<g transform="translate({x} {y}) scale({s})" fill="{col}" stroke="none">'
+         '<path d="M6 30 H30 V16 H22 L18 8 H8 V30 Z"/><rect x="10" y="10" width="7" height="8" fill="#ffffff"/>'
+         '<rect x="32" y="2" width="3" height="30"/><rect x="35" y="27" width="12" height="3"/>'
+         '<circle cx="11" cy="32" r="4.5"/><circle cx="26" cy="32" r="4.5"/>'
+         '<circle cx="11" cy="32" r="1.6" fill="#ffffff"/><circle cx="26" cy="32" r="1.6" fill="#ffffff"/></g>')
+    return g
+
+
+def _box(x, y, w, h, col="#c69c6d"):
+    return (f'<path d="M{x} {y + h * .25} L{x + w * .5} {y} L{x + w} {y + h * .25} V{y + h * .8} L{x + w * .5} {y + h} L{x} {y + h * .8} Z" '
+            f'fill="{col}" stroke="#6d4c2d" stroke-width="1"/>'
+            f'<path d="M{x} {y + h * .25} L{x + w * .5} {y + h * .5} L{x + w} {y + h * .25} M{x + w * .5} {y + h * .5} V{y + h}" stroke="#6d4c2d" stroke-width="1" fill="none"/>')
+
+
+# ---------------------------------------------------------------- prévention électrique (EPI / EIS / ECS)
+add("epi_gants", "Gants isolants (EPI)", PREV, 60, 60,
+    '<path d="M18 56 V36 L12 24 Q11 20 14 19 L20 30 V12 Q20 8 23 8 Q26 8 26 12 V28 V8 Q26 5 29 5 Q32 5 32 8 V28 V10 Q32 7 35 7 Q38 7 38 10 V30 V16 Q38 13 41 13 Q44 13 44 16 V40 Q44 48 40 56 Z" '
+    'fill="#fbc02d" stroke="#8d6e00" stroke-width="1.2"/><path d="M16 48 H44" stroke="#e53935" stroke-width="3"/>' + t(30, 56, "00", 5, "bold"))
+add("epi_vetement", "Vêtement de travail électricien (EPI)", PREV, 60, 60,
+    '<path d="M20 6 L40 6 L52 16 L46 26 L42 22 V56 H32 L30 36 L28 56 H18 V22 L14 26 L8 16 Z" fill="#283593" stroke="CC" stroke-width="1.2"/>'
+    '<path d="M30 6 V34" stroke="#c5cae9" stroke-width="1"/><path d="M18 30 H42" stroke="#ffeb3b" stroke-width="2.5"/>')
+add("epi_chaussures", "Chaussures de sécurité (EPI)", PREV, 60, 40,
+    '<path d="M6 30 V14 Q6 8 12 8 H26 L30 18 Q44 20 52 24 Q56 26 56 30 V34 H6 Z" fill="#3e2723" stroke="CC" stroke-width="1.2"/>'
+    '<path d="M6 34 H56" stroke="#ff8f00" stroke-width="3"/><path d="M42 21 Q52 24 54 30" stroke="#9e9e9e" stroke-width="2.4" fill="none"/>')
+add("epi_lunettes", "Lunettes de protection (EPI)", PREV, 60, 30,
+    '<path d="M4 10 Q4 6 10 6 H50 Q56 6 56 10 V18 Q56 24 48 24 H38 Q34 24 32 18 Q30 15 28 18 Q26 24 22 24 H12 Q4 24 4 18 Z" fill="#b3e5fc" fill-opacity="0.7" stroke="CC" stroke-width="1.4"/>')
+add("eis_tapis", "Tapis isolant (EIS)", PREV, 60, 40,
+    '<path d="M4 30 L16 10 H56 L44 30 Z" fill="#455a64" stroke="CC" stroke-width="1.2"/>'
+    + "".join(f'<path d="M{8 + i * 5} {28} L{19 + i * 5} {12}" stroke="#78909c" stroke-width="0.8"/>' for i in range(8)))
+add("eis_outils", "Outils isolés 1000 V (EIS)", PREV, 60, 60,
+    '<rect x="6" y="40" width="22" height="7" rx="3" fill="#e53935"/><rect x="18" y="40" width="10" height="7" rx="2" fill="#fdd835"/>'
+    '<path d="M28 43.5 H54" stroke="#9e9e9e" stroke-width="3"/>'
+    '<path d="M14 8 L22 30 M22 8 L14 30" stroke="#9e9e9e" stroke-width="3"/>'
+    '<path d="M10 24 L4 38 M26 24 L32 38" stroke="#e53935" stroke-width="5" stroke-linecap="round"/>'
+    + t(46, 30, "1000 V", 6, "bold") + '<path d="M40 14 L44 20 L48 14 Z" fill="#fdd835" stroke="CC" stroke-width="0.8"/>')
+add("eis_cadenas", "Cadenas de consignation (EIS)", PREV, 60, 60,
+    '<path d="M20 26 V16 Q20 6 30 6 Q40 6 40 16 V26" stroke="#9e9e9e" stroke-width="4" fill="none"/>'
+    '<rect x="14" y="24" width="32" height="26" rx="4" fill="#e53935" stroke="CC" stroke-width="1"/>'
+    '<circle cx="30" cy="35" r="3" fill="CC" stroke="none"/><path d="M30 37 V43" stroke="CC" stroke-width="2"/>'
+    '<path d="M44 46 L54 54 L48 58 L40 50 Z" fill="#ffffff" stroke="CC" stroke-width="0.8"/>')
+add("eis_nappe", "Nappe isolante (EIS)", PREV, 60, 50,
+    '<path d="M8 8 Q20 4 34 8 T56 8 V40 Q44 44 32 40 T8 40 Z" fill="#e0f2f1" fill-opacity="0.85" stroke="#00796b" stroke-width="1.4"/>'
+    '<circle cx="14" cy="14" r="2" fill="#00796b" stroke="none"/><circle cx="50" cy="14" r="2" fill="#00796b" stroke="none"/>')
+add("eis_tabouret", "Tabouret isolant (EIS)", PREV, 60, 50,
+    '<path d="M8 12 H52 L48 20 H12 Z" fill="#cfd8dc" stroke="CC" stroke-width="1.2"/>'
+    '<path d="M14 20 L10 46 M46 20 L50 46 M22 20 L20 46 M38 20 L40 46" stroke="#90a4ae" stroke-width="3"/>'
+    '<path d="M8 46 H52" stroke="CC" stroke-width="1.4"/>')
+add("eis_vat", "Vérificateur d'absence de tension (VAT)", PREV, 40, 70,
+    '<rect x="8" y="6" width="24" height="40" rx="5" fill="#fdd835" stroke="CC" stroke-width="1.2"/>'
+    '<rect x="12" y="12" width="16" height="12" rx="1.5" fill="#263238"/><circle cx="16" cy="30" r="2.5" fill="#e53935" stroke="none"/><circle cx="24" cy="30" r="2.5" fill="#43a047" stroke="none"/>'
+    '<path d="M20 46 V64" stroke="#e53935" stroke-width="3"/><path d="M20 64 V68" stroke="#9e9e9e" stroke-width="1.6"/>'
+    + _W(t(20, 21, "0 V", 6, "bold")))
+add("eis_macaron", "Macaron « Défense de manœuvrer » (EIS)", PREV, 60, 60,
+    '<circle cx="30" cy="30" r="27" fill="#e53935" stroke="CC" stroke-width="1"/><circle cx="30" cy="30" r="14" fill="#ffffff" stroke="none"/>'
+    '<path d="M32 19 L25 31 H31 L27 41 L36 28 H30 Z" fill="#e53935" stroke="none"/>'
+    + _W(t(30, 11, "DÉFENSE DE", 4.4, "bold")) + _W(t(30, 53, "MANŒUVRER", 4.4, "bold")))
+add("ecs_barriere", "Barrière de balisage (ECS)", PREV, 70, 50,
+    '<path d="M10 8 V48 M60 8 V48" stroke="CC" stroke-width="2.4"/>'
+    + "".join(f'<rect x="{10 + i * 10}" y="12" width="10" height="9" fill="{"#e53935" if i % 2 == 0 else "#ffffff"}" stroke="none"/>' for i in range(5))
+    + '<rect x="10" y="12" width="50" height="9" fill="none" stroke="CC" stroke-width="0.8"/>'
+    '<path d="M4 48 H16 M54 48 H66" stroke="CC" stroke-width="3"/>')
+add("ecs_chaine", "Chaîne et piquets de balisage (ECS)", PREV, 80, 50,
+    '<path d="M10 10 V46 M70 10 V46" stroke="#e53935" stroke-width="3.4"/><path d="M10 14 V20 M10 28 V34 M70 14 V20 M70 28 V34" stroke="#ffffff" stroke-width="3.4"/>'
+    '<path d="M10 14 Q40 32 70 14" stroke="#e53935" stroke-width="2.2" fill="none" stroke-dasharray="4 3"/>'
+    '<path d="M4 46 H16 M64 46 H76" stroke="CC" stroke-width="3"/>')
+add("ecs_pancarte", "Pancarte « Danger de mort » (ECS)", PREV, 70, 40,
+    '<rect x="3" y="3" width="64" height="34" fill="#ffffff" stroke="CC" stroke-width="1.4"/>'
+    '<path d="M16 8 L26 26 H6 Z" fill="#fdd835" stroke="CC" stroke-width="1.2"/><path d="M17 12 L13 20 H17 L15 25 L20 18 H16 Z" fill="CC" stroke="none"/>'
+    + t(48, 17, "DANGER", 7, "bold").replace('fill="CC"', 'fill="#e53935"') + t(48, 27, "DE MORT", 7, "bold").replace('fill="CC"', 'fill="#e53935"'))
+add("ecs_malt", "Dispositif de mise à la terre et en court-circuit (MALT-CCT)", PREV, 80, 60,
+    '<path d="M6 54 L40 10" stroke="#fdd835" stroke-width="3.4"/><path d="M6 54 L18 38" stroke="#e53935" stroke-width="3.4"/>'
+    '<path d="M40 10 L44 6 M44 6 L48 10" stroke="#9e9e9e" stroke-width="2"/>'
+    '<path d="M44 8 Q60 20 52 38 M44 8 Q70 14 68 34 M44 8 Q50 30 40 44" stroke="#bf8040" stroke-width="2" fill="none"/>'
+    '<path d="M48 36 L56 40 M64 32 L72 36 M36 42 L44 46" stroke="#616161" stroke-width="3"/>'
+    '<path d="M40 44 L40 54 M34 54 H46 M36 57 H44" stroke="#2e9b3a" stroke-width="1.6"/>')
+add("ecs_cone", "Cône de signalisation (ECS)", PREV, 40, 50,
+    '<path d="M16 6 H24 L34 44 H6 Z" fill="#ff6f00" stroke="CC" stroke-width="1"/><path d="M12 22 H28 L30 30 H10 Z" fill="#ffffff" stroke="none"/>'
+    '<rect x="2" y="44" width="36" height="4" fill="CC" stroke="none"/>')
+
+# ---------------------------------------------------------------- manutention : pictogrammes d'emballage (style ISO 780)
+add("emb_haut", "Haut (sens de stockage)", EMB, 60, 60, _frame(
+    '<path d="M20 44 V18 M40 44 V18" stroke="CC" stroke-width="4"/><path d="M13 22 L20 11 L27 22 Z M33 22 L40 11 L47 22 Z" fill="CC" stroke="none"/>'
+    '<path d="M12 48 H48" stroke="CC" stroke-width="3.4"/>'))
+add("emb_fragile", "Fragile – manipuler avec précaution", EMB, 60, 60, _frame(
+    '<path d="M18 10 H42 Q42 30 30 32 Q18 30 18 10 Z" fill="CC" stroke="none"/><path d="M30 32 V48 M22 49 H38" stroke="CC" stroke-width="3"/>'
+    '<path d="M31 11 L27 19 L32 21 L28 28" stroke="#ffffff" stroke-width="1.6" fill="none"/>'))
+add("emb_humidite", "Craint l'humidité", EMB, 60, 60, _frame(
+    '<path d="M12 30 Q30 10 48 30 Z" fill="CC" stroke="none"/><path d="M30 30 V46 Q30 50 26 50 Q23 50 23 47" stroke="CC" stroke-width="2.6" fill="none"/>'
+    + "".join(f'<path d="M{x} {y} l-1.5 4" stroke="CC" stroke-width="1.6"/>' for x, y in ((18, 10), (26, 7), (36, 8), (44, 12)))))
+add("emb_chaleur", "Craint la chaleur – protéger du soleil", EMB, 60, 60, _frame(
+    '<circle cx="34" cy="14" r="4" fill="CC" stroke="none"/>'
+    + "".join(f'<path d="M{34 + 6 * c:.1f} {14 + 6 * s:.1f} L{34 + 10 * c:.1f} {14 + 10 * s:.1f}" stroke="CC" stroke-width="1.4"/>'
+              for c, s in ((1, 0), (0.7, 0.7), (-0.7, 0.7), (-1, 0), (-0.7, -0.7), (0.7, -0.7), (0, -1)))
+    + '<path d="M10 34 L30 24 L50 34" stroke="CC" stroke-width="3" fill="none"/><rect x="22" y="36" width="16" height="12" fill="CC" stroke="none"/>'))
+add("emb_froid", "Protéger du froid", EMB, 60, 60, _frame(
+    "".join(f'<path d="M{30 - 18 * c:.1f} {30 - 18 * s:.1f} L{30 + 18 * c:.1f} {30 + 18 * s:.1f}" stroke="CC" stroke-width="2.6"/>' for c, s in ((1, 0), (0.5, 0.866), (-0.5, 0.866)))
+    + "".join(f'<path d="M{30 + 12 * c:.1f} {30 + 12 * s:.1f} l{4 * c - 4 * s:.1f} {4 * s + 4 * c:.1f} M{30 + 12 * c:.1f} {30 + 12 * s:.1f} l{4 * c + 4 * s:.1f} {4 * s - 4 * c:.1f}" stroke="CC" stroke-width="1.6"/>'
+              for c, s in ((1, 0), (0.5, 0.866), (-0.5, 0.866), (-1, 0), (-0.5, -0.866), (0.5, -0.866)))))
+add("emb_cg", "Centre de gravité", EMB, 60, 60, _frame(
+    '<path d="M30 8 V52 M8 30 H52" stroke="CC" stroke-width="2.6"/><circle cx="30" cy="30" r="10" fill="none" stroke="CC" stroke-width="3"/>'
+    '<path d="M30 20 A10 10 0 0 1 40 30 L30 30 Z M30 40 A10 10 0 0 1 20 30 L30 30 Z" fill="CC" stroke="none"/>'))
+add("emb_elingage", "Élinguer ici", EMB, 60, 60, _frame(
+    "".join(f'<rect x="25" y="{y}" width="10" height="16" rx="5" fill="none" stroke="CC" stroke-width="3"/>' for y in (6, 22, 38))))
+add("emb_pinces", "Pinces ici (prise par serrage)", EMB, 60, 60, _frame(
+    '<rect x="20" y="18" width="20" height="24" fill="CC" stroke="none"/><path d="M17 16 V44 M43 16 V44" stroke="CC" stroke-width="2"/>'
+    '<path d="M6 30 H13 M47 30 H54" stroke="CC" stroke-width="3"/><path d="M11 25 L16 30 L11 35 Z M49 25 L44 30 L49 35 Z" fill="CC" stroke="none"/>'))
+add("emb_pas_pinces", "Ne pas saisir avec des pinces", EMB, 60, 60, _frame(
+    '<rect x="20" y="18" width="20" height="24" fill="CC" stroke="none"/><path d="M6 30 H13 M47 30 H54" stroke="CC" stroke-width="3"/>'
+    '<path d="M11 25 L16 30 L11 35 Z M49 25 L44 30 L49 35 Z" fill="CC" stroke="none"/>' + _cross(10, 10, 50, 50)))
+
+
+def _gerbage(p):
+    n = p.get("niveaux", "3")
+    return (60, 60, _frame('<path d="M30 6 V14" stroke="CC" stroke-width="3"/><path d="M24 12 L30 18 L36 12 Z" fill="CC" stroke="none"/>'
+                           '<rect x="18" y="20" width="24" height="5" fill="CC" stroke="none"/><rect x="18" y="28" width="24" height="22" fill="CC" stroke="none"/>'
+                           + _W(t(30, 44, n, 12, "bold"))))
+
+
+add("emb_gerbage", "Gerbage limité (nombre de niveaux)", EMB, params=[("niveaux", "Niveaux", "3", None)], func=_gerbage)
+add("emb_pas_gerber", "Ne pas gerber", EMB, 60, 60, _frame(
+    '<rect x="20" y="8" width="20" height="18" fill="none" stroke="CC" stroke-width="2.4"/><path d="M20 8 L40 26 M40 8 L20 26" stroke="CC" stroke-width="2.4"/>'
+    '<rect x="18" y="30" width="24" height="22" fill="CC" stroke="none"/>'))
+add("emb_temperature", "Limites de température", EMB, 60, 60, _frame(
+    '<path d="M27 10 Q27 6 30 6 Q33 6 33 10 V38 A7 7 0 1 1 27 38 Z" fill="none" stroke="CC" stroke-width="2"/>'
+    '<circle cx="30" cy="44" r="4" fill="CC" stroke="none"/><path d="M30 44 V22" stroke="CC" stroke-width="2.6"/>'
+    '<path d="M12 40 H20 L40 16 H48" stroke="CC" stroke-width="1.8" fill="none"/>'))
+add("emb_pas_fourches", "Ne pas prendre avec des fourches", EMB, 60, 60, _frame(
+    '<path d="M14 22 V38 H46 M14 30 H46" stroke="CC" stroke-width="2.6" fill="none"/><path d="M10 14 V42" stroke="CC" stroke-width="3"/>' + _cross()))
+add("emb_pas_retourner", "Ne pas retourner", EMB, 60, 60, _frame(
+    '<rect x="20" y="30" width="20" height="20" fill="CC" stroke="none"/><path d="M14 30 Q14 10 30 10 Q46 10 46 26" stroke="CC" stroke-width="2.6" fill="none" stroke-dasharray="5 3"/>'
+    '<path d="M41 24 L46 30 L51 24 Z" fill="CC" stroke="none"/>' + _cross(14, 8, 46, 40)))
+add("emb_pas_crochet", "Ne pas utiliser de crochet", EMB, 60, 60, _frame(
+    '<path d="M30 8 V30 Q30 44 20 44 Q12 44 12 36" stroke="CC" stroke-width="3.4" fill="none"/><path d="M24 8 H36" stroke="CC" stroke-width="3.4"/>' + _cross()))
+add("emb_soin", "Manipuler avec soin", EMB, 60, 60, _frame(
+    _box(20, 8, 20, 20, "CC").replace('fill="CC" stroke="#6d4c2d"', 'fill="CC" stroke="#ffffff"').replace('stroke="#6d4c2d" stroke-width="1" fill="none"', 'stroke="#ffffff" stroke-width="1" fill="none"')
+    + '<path d="M8 36 Q14 34 18 40 L26 48 M52 36 Q46 34 42 40 L34 48" stroke="CC" stroke-width="3.4" fill="none"/>'))
+add("emb_poids", "Poids (masse brute)", EMB, params=[("masse", "Masse", "25 kg", None)],
+    func=lambda p: (60, 60, _frame('<path d="M24 16 Q24 10 30 10 Q36 10 36 16" stroke="CC" stroke-width="2.6" fill="none"/>'
+                                   '<path d="M16 18 H44 L50 50 H10 Z" fill="CC" stroke="none"/>' + _W(t(30, 40, p["masse"], 8, "bold")))))
+add("emb_recyclable", "Recyclable", EMB, 60, 60, _frame(
+    "".join(f'<g transform="rotate({a} 30 32)"><path d="M18 40 L26 26 L30 30 L30 20 L21 22 L24 25 L15 39 Z" fill="CC" stroke="none"/></g>' for a in (0, 120, 240))))
+add("emb_poubelle", "Jeter dans une poubelle", EMB, 60, 60, _frame(
+    '<path d="M14 26 H30 L28 50 H16 Z" fill="none" stroke="CC" stroke-width="2"/><path d="M18 30 V46 M22 30 V46 M26 30 V46" stroke="CC" stroke-width="1"/>'
+    '<circle cx="42" cy="12" r="4" fill="CC" stroke="none"/><path d="M42 16 V36 L36 50 M42 36 L48 50 M42 22 L28 22" stroke="CC" stroke-width="3.4" fill="none"/>'))
+
+# ---------------------------------------------------------------- sécurité : signalisation (style ISO 7010) et produits dangereux (SGH)
+add("sig_interdit_engins", "Circulation d'engins interdite", SIGN, 60, 60,
+    '<circle cx="30" cy="30" r="26" fill="#ffffff" stroke="#d32f2f" stroke-width="5"/>' + _forklift(10, 12, 0.85)
+    + '<path d="M12 12 L48 48" stroke="#d32f2f" stroke-width="5"/>')
+add("sig_danger_engins", "Danger : circulation d'engins", SIGN, 64, 56,
+    '<path d="M32 4 L61 52 H3 Z" fill="#fdd835" stroke="CC" stroke-width="3.4" stroke-linejoin="round"/>' + _forklift(14, 22, 0.75))
+add("sig_danger_elec", "Danger électrique", SIGN, 64, 56,
+    '<path d="M32 4 L61 52 H3 Z" fill="#fdd835" stroke="CC" stroke-width="3.4" stroke-linejoin="round"/>'
+    '<path d="M35 16 L24 36 H32 L27 48 L42 30 H33 Z" fill="CC" stroke="none"/>')
+add("sig_danger_general", "Danger général", SIGN, 64, 56,
+    '<path d="M32 4 L61 52 H3 Z" fill="#fdd835" stroke="CC" stroke-width="3.4" stroke-linejoin="round"/>'
+    '<path d="M32 18 V38" stroke="CC" stroke-width="5"/><circle cx="32" cy="45" r="3" fill="CC" stroke="none"/>')
+
+
+def _oblig(body):
+    return '<circle cx="30" cy="30" r="27" fill="#1565c0" stroke="none"/>' + body
+
+
+add("sig_chaussures", "Port de chaussures de sécurité obligatoire", SIGN, 60, 60, _oblig(
+    '<path d="M16 42 V20 Q16 16 20 16 H28 L30 30 Q40 32 44 36 Q46 38 46 42 Z" fill="#ffffff" stroke="none"/><path d="M16 45 H46" stroke="#ffffff" stroke-width="3"/>'))
+add("sig_gants", "Port de gants obligatoire", SIGN, 60, 60, _oblig(
+    '<path d="M22 48 V34 L17 26 Q16 23 19 22 L24 30 V16 Q24 13 26.5 13 Q29 13 29 16 V28 V13 Q29 11 31.5 11 Q34 11 34 13 V28 V15 Q34 13 36.5 13 Q39 13 39 15 V30 V20 Q39 18 41 18 Q43 18 43 20 V38 Q43 44 40 48 Z" fill="#ffffff" stroke="none"/>'))
+add("sig_casque", "Port du casque obligatoire", SIGN, 60, 60, _oblig(
+    '<path d="M14 36 Q14 16 30 16 Q46 16 46 36 Z" fill="#ffffff" stroke="none"/><path d="M10 38 H50" stroke="#ffffff" stroke-width="3.4"/>'))
+add("sig_lunettes", "Port de lunettes obligatoire", SIGN, 60, 60, _oblig(
+    '<path d="M10 24 H50 V32 Q50 38 44 38 H37 Q33 38 32 33 Q30 30 28 33 Q27 38 23 38 H16 Q10 38 10 32 Z" fill="#ffffff" stroke="none"/>'))
+
+
+def _ghs(body):
+    return ('<path d="M30 3 L57 30 L30 57 L3 30 Z" fill="#ffffff" stroke="#d32f2f" stroke-width="4" stroke-linejoin="miter"/>' + body)
+
+
+add("ghs_explosif", "Matière explosive (SGH01)", SIGN, 60, 60, _ghs(
+    '<circle cx="27" cy="34" r="7" fill="CC" stroke="none"/>'
+    + "".join(f'<path d="M{27 + 9 * c:.1f} {34 + 9 * s:.1f} L{27 + 14 * c:.1f} {34 + 14 * s:.1f}" stroke="CC" stroke-width="2"/>' for c, s in ((0, -1), (0.7, -0.7), (1, 0), (-0.7, -0.7), (-1, 0), (0.7, 0.7)))
+    + '<rect x="36" y="22" width="4" height="4" fill="CC" stroke="none"/><rect x="18" y="20" width="3" height="3" fill="CC" stroke="none"/>'))
+add("ghs_inflammable", "Matière inflammable (SGH02)", SIGN, 60, 60, _ghs(
+    '<path d="M30 14 Q38 24 36 32 Q40 30 40 26 Q46 34 42 40 Q38 46 30 46 Q22 46 19 40 Q16 32 24 26 Q24 32 27 33 Q24 22 30 14 Z" fill="CC" stroke="none"/>'
+    '<path d="M18 46 H42" stroke="CC" stroke-width="2.4"/>'))
+add("ghs_comburant", "Matière comburante (SGH03)", SIGN, 60, 60, _ghs(
+    '<circle cx="30" cy="36" r="8" fill="none" stroke="CC" stroke-width="3"/>'
+    '<path d="M30 12 Q37 20 35 27 Q38 24 38 22 Q42 28 38 31 M30 12 Q24 20 25 27 Q22 24 22 22 Q18 28 22 31" stroke="CC" stroke-width="2.4" fill="none"/>'
+    '<path d="M18 46 H42" stroke="CC" stroke-width="2.4"/>'))
+add("ghs_gaz", "Gaz sous pression (SGH04)", SIGN, 60, 60, _ghs(
+    '<rect x="17" y="24" width="26" height="12" rx="6" fill="CC" stroke="none" transform="rotate(-20 30 30)"/><rect x="40" y="18" width="5" height="5" fill="CC" stroke="none" transform="rotate(-20 30 30)"/>'))
+add("ghs_corrosif", "Matière corrosive (SGH05)", SIGN, 60, 60, _ghs(
+    '<path d="M16 18 L24 14 L26 18 L18 22 Z M34 14 L42 18 L40 22 L32 18 Z" fill="CC" stroke="none"/>'
+    '<path d="M22 24 V28 M38 24 V29" stroke="CC" stroke-width="1.6"/>'
+    '<path d="M14 36 H28 L26 32 H16 Z" fill="CC" stroke="none"/><path d="M33 36 H45 V40 H33 Z" fill="CC" stroke="none"/>'
+    '<path d="M18 44 H42" stroke="CC" stroke-width="2.4"/>'))
+add("ghs_toxique", "Toxicité aiguë – provoque la mort (SGH06)", SIGN, 60, 60, _ghs(
+    '<circle cx="30" cy="25" r="8" fill="CC" stroke="none"/><circle cx="27" cy="24" r="2" fill="#ffffff" stroke="none"/><circle cx="33" cy="24" r="2" fill="#ffffff" stroke="none"/>'
+    '<rect x="26" y="31" width="8" height="4" fill="CC" stroke="none"/><path d="M18 34 L42 44 M42 34 L18 44" stroke="CC" stroke-width="3.4"/>'))
+add("ghs_nocif", "Nocif / irritant (SGH07)", SIGN, 60, 60, _ghs(
+    '<path d="M30 16 V34" stroke="CC" stroke-width="5"/><circle cx="30" cy="41" r="3" fill="CC" stroke="none"/>'))
+add("ghs_sante", "Danger pour la santé (SGH08)", SIGN, 60, 60, _ghs(
+    '<circle cx="30" cy="20" r="5" fill="CC" stroke="none"/><path d="M22 46 V30 Q22 26 30 26 Q38 26 38 30 V46 Z" fill="CC" stroke="none"/>'
+    '<path d="M26 32 L30 36 L34 32 L30 42 Z" fill="#ffffff" stroke="none"/>'))
+add("ghs_environnement", "Danger pour l'environnement (SGH09)", SIGN, 60, 60, _ghs(
+    '<path d="M18 22 L22 14 L26 22 Z M17 30 L22 20 L27 30 Z" fill="CC" stroke="none"/><path d="M22 30 V36" stroke="CC" stroke-width="2"/>'
+    '<path d="M28 42 Q34 36 40 42 Q34 46 28 42 Z M40 42 L44 39 V45 Z" fill="CC" stroke="none"/><path d="M14 36 H32" stroke="CC" stroke-width="1.6"/>'))
+add("ghs_infectieux", "Matière infectieuse (risque biologique)", SIGN, 60, 60,
+    '<path d="M30 3 L57 30 L30 57 L3 30 Z" fill="#ffffff" stroke="CC" stroke-width="2.4"/>'
+    + "".join(f'<g transform="rotate({a} 30 26)"><circle cx="30" cy="19" r="6" fill="none" stroke="CC" stroke-width="2.4"/></g>' for a in (0, 120, 240))
+    + '<circle cx="30" cy="26" r="3" fill="none" stroke="CC" stroke-width="1.6"/>' + t(30, 50, "6", 6, "bold"))
+add("ghs_radioactif", "Matière radioactive", SIGN, 60, 60,
+    '<path d="M30 3 L57 30 L30 57 L3 30 Z" fill="#fdd835" stroke="CC" stroke-width="2.4"/>'
+    + "".join(f'<g transform="rotate({a} 30 28)"><path d="M30 28 L24 17 A13 13 0 0 1 36 17 Z" fill="CC" stroke="none"/></g>' for a in (0, 120, 240))
+    + '<circle cx="30" cy="28" r="2.6" fill="CC" stroke="none"/><circle cx="30" cy="28" r="4.6" fill="none" stroke="#fdd835" stroke-width="1.6"/>' + t(30, 52, "7", 6, "bold"))
+
+# ---------------------------------------------------------------- logistique : équipements
+add("log_chariot", "Chariot élévateur", LOG, 60, 50, _forklift(4, 4, 1.15, "#f9a825").replace('fill="#f9a825" stroke="none">', 'fill="#f9a825" stroke="#5d4300" stroke-width="0.6">'))
+add("log_transpalette", "Transpalette manuel", LOG, 70, 50,
+    '<path d="M16 4 L18 34" stroke="CC" stroke-width="3"/><path d="M12 4 H22" stroke="CC" stroke-width="3"/>'
+    '<rect x="10" y="32" width="14" height="8" rx="2" fill="#e53935" stroke="none"/><path d="M24 40 H66" stroke="CC" stroke-width="4"/>'
+    '<circle cx="16" cy="44" r="4" fill="CC" stroke="none"/><circle cx="60" cy="45" r="2.5" fill="CC" stroke="none"/>')
+add("log_diable", "Diable (chariot à deux roues)", LOG, 50, 60,
+    '<path d="M10 4 L20 46 H36" stroke="CC" stroke-width="3" fill="none"/><path d="M6 6 H14" stroke="CC" stroke-width="3"/>'
+    '<circle cx="22" cy="50" r="6" fill="CC" stroke="none"/><circle cx="22" cy="50" r="2" fill="#ffffff" stroke="none"/>' + _box(18, 22, 20, 24))
+add("log_table_elev", "Table élévatrice à ciseaux", LOG, 60, 50,
+    '<rect x="10" y="8" width="44" height="5" fill="CC" stroke="none"/><path d="M14 13 L48 40 M48 13 L14 40" stroke="CC" stroke-width="2.6"/>'
+    '<rect x="8" y="40" width="48" height="4" fill="CC" stroke="none"/><circle cx="12" cy="47" r="3" fill="CC" stroke="none"/><circle cx="52" cy="47" r="3" fill="CC" stroke="none"/>'
+    '<path d="M6 30 V18" stroke="CC" stroke-width="2"/>')
+add("log_convoyeur", "Convoyeur à rouleaux", LOG, 80, 40,
+    _box(12, 2, 16, 18) + _box(40, 4, 20, 16) + '<rect x="4" y="22" width="72" height="5" fill="#90a4ae" stroke="CC" stroke-width="1"/>'
+    + "".join(f'<circle cx="{8 + i * 8}" cy="31" r="3" fill="CC" stroke="none"/>' for i in range(9)) + '<path d="M8 34 V39 M72 34 V39" stroke="CC" stroke-width="2"/>')
+add("log_camion", "Camion semi-remorque", LOG, 100, 50,
+    '<rect x="4" y="8" width="64" height="28" fill="#eceff1" stroke="CC" stroke-width="1.4"/>'
+    '<path d="M70 18 H86 L94 28 V36 H70 Z" fill="#1976d2" stroke="CC" stroke-width="1.2"/><path d="M74 20 H84 L89 27 H74 Z" fill="#bbdefb" stroke="none"/>'
+    + "".join(f'<circle cx="{x}" cy="40" r="5" fill="CC" stroke="none"/><circle cx="{x}" cy="40" r="1.8" fill="#ffffff" stroke="none"/>' for x in (14, 26, 52, 78, 88)))
+add("log_entrepot", "Entrepôt", LOG, 70, 50,
+    '<path d="M4 18 L35 4 L66 18 V46 H4 Z" fill="#eceff1" stroke="CC" stroke-width="1.4"/>'
+    '<rect x="18" y="24" width="34" height="22" fill="#90a4ae" stroke="CC" stroke-width="1"/>'
+    + "".join(f'<path d="M18 {27 + i * 3} H52" stroke="#eceff1" stroke-width="0.8"/>' for i in range(6)))
+add("log_rayonnage", "Rayonnage à palettes", LOG, 70, 60,
+    '<path d="M4 4 V56 M66 4 V56 M4 28 H66 M4 54 H66" stroke="#1565c0" stroke-width="2.6"/>' + _box(10, 8, 18, 18) + _box(40, 8, 18, 18) + _box(24, 34, 18, 18))
+add("log_palette", "Palette chargée", LOG, 60, 50,
+    _box(10, 2, 20, 18) + _box(30, 2, 20, 18) + _box(20, 14, 20, 18)
+    + '<rect x="6" y="36" width="48" height="4" fill="#bf8040" stroke="#6d4c2d" stroke-width="0.8"/><rect x="6" y="44" width="48" height="3" fill="#bf8040" stroke="#6d4c2d" stroke-width="0.8"/>'
+    '<rect x="8" y="40" width="6" height="4" fill="#8d6e63" stroke="none"/><rect x="27" y="40" width="6" height="4" fill="#8d6e63" stroke="none"/><rect x="46" y="40" width="6" height="4" fill="#8d6e63" stroke="none"/>')
+add("log_colis", "Colis (carton)", LOG, 50, 50, _box(5, 5, 40, 40))
+add("log_scanner", "Scanner de codes-barres", LOG, 60, 50,
+    '<path d="M6 10 H34 L40 18 H26 L22 46 H12 L16 18 H6 Z" fill="#424242" stroke="CC" stroke-width="1"/><path d="M40 14 L58 6 M40 16 L58 26" stroke="#e53935" stroke-width="1.2"/>'
+    + "".join(f'<path d="M{46 + i * 2} 30 V44" stroke="CC" stroke-width="{1.4 if i % 3 else 0.6}"/>' for i in range(6)))
+add("log_balance", "Balance de pesée (plateforme)", LOG, 60, 60,
+    '<circle cx="44" cy="14" r="10" fill="#ffffff" stroke="CC" stroke-width="1.6"/><path d="M44 14 L50 9" stroke="#e53935" stroke-width="1.4"/>'
+    '<path d="M44 24 V48" stroke="CC" stroke-width="3"/><rect x="4" y="46" width="48" height="6" fill="#90a4ae" stroke="CC" stroke-width="1"/>' + _box(10, 26, 20, 20))
+add("log_grue", "Levage par crochet (conteneur)", LOG, 60, 60,
+    '<rect x="26" y="2" width="8" height="10" fill="#fdd835" stroke="CC" stroke-width="1"/><path d="M30 12 V18 Q30 24 25 22" stroke="CC" stroke-width="2.4" fill="none"/>'
+    '<path d="M30 20 L10 34 M30 20 L50 34" stroke="CC" stroke-width="1.4"/><rect x="8" y="34" width="44" height="22" fill="#e65100" stroke="CC" stroke-width="1"/>'
+    + "".join(f'<path d="M{12 + i * 5} 37 V53" stroke="#bf360c" stroke-width="1.2"/>' for i in range(8)))
+add("log_bon", "Bon de livraison / liste de contrôle", LOG, 50, 60,
+    '<rect x="6" y="6" width="38" height="50" rx="2" fill="#ffffff" stroke="CC" stroke-width="1.6"/><rect x="18" y="2" width="14" height="7" rx="2" fill="#9e9e9e" stroke="none"/>'
+    + "".join(f'<path d="M12 {18 + i * 8} l2 2 l4 -4" stroke="#43a047" stroke-width="1.4" fill="none"/><path d="M22 {17 + i * 8} H38" stroke="CC" stroke-width="1"/>' for i in range(4)))
+add("log_code_barres", "Étiquette code-barres", LOG, 60, 40,
+    '<rect x="3" y="3" width="54" height="34" rx="2" fill="#ffffff" stroke="CC" stroke-width="1.2"/>'
+    + "".join(f'<rect x="{8 + i * 2.2:.1f}" y="8" width="{1.4 if i % 4 else 0.7}" height="20" fill="CC" stroke="none"/>' for i in range(20))
+    + t(30, 34, "3 760 123 456 789", 4.5))
+
+# ---------------------------------------------------------------- prothésiste dentaire
+_DT = 'fill="#ffffff" stroke="CC" stroke-width="1.6"'
+add("dent_incisive", "Dent incisive", DENT, 40, 60,
+    f'<path d="M10 6 H30 Q32 18 28 26 L24 54 Q20 58 16 54 L12 26 Q8 18 10 6 Z" {_DT}/><path d="M12 26 H28" stroke="#ef9a9a" stroke-width="1.2"/>')
+add("dent_molaire", "Dent molaire (racines)", DENT, 50, 60,
+    f'<path d="M6 12 Q6 4 14 6 Q20 2 25 6 Q30 2 36 6 Q44 4 44 12 Q46 24 40 28 L38 52 Q34 56 32 50 L28 34 Q25 32 22 34 L18 50 Q16 56 12 52 L10 28 Q4 24 6 12 Z" {_DT}/>'
+    '<path d="M10 28 H40" stroke="#ef9a9a" stroke-width="1.2"/>')
+add("dent_couronne", "Couronne prothétique", DENT, 50, 40,
+    '<path d="M6 30 Q4 10 14 8 Q20 4 25 8 Q30 4 36 8 Q46 10 44 30 Z" fill="#fff8e1" stroke="CC" stroke-width="1.6"/>'
+    '<path d="M12 30 Q12 22 25 22 Q38 22 38 30" stroke="#bdbdbd" stroke-width="1.2" fill="none"/><path d="M6 30 H44" stroke="#ffb300" stroke-width="2"/>')
+add("dent_bridge", "Bridge 3 éléments", DENT, 90, 50,
+    "".join(f'<path d="M{x} 30 Q{x - 2} 10 {x + 8} 8 Q{x + 14} 4 {x + 19} 8 Q{x + 24} 4 {x + 30} 8 Q{x + 40} 10 {x + 38} 30 Z" fill="#fff8e1" stroke="CC" stroke-width="1.4"/>' for x in (4, 30, 56))
+    + '<path d="M8 40 L12 32 M78 40 L82 32" stroke="CC" stroke-width="1"/><path d="M6 32 Q8 46 16 46 Q22 46 24 32 M66 32 Q68 46 76 46 Q82 46 84 32" fill="#ffffff" stroke="CC" stroke-width="1.4"/>'
+    + t(45, 44, "pontique", 5))
+add("dent_implant", "Implant dentaire (vis, pilier, couronne)", DENT, 40, 70,
+    '<path d="M6 20 Q4 4 14 4 Q20 2 26 4 Q36 4 34 20 Z" fill="#fff8e1" stroke="CC" stroke-width="1.4"/>'
+    '<rect x="14" y="20" width="12" height="8" fill="#b0bec5" stroke="CC" stroke-width="1"/>'
+    '<path d="M13 28 H27 L24 64 H16 Z" fill="#90a4ae" stroke="CC" stroke-width="1"/>'
+    + "".join(f'<path d="M14 {32 + i * 6} L26 {35 + i * 6}" stroke="#455a64" stroke-width="1.2"/>' for i in range(5)))
+add("dent_ortho", "Appareil orthodontique (bagues et arc)", DENT, 80, 40,
+    "".join(f'<rect x="{6 + i * 12}" y="8" width="10" height="24" rx="4" fill="#ffffff" stroke="CC" stroke-width="1.2"/><rect x="{8 + i * 12}" y="16" width="6" height="6" fill="#90a4ae" stroke="none"/>' for i in range(6))
+    + '<path d="M4 19 H78" stroke="#607d8b" stroke-width="1.4"/>')
+add("dent_articulateur", "Articulateur dentaire", DENT, 60, 60,
+    '<rect x="8" y="50" width="44" height="6" fill="#90a4ae" stroke="CC" stroke-width="1"/><path d="M44 50 V12 H14" stroke="#607d8b" stroke-width="3" fill="none"/>'
+    '<path d="M44 30 H18" stroke="#607d8b" stroke-width="2.4"/><circle cx="44" cy="30" r="3" fill="#455a64" stroke="none"/>'
+    '<path d="M14 14 H30 V22 H14 Z M18 32 H34 V40 H18 Z" fill="#f48fb1" stroke="CC" stroke-width="0.8"/><path d="M20 40 V50" stroke="#607d8b" stroke-width="2"/>')
+add("dent_porte_empreinte", "Porte-empreinte", DENT, 70, 40,
+    '<path d="M6 20 Q6 4 30 4 Q54 4 54 20 Q54 34 30 34 Q6 34 6 20 Z" fill="#cfd8dc" stroke="CC" stroke-width="1.4"/>'
+    '<path d="M14 20 Q14 12 30 12 Q46 12 46 20 Q46 26 30 26 Q14 26 14 20 Z" fill="#fff59d" stroke="CC" stroke-width="0.8"/><path d="M54 20 H68" stroke="CC" stroke-width="4"/>')
+add("dent_modele", "Modèle en plâtre", DENT, 60, 50,
+    '<path d="M6 30 Q6 8 30 8 Q54 8 54 30 V44 H6 Z" fill="#eeeeee" stroke="CC" stroke-width="1.2"/>'
+    + "".join(f'<rect x="{11 + i * 5}" y="{16 - (3 if 2 < i < 6 else 0)}" width="4.4" height="8" rx="2" fill="#ffffff" stroke="CC" stroke-width="0.6"/>' for i in range(8)))
+add("dent_piece_main", "Pièce à main / micromoteur", DENT, 80, 30,
+    '<path d="M4 15 L10 13 V17 Z" fill="#9e9e9e" stroke="none"/><rect x="10" y="10" width="12" height="10" rx="2" fill="#b0bec5" stroke="CC" stroke-width="1"/>'
+    '<rect x="22" y="9" width="36" height="12" rx="5" fill="#cfd8dc" stroke="CC" stroke-width="1"/><path d="M58 15 Q68 15 78 22" stroke="#616161" stroke-width="3" fill="none"/>')
+add("dent_fraise", "Fraise dentaire", DENT, 20, 60,
+    '<rect x="8" y="4" width="4" height="34" fill="#bdbdbd" stroke="CC" stroke-width="0.8"/><path d="M6 38 H14 L12 54 Q10 58 8 54 Z" fill="#ffd54f" stroke="CC" stroke-width="1"/>'
+    + "".join(f'<path d="M7 {41 + i * 4} L13 {43 + i * 4}" stroke="#8d6e00" stroke-width="0.8"/>' for i in range(3)))
+add("dent_miroir", "Miroir dentaire", DENT, 20, 70,
+    '<circle cx="10" cy="10" r="7" fill="#e3f2fd" stroke="CC" stroke-width="1.4"/><path d="M10 17 V66" stroke="#9e9e9e" stroke-width="2.4"/>')
+add("dent_sonde", "Sonde dentaire", DENT, 20, 70,
+    '<path d="M10 66 V20 Q10 8 4 6" stroke="#9e9e9e" stroke-width="2" fill="none"/><path d="M8 40 V62" stroke="#757575" stroke-width="4.4"/>')
+add("dent_brosse", "Brosse à dents", DENT, 80, 30,
+    '<path d="M4 18 H52" stroke="#42a5f5" stroke-width="5" stroke-linecap="round"/><rect x="52" y="14" width="22" height="7" rx="2" fill="#42a5f5" stroke="none"/>'
+    + "".join(f'<path d="M{55 + i * 3} 14 V4" stroke="#90caf9" stroke-width="1.6"/>' for i in range(7)))
+add("dent_fauteuil", "Fauteuil dentaire (unit)", DENT, 80, 60,
+    '<path d="M10 10 Q8 4 14 4 L22 6 Q26 8 24 14 L22 30 H52 Q58 30 60 36 L62 40 H20 Q14 40 14 34 Z" fill="#26a69a" stroke="CC" stroke-width="1.2"/>'
+    '<path d="M36 40 V52 M24 54 H48" stroke="#607d8b" stroke-width="4"/><path d="M66 6 V30 M56 8 H76" stroke="#607d8b" stroke-width="2"/>'
+    '<circle cx="56" cy="12" r="5" fill="#fff59d" stroke="CC" stroke-width="1"/><rect x="62" y="30" width="12" height="4" fill="#90a4ae" stroke="none"/>')
+add("dent_dentifrice", "Tube de dentifrice", DENT, 80, 30,
+    '<path d="M4 6 H50 L60 11 V19 L50 24 H4 Q2 15 4 6 Z" fill="#e3f2fd" stroke="CC" stroke-width="1.2"/><rect x="60" y="10" width="8" height="10" fill="#1565c0" stroke="none"/>'
+    '<path d="M4 10 H48 M4 20 H48" stroke="#e53935" stroke-width="1.6"/><path d="M68 15 Q74 10 78 15" stroke="#ffffff" stroke-width="4" fill="none"/><path d="M68 15 Q74 10 78 15" stroke="#4fc3f7" stroke-width="1.4" fill="none"/>')
+add("dent_technicien", "Prothésiste au travail (poste de laboratoire)", DENT, 80, 60,
+    '<circle cx="24" cy="14" r="7" fill="CC" stroke="none"/><path d="M14 46 V30 Q14 24 24 24 Q32 24 36 30 L46 36" stroke="CC" stroke-width="6" fill="none" stroke-linecap="round"/>'
+    '<rect x="4" y="44" width="72" height="5" fill="#8d6e63" stroke="CC" stroke-width="0.8"/><path d="M10 49 V58 M70 49 V58" stroke="CC" stroke-width="2"/>'
+    '<path d="M52 44 Q52 36 60 36 Q68 36 68 44 Z" fill="#ffffff" stroke="CC" stroke-width="1"/><path d="M46 36 L54 30" stroke="#9e9e9e" stroke-width="2"/>'
+    '<path d="M60 10 V24 M54 24 H66" stroke="#607d8b" stroke-width="2"/><path d="M52 24 L60 32 L68 24 Z" fill="#fff59d" stroke="none" opacity="0.6"/>')
+add("dent_radio", "Radiographie dentaire", DENT, 60, 50,
+    '<rect x="4" y="4" width="52" height="42" rx="3" fill="#263238" stroke="CC" stroke-width="1"/>'
+    '<path d="M18 12 Q18 8 24 9 Q30 6 36 9 Q42 8 42 12 Q44 20 40 22 L38 40 Q35 42 34 38 L32 28 Q30 26 28 28 L26 38 Q25 42 22 40 L20 22 Q16 20 18 12 Z" fill="#cfd8dc" stroke="none"/>')
+
+# ---------------------------------------------------------------- outils
+def _pince(jaws, col="#e53935"):
+    return ('<path d="M30 30 L8 56" stroke="' + col + '" stroke-width="6" stroke-linecap="round"/><path d="M30 30 L52 56" stroke="' + col + '" stroke-width="6" stroke-linecap="round"/>'
+            '<circle cx="30" cy="30" r="4" fill="#757575" stroke="CC" stroke-width="0.8"/>' + jaws)
+
+
+add("oel_metre", "Mètre ruban", OEL, 70, 50,
+    '<rect x="4" y="6" width="38" height="38" rx="8" fill="#fdd835" stroke="CC" stroke-width="1.4"/><circle cx="23" cy="25" r="9" fill="#424242" stroke="none"/>'
+    '<rect x="42" y="36" width="24" height="6" fill="#fff59d" stroke="CC" stroke-width="0.8"/>' + "".join(f'<path d="M{45 + i * 4} 36 V{39 if i % 2 else 40}" stroke="CC" stroke-width="0.6"/>' for i in range(6))
+    + '<path d="M66 34 V44" stroke="CC" stroke-width="1.6"/>')
+add("oel_niveau", "Niveau à bulle", OEL, 90, 20,
+    '<rect x="4" y="4" width="82" height="12" rx="1.5" fill="#fdd835" stroke="CC" stroke-width="1.2"/><rect x="38" y="6" width="14" height="8" rx="3" fill="#c5e1a5" stroke="CC" stroke-width="0.8"/>'
+    '<circle cx="45" cy="10" r="2.4" fill="#ffffff" stroke="none"/><path d="M41 6 V14 M49 6 V14" stroke="CC" stroke-width="0.6"/>')
+add("oel_perceuse", "Perceuse-visseuse sans fil", OEL, 70, 60,
+    '<path d="M10 8 H48 Q54 8 54 14 V20 Q54 24 48 24 H34 L30 46 H18 L22 24 H10 Q6 24 6 18 V14 Q6 8 10 8 Z" fill="#43a047" stroke="CC" stroke-width="1.2"/>'
+    '<rect x="14" y="46" width="22" height="10" rx="2" fill="#263238" stroke="none"/><rect x="54" y="12" width="8" height="8" fill="#424242" stroke="none"/>'
+    '<path d="M62 16 H70" stroke="#9e9e9e" stroke-width="2"/>')
+add("oel_tire_fil", "Tire-fil (aiguille)", OEL, 80, 50,
+    '<circle cx="22" cy="25" r="18" fill="#263238" stroke="CC" stroke-width="1"/><circle cx="22" cy="25" r="10" fill="#ffffff" stroke="none"/>'
+    '<path d="M38 18 Q60 6 76 14" stroke="#455a64" stroke-width="2.4" fill="none"/><circle cx="76" cy="14" r="2" fill="#9e9e9e" stroke="none"/>')
+add("omec_cle_plate", "Clé plate", OMEC, 90, 30,
+    '<path d="M18 15 H72" stroke="#9e9e9e" stroke-width="7" stroke-linecap="round"/>'
+    '<path d="M4 9 L10 4 H20 L24 10 L18 12 V18 L24 20 L20 26 H10 L4 21 Z" fill="#9e9e9e" stroke="CC" stroke-width="1"/>'
+    '<path d="M86 9 L80 4 H70 L66 10 L72 12 V18 L66 20 L70 26 H80 L86 21 Z" fill="#9e9e9e" stroke="CC" stroke-width="1"/>' + t(45, 18, "13", 5, "bold"))
+add("omec_cle_mixte", "Clé mixte (plate et polygonale)", OMEC, 90, 30,
+    '<path d="M18 15 H72" stroke="#9e9e9e" stroke-width="7" stroke-linecap="round"/>'
+    '<path d="M4 9 L10 4 H20 L24 10 L18 12 V18 L24 20 L20 26 H10 L4 21 Z" fill="#9e9e9e" stroke="CC" stroke-width="1"/>'
+    '<circle cx="76" cy="15" r="10" fill="#9e9e9e" stroke="CC" stroke-width="1"/><circle cx="76" cy="15" r="5" fill="#ffffff" stroke="CC" stroke-width="0.8"/>')
+add("omec_cle_molette", "Clé à molette", OMEC, 90, 40,
+    '<path d="M26 22 H84" stroke="#9e9e9e" stroke-width="8" stroke-linecap="round"/>'
+    '<path d="M4 8 Q4 4 10 4 H22 Q28 4 28 12 V30 Q28 36 22 36 H14 V28 H20 V14 H8 Z" fill="#9e9e9e" stroke="CC" stroke-width="1"/>'
+    '<circle cx="30" cy="22" r="4" fill="#757575" stroke="CC" stroke-width="0.8"/><circle cx="80" cy="22" r="2" fill="#ffffff" stroke="none"/>')
+add("omec_cliquet", "Clé à cliquet et douille", OMEC, 90, 40,
+    '<path d="M24 20 H84" stroke="#757575" stroke-width="7" stroke-linecap="round"/><circle cx="18" cy="20" r="10" fill="#9e9e9e" stroke="CC" stroke-width="1"/>'
+    '<rect x="10" y="26" width="16" height="12" rx="2" fill="#bdbdbd" stroke="CC" stroke-width="1"/><path d="M14 30 L18 34 L22 30" stroke="CC" stroke-width="0.8" fill="none"/>')
+add("omec_allen", "Clé Allen (six pans mâle)", OMEC, 50, 60,
+    '<path d="M12 6 V44 Q12 52 20 52 H44" stroke="#424242" stroke-width="5" fill="none" stroke-linejoin="round"/>')
+add("omec_marteau", "Marteau", OMEC, 70, 60,
+    '<rect x="8" y="6" width="40" height="14" rx="2" fill="#757575" stroke="CC" stroke-width="1"/><path d="M8 6 L2 9 V17 L8 20" fill="#9e9e9e" stroke="CC" stroke-width="1"/>'
+    '<rect x="30" y="20" width="8" height="38" rx="3" fill="#bf8040" stroke="CC" stroke-width="1"/>')
+add("omec_maillet", "Maillet", OMEC, 70, 60,
+    '<rect x="10" y="4" width="40" height="18" rx="6" fill="#e53935" stroke="CC" stroke-width="1"/><rect x="26" y="22" width="8" height="36" rx="3" fill="#bf8040" stroke="CC" stroke-width="1"/>')
+add("omec_pince_etau", "Pince-étau", OMEC, 90, 40,
+    '<path d="M4 16 L18 10 L26 18 L10 22 Z M4 24 L18 30 L26 22 L10 18 Z" fill="#9e9e9e" stroke="CC" stroke-width="0.8"/>'
+    '<path d="M26 18 H80" stroke="#757575" stroke-width="6" stroke-linecap="round"/><path d="M26 22 Q50 34 76 28" stroke="#9e9e9e" stroke-width="4" fill="none"/>'
+    '<circle cx="84" cy="18" r="4" fill="#424242" stroke="none"/>')
+add("omec_scie", "Scie à métaux", OMEC, 90, 40,
+    '<path d="M18 30 V8 H80 V30" stroke="#1565c0" stroke-width="3" fill="none"/><path d="M18 28 H80" stroke="#9e9e9e" stroke-width="2"/>'
+    + "".join(f'<path d="M{20 + i * 4} 29 l2 2" stroke="#757575" stroke-width="0.6"/>' for i in range(15))
+    + '<path d="M18 22 L6 36" stroke="#212121" stroke-width="6" stroke-linecap="round"/>')
+add("omec_lime", "Lime", OMEC, 90, 20,
+    '<rect x="4" y="5" width="24" height="10" rx="4" fill="#bf8040" stroke="CC" stroke-width="1"/><path d="M28 6 H80 L86 10 L80 14 H28 Z" fill="#9e9e9e" stroke="CC" stroke-width="1"/>'
+    + "".join(f'<path d="M{32 + i * 4} 6 l3 8" stroke="#616161" stroke-width="0.5"/>' for i in range(12)))
+add("omec_pied_coulisse", "Pied à coulisse", OMEC, 100, 50,
+    '<rect x="4" y="14" width="92" height="8" fill="#cfd8dc" stroke="CC" stroke-width="1"/>' + "".join(f'<path d="M{16 + i * 4} 14 V{17 if i % 5 else 19}" stroke="CC" stroke-width="0.6"/>' for i in range(20))
+    + '<path d="M4 4 V46 L10 40 V22" fill="#b0bec5" stroke="CC" stroke-width="1"/><path d="M30 10 H44 V22 H40 V46 L34 40 V22 H30 Z" fill="#b0bec5" stroke="CC" stroke-width="1"/>')
+add("omec_dynamometrique", "Clé dynamométrique", OMEC, 100, 30,
+    '<circle cx="12" cy="15" r="9" fill="#9e9e9e" stroke="CC" stroke-width="1"/><path d="M20 15 H92" stroke="#757575" stroke-width="7" stroke-linecap="round"/>'
+    '<rect x="56" y="10" width="26" height="10" rx="2" fill="#1565c0" stroke="none"/>' + _W(t(69, 17.5, "50 N·m", 4.6, "bold")))
+add("omec_etau", "Étau d'établi", OMEC, 80, 50,
+    '<rect x="6" y="38" width="60" height="6" fill="#90a4ae" stroke="CC" stroke-width="1"/><rect x="10" y="14" width="18" height="24" fill="#1565c0" stroke="CC" stroke-width="1"/>'
+    '<rect x="40" y="14" width="18" height="24" fill="#1565c0" stroke="CC" stroke-width="1"/><path d="M28 26 H40" stroke="#757575" stroke-width="3"/>'
+    '<path d="M58 26 H74 M74 18 V34" stroke="#424242" stroke-width="3"/><path d="M10 14 H28 M40 14 H58" stroke="#9e9e9e" stroke-width="3"/>')
+add("oinf_pince_rj45", "Pince à sertir RJ45", OINF, 80, 60,
+    '<path d="M10 10 L50 6 Q58 6 58 14 L56 24 L12 26 Q6 26 6 20 V14 Q6 10 10 10 Z" fill="#424242" stroke="CC" stroke-width="1"/>'
+    '<rect x="40" y="10" width="12" height="9" rx="1" fill="#90a4ae" stroke="none"/><rect x="26" y="11" width="10" height="7" rx="1" fill="#90a4ae" stroke="none"/>'
+    '<path d="M54 22 L76 44 M14 26 L60 52" stroke="#e53935" stroke-width="6" stroke-linecap="round"/><circle cx="54" cy="22" r="3" fill="#9e9e9e" stroke="none"/>')
+add("oinf_rj45", "Connecteur RJ45 (embout 8P8C)", OINF, 60, 40,
+    '<path d="M4 10 H40 V30 H4 Z" fill="#e3f2fd" fill-opacity="0.8" stroke="CC" stroke-width="1.4"/>'
+    + "".join(f'<rect x="{8 + i * 4}" y="12" width="2" height="7" fill="#ffb300" stroke="none"/>' for i in range(8))
+    + '<path d="M14 30 L18 36 H30" stroke="CC" stroke-width="1.4" fill="none"/>'
+    + '<path d="M40 20 H58" stroke="#1565c0" stroke-width="7"/>'
+    + "".join(f'<path d="M24 {21 + i * 1.1:.1f} H40" stroke="{c}" stroke-width="0.9"/>' for i, c in enumerate(("#ff9800", "#ffffff", "#43a047", "#1e88e5", "#ffffff", "#795548", "#ffffff", "#ff9800"))))
+add("oinf_testeur", "Testeur de câble réseau", OINF, 80, 50,
+    '<rect x="4" y="6" width="34" height="40" rx="4" fill="#1565c0" stroke="CC" stroke-width="1"/>'
+    + "".join(f'<circle cx="{11 + i * 3.3:.1f}" cy="14" r="1.2" fill="#76ff03" stroke="none"/>' for i in range(8))
+    + '<rect x="12" y="34" width="18" height="10" fill="#e3f2fd" stroke="CC" stroke-width="0.8"/>'
+    '<rect x="50" y="18" width="24" height="26" rx="3" fill="#1565c0" stroke="CC" stroke-width="1"/><rect x="54" y="34" width="16" height="8" fill="#e3f2fd" stroke="CC" stroke-width="0.6"/>'
+    + _W(t(21, 28, "LAN", 6, "bold")))
+add("oinf_insertion", "Outil d'insertion (punch-down)", OINF, 90, 20,
+    '<rect x="4" y="4" width="44" height="12" rx="5" fill="#fdd835" stroke="CC" stroke-width="1"/><rect x="48" y="6" width="12" height="8" fill="#424242" stroke="none"/>'
+    '<path d="M60 10 H80" stroke="#9e9e9e" stroke-width="3"/><path d="M80 7 V13 H86 Z" fill="#757575" stroke="none"/>')
+add("oinf_denudeur", "Dénude-câble rotatif", OINF, 50, 40,
+    '<path d="M6 20 Q6 6 24 6 H40 Q46 6 46 14 V26 Q46 34 40 34 H24 Q6 34 6 20 Z" fill="#7cb342" stroke="CC" stroke-width="1.2"/>'
+    '<circle cx="24" cy="20" r="6" fill="#ffffff" stroke="CC" stroke-width="1"/><path d="M0 20 H48" stroke="#1565c0" stroke-width="2.4"/>')
+add("oinf_precision", "Tournevis de précision", OINF, 80, 20,
+    '<rect x="4" y="5" width="34" height="10" rx="3" fill="#546e7a" stroke="CC" stroke-width="1"/>' + "".join(f'<path d="M{8 + i * 4} 5 V15" stroke="#37474f" stroke-width="0.8"/>' for i in range(6))
+    + '<circle cx="6" cy="10" r="3" fill="#90a4ae" stroke="none"/><path d="M38 10 H72" stroke="#9e9e9e" stroke-width="1.6"/><path d="M72 9 H76 V11 H72 Z" fill="#757575" stroke="none"/>')
+add("oinf_bracelet", "Bracelet antistatique", OINF, 70, 50,
+    '<ellipse cx="20" cy="24" rx="14" ry="18" fill="none" stroke="#1565c0" stroke-width="5"/><rect x="30" y="18" width="10" height="12" rx="2" fill="#9e9e9e" stroke="CC" stroke-width="0.8"/>'
+    '<path d="M40 24 Q50 24 52 30 Q54 36 60 36 Q66 36 66 42" stroke="#212121" stroke-width="1.6" fill="none"/><path d="M62 44 L70 48 L66 40 Z" fill="#2e9b3a" stroke="none"/>')
+add("oinf_cable", "Câble réseau RJ45", OINF, 90, 30,
+    '<rect x="2" y="9" width="14" height="12" rx="1" fill="#e3f2fd" stroke="CC" stroke-width="1"/><rect x="74" y="9" width="14" height="12" rx="1" fill="#e3f2fd" stroke="CC" stroke-width="1"/>'
+    '<path d="M16 15 Q30 4 45 15 T74 15" stroke="#1565c0" stroke-width="4" fill="none"/>' + t(45, 28, "Cat. 6", 5))
+add("oinf_cle_usb", "Clé USB", OINF, 60, 24,
+    '<rect x="4" y="5" width="36" height="14" rx="3" fill="#424242" stroke="CC" stroke-width="1"/><rect x="40" y="7" width="14" height="10" fill="#cfd8dc" stroke="CC" stroke-width="0.8"/>'
+    '<rect x="44" y="9" width="3" height="2" fill="CC" stroke="none"/><rect x="49" y="9" width="3" height="2" fill="CC" stroke="none"/>')
+
+# ================================================================ v1.2.1 : travail en hauteur, outils isolés, prothèses, schéma dentaire
+HAUT = "Travail en hauteur – échafaudage, nacelles"
+_RED, _YEL, _ALU = "#d32f2f", "#fdd835", "#b0bec5"
+
+
+def _arch_pts(theta_max, n, cx, y0, w, h, up=False):
+    """Points d'une arcade dentaire (demi-ellipse) : (x, y, angle de la tangente, normale extérieure)."""
+    out = []
+    for i in range(n):
+        th = math.radians(-theta_max + 2 * theta_max * i / (n - 1))
+        x = cx + w * math.sin(th)
+        y = y0 + h * (1 - math.cos(th)) if not up else y0 - h * (1 - math.cos(th))
+        tx, ty = w * math.cos(th), (h * math.sin(th)) * (1 if not up else -1)
+        nx, ny = h * math.sin(th), (-w * math.cos(th)) * (1 if not up else -1)
+        L = math.hypot(nx, ny) or 1
+        out.append((x, y, math.degrees(math.atan2(ty, tx)), nx / L, ny / L))
+    return out
+
+
+def _at(th_deg, cx, y0, w, h, up=False):
+    th = math.radians(th_deg)
+    x = cx + w * math.sin(th)
+    y = y0 + h * (1 - math.cos(th)) if not up else y0 - h * (1 - math.cos(th))
+    tx, ty = w * math.cos(th), (h * math.sin(th)) * (1 if not up else -1)
+    nx, ny = h * math.sin(th), (-w * math.cos(th)) * (1 if not up else -1)
+    L = math.hypot(nx, ny) or 1
+    return x, y, math.degrees(math.atan2(ty, tx)), nx / L, ny / L
+
+
+def _tooth(x, y, ang, size, molar, fill="#fbf3dc"):
+    rx, ry = size / 2, size * (0.46 if molar else 0.36)
+    s = (f'<g transform="translate({x:.2f} {y:.2f}) rotate({ang:.1f})">'
+         f'<rect x="{-rx:.2f}" y="{-ry:.2f}" width="{2 * rx:.2f}" height="{2 * ry:.2f}" rx="{ry * 0.8:.2f}" fill="{fill}" stroke="CC" stroke-width="0.9"/>')
+    if molar:
+        s += f'<path d="M{-rx * 0.55:.2f} 0 H{rx * 0.55:.2f} M0 {-ry * 0.55:.2f} V{ry * 0.55:.2f}" stroke="#a1887f" stroke-width="0.6"/>'
+    return s + '</g>'
+
+
+_SIZES = [7.0, 6.4, 7.0, 7.6, 7.6, 11.0, 10.4, 9.6]      # 1 incisive centrale … 8 dent de sagesse
+
+
+def _fdi(up):
+    cx, w, h = 50, 33, 52
+    y0 = 14 if not up else 84
+    dth = 92 / 8
+    body = ""
+    q_left, q_right = (1, 2) if not up else (4, 3)
+    for side, quad in ((-1, q_left), (1, q_right)):
+        for k in range(1, 9):
+            x, y, a, nx, ny = _at(side * (k - 0.5) * dth, cx, y0, w, h, up)
+            body += _tooth(x, y, a, _SIZES[k - 1], k >= 6)
+            body += t(x + nx * 11.5, y + ny * 11.5 + 2.4, f"{quad}{k}", 6.2, "bold")
+    lab = "Maxillaire" if not up else "Mandibule"
+    body += t(50, 52 if not up else 50, lab, 6.5)
+    return body
+
+
+add("dent_fdi_sup", "Schéma dentaire – mâchoire supérieure (numérotation FDI 11 à 28)", "Prothésiste dentaire", 100, 90, _fdi(False))
+add("dent_fdi_inf", "Schéma dentaire – mâchoire inférieure (numérotation FDI 31 à 48)", "Prothésiste dentaire", 100, 90, _fdi(True))
+
+
+def _band(pts, width, col="#f48fb1"):
+    d = "M" + " L".join(f"{x:.2f} {y:.2f}" for x, y, *_ in pts)
+    return (f'<path d="{d}" stroke="CC" stroke-width="{width + 2.2}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+            f'<path d="{d}" stroke="{col}" stroke-width="{width}" fill="none" stroke-linecap="round" stroke-linejoin="round"/>')
+
+
+def _prothese_complete():
+    cx, y0, w, h = 50, 14, 33, 50
+    arch = _arch_pts(95, 60, cx, y0, w, h)
+    o, f = _band(arch, 15)
+    pal = "M" + " L".join(f"{x:.2f} {y:.2f}" for x, y, *_ in _arch_pts(95, 40, cx, y0 + 6, w - 7, h - 6)) + " Z"
+    body = o + f + f'<path d="{pal}" fill="#f8bbd0" stroke="#ec407a" stroke-width="0.6"/>'
+    body += '<path d="M40 40 Q50 36 60 40 M38 48 Q50 44 62 48 M39 56 Q50 52 61 56" stroke="#ec407a" stroke-width="0.6" fill="none"/>'
+    dth = 90 / 7
+    for side in (-1, 1):
+        for k in range(1, 8):
+            x, y, a, nx, ny = _at(side * (k - 0.5) * dth, cx, y0, w, h)
+            body += _tooth(x + nx * 1.5, y + ny * 1.5, a, _SIZES[k - 1] * 0.95, k >= 6)
+    return body
+
+
+def _prothese_partielle():
+    cx, y0, w, h = 50, 80, 32, 54
+    full = _arch_pts(96, 60, cx, y0, w, h, up=True)
+    arms_l = [p for p in full if p[0] < cx - 20]
+    arms_r = [p for p in full if p[0] > cx + 20]
+    o1, f1 = _band(full, 8)
+    o2, f2 = _band(arms_l, 17)
+    o3, f3 = _band(arms_r, 17)
+    body = o1 + o2 + o3 + f1 + f2 + f3
+    # festons du bord intérieur (barre linguale)
+    for th in range(-36, 40, 9):
+        x, y, a, nx, ny = _at(th, cx, y0, w, h, up=True)
+        body += f'<circle cx="{x - nx * 4.2:.2f}" cy="{y - ny * 4.2:.2f}" r="2.2" fill="#f48fb1" stroke="CC" stroke-width="0.7"/>'
+    body = o1 + o2 + o3 + body[len(o1 + o2 + o3):]
+    dth = 92 / 8
+    for side in (-1, 1):
+        for k in (4, 5, 6, 7):
+            x, y, a, nx, ny = _at(side * (k - 0.5) * dth, cx, y0, w, h, up=True)
+            body += _tooth(x, y, a, _SIZES[k - 1] * 1.2, k >= 6, "#f3e3b8")
+        # crochet métallique (stellite) autour de la dent naturelle voisine
+        x, y, a, nx, ny = _at(side * 2.7 * dth, cx, y0, w, h, up=True)
+        body += (f'<path d="M{x - nx * 3:.2f} {y - ny * 3:.2f} C{x + nx * 9 - ny * 7:.2f} {y + ny * 9 + nx * 7:.2f} '
+                 f'{x + nx * 9 + ny * 7:.2f} {y + ny * 9 - nx * 7:.2f} {x + nx * 2 + ny * 5:.2f} {y + ny * 2 - nx * 5:.2f}" '
+                 'stroke="#546e7a" stroke-width="2" fill="none" stroke-linecap="round"/>')
+    return body
+
+
+add("dent_prothese", "Prothèse complète amovible (maxillaire, vue de dessus)", "Prothésiste dentaire", 100, 80, _prothese_complete())
+add("dent_partielle", "Prothèse partielle amovible avec crochets", "Prothésiste dentaire", 100, 90, _prothese_partielle())
+add("dent_brosse_elec", "Brosse à dents électrique", "Prothésiste dentaire", 30, 90,
+    '<rect x="8" y="34" width="14" height="52" rx="6" fill="#eceff1" stroke="CC" stroke-width="1.2"/><circle cx="15" cy="52" r="3" fill="#42a5f5" stroke="none"/>'
+    '<path d="M12 34 L13 12 H17 L18 34 Z" fill="#eceff1" stroke="CC" stroke-width="1"/><ellipse cx="15" cy="9" rx="5" ry="6" fill="#ffffff" stroke="CC" stroke-width="1"/>'
+    + "".join(f'<path d="M{11 + i * 2} 6 V12" stroke="#64b5f6" stroke-width="1"/>' for i in range(5)))
+add("dent_fil", "Fil dentaire", "Prothésiste dentaire", 60, 50,
+    '<rect x="6" y="14" width="30" height="30" rx="5" fill="#80deea" stroke="CC" stroke-width="1.2"/><rect x="6" y="8" width="30" height="9" rx="3" fill="#ffffff" stroke="CC" stroke-width="1"/>'
+    '<path d="M34 12 Q46 6 56 16" stroke="#9e9e9e" stroke-width="1" fill="none"/>')
+
+# ---------------------------------------------------------------- casque d'électricien (vue de trois quarts)
+_casque = (
+    # visière (écran facial) relevée sur les pivots, devant et sous la visière du casque
+    '<path d="M8 33 L9 49 Q10 55 18 55.5 L44 55 Q51 54.5 52 48 L53 35 C38 39 22 38 8 33 Z" fill="#81d4fa" fill-opacity="0.45" stroke="#0277bd" stroke-width="1.3"/>'
+    '<path d="M15 39 L16 51 M21 40 L22 52" stroke="#ffffff" stroke-width="1.8" stroke-opacity="0.85"/>'
+    '<path d="M9 49 Q10 55 18 55.5 L44 55 Q51 54.5 52 48" stroke="#01579b" stroke-width="2" fill="none"/>'
+    # coque
+    '<path d="M13 31 C12 15 25 5 40 5 C55 5 65 15 64 29 C56 34 26 35 13 31 Z" fill="#fafafa" stroke="CC" stroke-width="1.5"/>'
+    '<path d="M20 12 C30 4 50 4 61 17" stroke="#cfd8dc" stroke-width="3" fill="none" stroke-linecap="round"/>'
+    '<path d="M27 8 C34 14 37 24 36 33" stroke="#cfd8dc" stroke-width="1.2" fill="none"/>'
+    # rebord / petite visière avant
+    '<path d="M4 31 C10 36 30 39 50 37 C58 36 64 33 66 29 C62 31 56 33 48 33.5 C30 35 14 33 8 29 Z" fill="#eceff1" stroke="CC" stroke-width="1.3"/>'
+    # support d'écran et pivot latéral
+    '<path d="M9 32 C22 37 40 38 53 34" stroke="#37474f" stroke-width="2.4" fill="none"/>'
+    '<circle cx="54" cy="34" r="3.6" fill="#37474f" stroke="CC" stroke-width="0.8"/><circle cx="54" cy="34" r="1.3" fill="#b0bec5" stroke="none"/>'
+    # pastille isolant électrique (double triangle)
+    '<path d="M44 14 L50 24 H38 Z" fill="#fdd835" stroke="CC" stroke-width="0.8"/><path d="M45 16 L41.5 21 H44.5 L43 24 L47.5 18.5 H44.5 Z" fill="CC" stroke="none"/>')
+add("epi_casque", "Casque d'électricien avec écran facial (EPI)", "Prévention électrique – EPI, EIS, ECS", 70, 60, _casque)
+
+# ---------------------------------------------------------------- outils isolés 1000 V
+def _tv_iso(tip):
+    return ('<path d="M4 6 Q2 10 4 14 H30 L34 15.5 H40 V4.5 H34 L30 6 Z" fill="' + _RED + '" stroke="CC" stroke-width="1"/>'
+            '<path d="M8 6.5 V13.5 M13 6.5 V13.5 M18 6.5 V13.5 M23 6.5 V13.5" stroke="#b71c1c" stroke-width="1"/>'
+            '<path d="M34 4 H43 Q45 10 43 16 H34 Z" fill="' + _YEL + '" stroke="CC" stroke-width="1"/>'
+            '<rect x="43" y="8" width="42" height="4" rx="1.5" fill="' + _RED + '" stroke="CC" stroke-width="0.6"/>'
+            + tip + '<path d="M24 1 L27 5 H21 Z M28 1 L31 5 H25 Z" fill="' + _YEL + '" stroke="CC" stroke-width="0.4"/>')
+
+
+_TIPS = {"plat": '<path d="M85 8.6 H93 L96 9 V11 L93 11.4 H85 Z" fill="#9e9e9e" stroke="CC" stroke-width="0.6"/>',
+         "cruci": '<path d="M85 8.6 H92 L97 10 L92 11.4 H85 Z" fill="#9e9e9e" stroke="CC" stroke-width="0.6"/><path d="M90 10 H97" stroke="#616161" stroke-width="0.6"/>'}
+add("oel_tournevis_plat", "Tournevis plat isolé 1000 V", "Outils – électricien", 100, 20, _tv_iso(_TIPS["plat"]))
+add("oel_tournevis_cruci", "Tournevis cruciforme isolé 1000 V", "Outils – électricien", 100, 20, _tv_iso(_TIPS["cruci"]))
+
+
+def _pince_iso(jaws, extra=""):
+    h = ""
+    for d in ("M22 40 Q17 62 11 86", "M28 40 Q33 62 39 86"):
+        h += f'<path d="{d}" stroke="CC" stroke-width="10.4" fill="none" stroke-linecap="round"/>'
+    for d in ("M22 40 Q17 62 11 86", "M28 40 Q33 62 39 86"):
+        h += f'<path d="{d}" stroke="{_RED}" stroke-width="8" fill="none" stroke-linecap="round"/>'
+    for d in ("M22.5 40 L20.6 49", "M27.5 40 L29.4 49"):
+        h += f'<path d="{d}" stroke="CC" stroke-width="12.4" fill="none" stroke-linecap="round"/><path d="{d}" stroke="{_YEL}" stroke-width="10" fill="none" stroke-linecap="round"/>'
+    return (extra + h + jaws + '<circle cx="25" cy="37" r="4.4" fill="#78909c" stroke="CC" stroke-width="0.9"/>'
+            '<circle cx="25" cy="37" r="1.5" fill="#cfd8dc" stroke="none"/>'
+            '<path d="M5 74 L8 79 H2 Z" fill="' + _YEL + '" stroke="CC" stroke-width="0.4"/>')
+
+
+_JG = 'fill="#9e9e9e" stroke="CC" stroke-width="0.9"'
+add("oel_pince_coupante", "Pince coupante diagonale isolée", "Outils – électricien", 50, 90, _pince_iso(
+    f'<path d="M25 40 C15 34 14 18 21 7 L25.6 10 C23 20 24 30 25 40 Z" {_JG}/>'
+    f'<path d="M25 40 C35 34 36 18 29 7 L24.4 10 C27 20 26 30 25 40 Z" {_JG}/>'
+    '<path d="M25 11 V33" stroke="#eeeeee" stroke-width="0.8"/>'))
+add("oel_pince_bec", "Pince à bec demi-rond isolée", "Outils – électricien", 50, 90, _pince_iso(
+    f'<path d="M25 40 L18 31 L22.6 3 Q24 1 25 1 V40 Z" {_JG}/><path d="M25 40 L32 31 L27.4 3 Q26 1 25 1 V40 Z" {_JG}/>'
+    '<path d="M23.5 8 H26.5 M23.3 13 H26.7 M23 18 H27" stroke="#616161" stroke-width="0.6"/>'))
+add("oel_pince_univ", "Pince universelle isolée", "Outils – électricien", 50, 90, _pince_iso(
+    f'<path d="M25 40 L16 30 L17 9 Q18 6 25 6 V40 Z" {_JG}/><path d="M25 40 L34 30 L33 9 Q32 6 25 6 V40 Z" {_JG}/>'
+    '<path d="M20 11 H30 M20 15 H30 M20 19 H30" stroke="#616161" stroke-width="0.7"/><path d="M22 25 Q25 28 28 25" stroke="#eeeeee" stroke-width="1" fill="none"/>'))
+add("oel_pince_denuder", "Pince à dénuder isolée (à vis de réglage)", "Outils – électricien", 50, 90, _pince_iso(
+    f'<path d="M25 40 L17 30 L19 8 H24 L25 13 Z" {_JG}/><path d="M25 40 L33 30 L31 8 H26 L25 13 Z" {_JG}/>'
+    '<circle cx="25" cy="12" r="1.4" fill="#ffffff" stroke="none"/>',
+    '<path d="M16 58 H34" stroke="#616161" stroke-width="1.6"/><rect x="31" y="55" width="6" height="6" rx="1" fill="#424242" stroke="none"/>'))
+add("oel_pince_sertir", "Pince à sertir les cosses isolée", "Outils – électricien", 50, 90, _pince_iso(
+    f'<path d="M25 40 L17 31 L18 6 H25 Z" {_JG}/><path d="M25 40 L33 31 L32 6 H25 Z" {_JG}/>'
+    '<circle cx="25" cy="12" r="2" fill="#e53935" stroke="CC" stroke-width="0.4"/><circle cx="25" cy="19" r="2" fill="#1e88e5" stroke="CC" stroke-width="0.4"/>'
+    '<circle cx="25" cy="26" r="2" fill="#fdd835" stroke="CC" stroke-width="0.4"/>'))
+add("oel_couteau", "Couteau d'électricien", "Outils – électricien", 90, 20,
+    '<path d="M4 7 Q4 4 8 4 H40 Q44 4 44 8 V12 Q44 16 40 16 H8 Q4 16 4 13 Z" fill="#8d6e63" stroke="CC" stroke-width="1"/>'
+    '<path d="M8 8 Q20 6 40 9 M8 12 Q22 14 40 11" stroke="#6d4c41" stroke-width="0.6" fill="none"/>'
+    '<rect x="40" y="6" width="5" height="8" fill="#bdbdbd" stroke="CC" stroke-width="0.6"/>'
+    '<path d="M45 7 H74 Q84 8 87 12 L45 13 Z" fill="#e0e0e0" stroke="CC" stroke-width="1"/><path d="M48 9 H72" stroke="#ffffff" stroke-width="0.8"/>')
+add("oel_testeur", "Tournevis testeur de phase", "Outils – électricien", 90, 20,
+    '<path d="M4 6 H40 L44 8 V12 L40 14 H4 Q2 10 4 6 Z" fill="#fff59d" fill-opacity="0.85" stroke="CC" stroke-width="1"/>'
+    '<rect x="14" y="8" width="12" height="4" rx="2" fill="#ff7043" stroke="none"/><path d="M6 4 H30" stroke="#616161" stroke-width="1.4"/>'
+    '<path d="M44 10 H82" stroke="#9e9e9e" stroke-width="2"/><path d="M82 9 H87 V11 H82 Z" fill="#757575" stroke="none"/>')
+add("oel_couronne", "Couronne de câble", "Outils – électricien", 70, 50,
+    "".join(f'<ellipse cx="35" cy="26" rx="{30 - i * 2.2:.1f}" ry="{15 - i * 1.1:.1f}" fill="none" stroke="CC" stroke-width="2"/>' for i in range(5))
+    + '<ellipse cx="35" cy="26" rx="18" ry="9" fill="#ffffff" stroke="CC" stroke-width="1.2"/>'
+    '<path d="M60 22 Q66 14 68 8 M8 32 Q2 38 3 44" stroke="CC" stroke-width="2" fill="none"/>')
+add("oel_ruban", "Ruban adhésif isolant", "Outils – électricien", 60, 50,
+    '<path d="M8 18 V32 A20 10 0 0 0 48 32 V18" fill="#1565c0" stroke="CC" stroke-width="1.2"/>'
+    '<ellipse cx="28" cy="18" rx="20" ry="10" fill="#1e88e5" stroke="CC" stroke-width="1.2"/><ellipse cx="28" cy="18" rx="9" ry="4.5" fill="#ffffff" stroke="CC" stroke-width="1"/>'
+    '<path d="M48 28 L58 38 L56 46 L45 34 Z" fill="#1e88e5" stroke="CC" stroke-width="1"/>')
+add("oel_ampoule", "Ampoule LED (culot E27)", "Outils – électricien", 40, 60,
+    '<path d="M20 4 C8 4 3 13 5 22 C7 30 12 32 13 38 H27 C28 32 33 30 35 22 C37 13 32 4 20 4 Z" fill="#fff9c4" stroke="CC" stroke-width="1.3"/>'
+    '<path d="M15 28 V22 Q20 16 25 22 V28" stroke="#ffb300" stroke-width="1.2" fill="none"/>'
+    '<path d="M13 38 H27 V50 Q20 55 13 50 Z" fill="#bdbdbd" stroke="CC" stroke-width="1"/><path d="M13 42 H27 M13 46 H27" stroke="#757575" stroke-width="1"/>'
+    '<path d="M18 54 H22 V57 H18 Z" fill="#424242" stroke="none"/>')
+add("oel_fluo", "Lampe fluocompacte", "Outils – électricien", 40, 70,
+    '<path d="M12 40 V8 Q12 3 16 3 Q20 3 20 8 V40 M20 40 V8 Q20 3 24 3 Q28 3 28 8 V40" stroke="CC" stroke-width="6.4" fill="none"/>'
+    '<path d="M12 40 V8 Q12 3 16 3 Q20 3 20 8 V40 M20 40 V8 Q20 3 24 3 Q28 3 28 8 V40" stroke="#ffffff" stroke-width="4" fill="none"/>'
+    '<path d="M8 40 H32 L30 52 H10 Z" fill="#eceff1" stroke="CC" stroke-width="1.2"/>'
+    '<path d="M12 52 H28 V62 Q20 67 12 62 Z" fill="#bdbdbd" stroke="CC" stroke-width="1"/><path d="M12 56 H28" stroke="#757575" stroke-width="1"/>')
+add("oel_malette", "Malette d'outils isolés 1000 V", "Outils – électricien", 80, 60,
+    '<path d="M28 12 V6 H52 V12" stroke="CC" stroke-width="3" fill="none"/><rect x="4" y="12" width="72" height="44" rx="4" fill="#e53935" stroke="CC" stroke-width="1.4"/>'
+    '<rect x="4" y="22" width="72" height="4" fill="#b71c1c" stroke="none"/><rect x="34" y="20" width="12" height="8" rx="1.5" fill="#fdd835" stroke="CC" stroke-width="0.8"/>'
+    '<path d="M40 34 L50 50 H30 Z" fill="#fdd835" stroke="CC" stroke-width="1"/><path d="M41 37 L37 44 H40.5 L38.5 49 L44 41.5 H40.5 Z" fill="CC" stroke="none"/>'
+    + _W(t(18, 48, "1000 V", 6, "bold")))
+
+# ---------------------------------------------------------------- travail en hauteur
+_SC = "#90a4ae"
+add("haut_echafaudage", "Échafaudage roulant (2 niveaux)", HAUT, 80, 110,
+    # montants arrière (profondeur)
+    '<path d="M20 4 V94 M76 4 V94" stroke="#cfd8dc" stroke-width="2.4"/>'
+    '<path d="M12 10 L20 4 M68 10 L76 4 M12 50 L20 44 M68 50 L76 44 M12 92 L20 86 M68 92 L76 86" stroke="#cfd8dc" stroke-width="1.6"/>'
+    # montants avant, lisses, diagonales
+    f'<path d="M12 10 V100 M68 10 V100" stroke="{_SC}" stroke-width="3.4"/>'
+    f'<path d="M12 10 H68 M12 24 H68 M12 66 H68 M12 92 H68" stroke="{_SC}" stroke-width="2"/>'
+    f'<path d="M12 92 L68 52 M12 50 L68 26" stroke="{_SC}" stroke-width="1.6"/>'
+    # planchers et plinthes
+    '<rect x="10" y="48" width="60" height="5" fill="#a1887f" stroke="CC" stroke-width="0.8"/><rect x="10" y="88" width="60" height="5" fill="#a1887f" stroke="CC" stroke-width="0.8"/>'
+    '<rect x="12" y="42" width="56" height="6" fill="#ffca28" stroke="CC" stroke-width="0.6"/>'
+    # roues
+    '<circle cx="12" cy="104" r="4.5" fill="#37474f" stroke="none"/><circle cx="68" cy="104" r="4.5" fill="#37474f" stroke="none"/>'
+    '<path d="M12 100 V104 M68 100 V104" stroke="#37474f" stroke-width="2"/>')
+add("haut_pirl", "Plateforme individuelle roulante (PIRL)", HAUT, 70, 90,
+    f'<path d="M14 8 V44 M56 8 V44 M14 8 H56 M14 24 H56 M34 8 V44" stroke="{_ALU}" stroke-width="2.6" fill="none"/>'
+    '<rect x="10" y="44" width="50" height="5" fill="#cfd8dc" stroke="CC" stroke-width="1"/>'
+    '<path d="M12 49 L6 86 M58 49 L62 82 M24 49 L20 86" stroke="#1565c0" stroke-width="3.2"/>'
+    '<path d="M9 66 H22 M7.5 76 H21" stroke="#9e9e9e" stroke-width="3"/>'
+    '<rect x="3" y="85" width="8" height="3" fill="#ff5722" stroke="none"/><rect x="17" y="85" width="8" height="3" fill="#ff5722" stroke="none"/>'
+    '<circle cx="62" cy="84" r="4.5" fill="#37474f" stroke="none"/><circle cx="62" cy="84" r="1.6" fill="#cfd8dc" stroke="none"/>')
+add("haut_escabeau", "Escabeau", HAUT, 50, 90,
+    '<path d="M16 4 L4 86 M22 4 L40 86 M16 4 H24" stroke="#90a4ae" stroke-width="3.4" fill="none"/>'
+    + "".join(f'<path d="M{16 - i * 1.95:.1f} {16 + i * 14} H{22 + i * 2.85:.1f}" stroke="#78909c" stroke-width="2.6"/>' for i in range(5))
+    + '<rect x="12" y="2" width="14" height="5" fill="#ff7043" stroke="CC" stroke-width="0.6"/>'
+    '<path d="M2 86 H8 M37 86 H43" stroke="#212121" stroke-width="3"/>')
+add("haut_echelle", "Échelle", HAUT, 30, 90,
+    '<path d="M6 2 V88 M24 2 V88" stroke="#90a4ae" stroke-width="3"/>'
+    + "".join(f'<path d="M6 {8 + i * 10} H24" stroke="#78909c" stroke-width="2.2"/>' for i in range(8)))
+
+
+def _wheels(*xs, y=0, r=5):
+    return "".join(f'<circle cx="{x}" cy="{y}" r="{r}" fill="#263238" stroke="none"/><circle cx="{x}" cy="{y}" r="{r * 0.4:.1f}" fill="#b0bec5" stroke="none"/>' for x in xs)
+
+
+def _panier(x, y):
+    return (f'<rect x="{x}" y="{y}" width="14" height="10" fill="#ffffff" stroke="CC" stroke-width="1.2"/>'
+            f'<path d="M{x} {y + 4} H{x + 14} M{x + 7} {y} V{y + 10}" stroke="CC" stroke-width="0.6"/>')
+
+
+_JN = "#f9a825"
+add("haut_nacelle_ciseaux", "Nacelle à ciseaux", HAUT, 70, 90,
+    '<rect x="8" y="6" width="54" height="12" fill="none" stroke="CC" stroke-width="1.6"/><path d="M8 12 H62 M22 6 V18 M35 6 V18 M48 6 V18" stroke="CC" stroke-width="0.8"/>'
+    '<rect x="6" y="18" width="58" height="4" fill="#546e7a" stroke="CC" stroke-width="0.8"/>'
+    + "".join(f'<path d="M12 {22 + i * 14} L58 {36 + i * 14} M58 {22 + i * 14} L12 {36 + i * 14}" stroke="{_JN}" stroke-width="3" stroke-linecap="round"/>' for i in range(3))
+    + '<rect x="6" y="64" width="58" height="12" rx="2" fill="' + _JN + '" stroke="CC" stroke-width="1"/>' + _wheels(16, 54, y=80))
+add("haut_nacelle_articulee", "Nacelle articulée automotrice", HAUT, 110, 70,
+    '<rect x="8" y="48" width="56" height="10" rx="3" fill="' + _JN + '" stroke="CC" stroke-width="1"/>'
+    '<path d="M24 48 V38 H46 V48 Z" fill="#455a64" stroke="CC" stroke-width="0.8"/>' + _wheels(18, 54, y=60, r=6)
+    + f'<path d="M40 40 L58 20 L82 30" stroke="{_JN}" stroke-width="5" fill="none" stroke-linejoin="round"/><path d="M82 30 L94 14" stroke="{_JN}" stroke-width="3.4"/>'
+    + _panier(88, 4))
+add("haut_nacelle_telescopique", "Nacelle télescopique automotrice", HAUT, 110, 70,
+    '<rect x="8" y="48" width="56" height="10" rx="3" fill="' + _JN + '" stroke="CC" stroke-width="1"/>'
+    '<path d="M22 48 V38 H44 V48 Z" fill="#455a64" stroke="CC" stroke-width="0.8"/>' + _wheels(18, 54, y=60, r=6)
+    + f'<path d="M34 40 L92 12" stroke="{_JN}" stroke-width="6" stroke-linecap="round"/><path d="M60 27 L92 12" stroke="#fbc02d" stroke-width="3.6"/>'
+    + _panier(90, 2))
+add("haut_nacelle_mat", "Nacelle à mât vertical", HAUT, 60, 90,
+    '<rect x="6" y="66" width="38" height="12" rx="3" fill="' + _JN + '" stroke="CC" stroke-width="1"/>' + _wheels(14, 38, y=80)
+    + f'<rect x="20" y="22" width="8" height="44" fill="#eceff1" stroke="CC" stroke-width="1"/><path d="M24 22 L40 14" stroke="{_JN}" stroke-width="3.4"/>'
+    + _panier(38, 6).replace('width="14"', 'width="16"'))
+add("haut_nacelle_camion", "Camion nacelle", HAUT, 120, 70,
+    '<rect x="6" y="40" width="74" height="10" fill="#eceff1" stroke="CC" stroke-width="1"/>'
+    '<path d="M80 50 V30 H98 L108 40 V50 Z" fill="#eceff1" stroke="CC" stroke-width="1"/><path d="M84 33 H96 L102 40 H84 Z" fill="#b3e5fc" stroke="none"/>'
+    + _wheels(20, 34, 96, y=54, r=6)
+    + '<path d="M10 50 L4 62 M70 50 L76 62 M1 62 H8 M73 62 H80" stroke="#455a64" stroke-width="2.4"/>'
+    + f'<rect x="12" y="34" width="12" height="6" fill="#455a64" stroke="none"/><path d="M18 34 L52 14 L36 6" stroke="{_JN}" stroke-width="4" fill="none" stroke-linejoin="round"/>'
+    + _panier(22, 0))
+add("haut_nacelle_remorque", "Nacelle sur remorque", HAUT, 120, 60,
+    '<rect x="20" y="38" width="60" height="6" fill="' + _JN + '" stroke="CC" stroke-width="1"/><path d="M20 41 H4 L2 44" stroke="CC" stroke-width="2" fill="none"/>'
+    + _wheels(50, y=48, r=6)
+    + '<path d="M24 44 L14 56 M76 44 L86 56 M10 56 H18 M82 56 H90" stroke="#455a64" stroke-width="2.4"/>'
+    + f'<rect x="58" y="30" width="10" height="8" fill="#455a64" stroke="none"/><path d="M63 30 L86 20 L104 14" stroke="{_JN}" stroke-width="3.6" fill="none"/>'
+    + _panier(100, 2))
+add("sig_harnais", "Port du harnais antichute obligatoire", "Sécurité – signalisation et produits dangereux", 60, 60,
+    '<circle cx="30" cy="30" r="27" fill="#1565c0" stroke="none"/><circle cx="30" cy="13" r="4.5" fill="#ffffff" stroke="none"/>'
+    '<path d="M24 20 H36 V36 H33 V48 H27 V36 H24 Z" fill="#ffffff" stroke="none"/>'
+    '<path d="M25 20 L35 34 M35 20 L25 34 M24 36 H36 M27 36 L30 42 L33 36" stroke="#1565c0" stroke-width="1.6" fill="none"/>'
+    '<path d="M30 27 Q36 18 42 12" stroke="#ffffff" stroke-width="1.6" fill="none" stroke-dasharray="2 1.4"/><circle cx="43.5" cy="10.5" r="2.6" fill="none" stroke="#ffffff" stroke-width="1.6"/>')
+add("sig_chute", "Danger : chute avec dénivellation", "Sécurité – signalisation et produits dangereux", 64, 56,
+    '<path d="M32 4 L61 52 H3 Z" fill="#fdd835" stroke="CC" stroke-width="3.4" stroke-linejoin="round"/>'
+    '<path d="M14 44 H30 V36 H48" stroke="CC" stroke-width="2.4" fill="none"/><circle cx="38" cy="22" r="2.6" fill="CC" stroke="none"/>'
+    '<path d="M36 25 L32 31 L26 30 M32 31 L36 35 M34 27 L40 28" stroke="CC" stroke-width="2.2" fill="none" stroke-linecap="round"/>')
+
+
+def _reorder(cat, ids):
+    pos = [i for i, s in enumerate(SYMBOLS) if s.cat == cat]
+    items = [SYMBOLS[i] for i in pos]
+    rank = {k: n for n, k in enumerate(ids)}
+    items.sort(key=lambda s: (rank.get(s.id, len(ids)), pos[items.index(s)] if False else 0))
+    first = [s for s in items if s.id in rank]
+    rest = [SYMBOLS[i] for i in pos if SYMBOLS[i].id not in rank]
+    for i, s in zip(pos, first + rest):
+        SYMBOLS[i] = s
+
+
+_reorder("Outils – électricien", ["oel_malette", "oel_tournevis_plat", "oel_tournevis_cruci", "oel_testeur", "oel_pince_coupante",
+                                  "oel_pince_bec", "oel_pince_univ", "oel_pince_denuder", "oel_pince_sertir", "oel_couteau"])
+_reorder("Prévention électrique – EPI, EIS, ECS", ["epi_casque"])
+_reorder("Prothésiste dentaire", ["dent_fdi_sup", "dent_fdi_inf", "dent_incisive", "dent_molaire", "dent_couronne", "dent_bridge",
+                                  "dent_implant", "dent_prothese", "dent_partielle"])
 
 # ---------------------------------------------------------------- repères et tailles par défaut
 DEFAULT_LABELS = {

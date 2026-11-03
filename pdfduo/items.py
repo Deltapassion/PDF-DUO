@@ -14,7 +14,7 @@ MM = 72 / 25.4                 # points par millimètre
 GRID_UNIT = 2.5 * MM / 10      # 10 unités de symbole = 2,5 mm
 POLY_TYPES = ("line", "wire", "wall", "freehand", "highlight", "dim")
 FIELD_TYPES = ("field_text", "field_check", "field_combo", "field_radio", "field_sig", "field_link")
-BOX_TYPES = ("rect", "ellipse", "image", "node") + FIELD_TYPES
+BOX_TYPES = ("rect", "ellipse", "image", "node", "table") + FIELD_TYPES
 
 _svg_cache = {}
 _img_cache = {}
@@ -588,6 +588,61 @@ class PItem(QGraphicsItem):
         p.setBrush(QColor(fill) if fill else Qt.NoBrush)
         p.drawRect(self.local_rect())
 
+    def table_grid(self):
+        """Abscisses des colonnes et ordonnées des lignes (coordonnées locales)."""
+        d = self.d
+        cw, rh = d.get("colw") or [1.0], d.get("rowh") or [1.0]
+        tc, tr = sum(cw) or 1, sum(rh) or 1
+        xs, ys = [0.0], [0.0]
+        for v in cw:
+            xs.append(xs[-1] + v / tc * d["w"])
+        for v in rh:
+            ys.append(ys[-1] + v / tr * d["h"])
+        return xs, ys
+
+    def paint_table(self, p, exp):
+        from . import table as TB
+        d = TB.fix(self.d)
+        xs, ys = self.table_grid()
+        R, C = d["rows"], d["cols"]
+        cov = TB.covered(d)
+        vals = TB.compute(d)
+        col = QColor(d.get("color", "#000000"))
+        pen = QPen(col, max(0.1, d.get("sw", 0.8)))
+        size = d.get("size", 9)
+        k = size / 100
+        fn = text_font(100)
+        fb = text_font(100, bold=True)
+        al = {"left": Qt.AlignLeft, "right": Qt.AlignRight}.get(d.get("align"), Qt.AlignHCenter)
+        if d.get("fill"):
+            p.fillRect(QRectF(0, 0, d["w"], d["h"]), QColor(d["fill"]))
+        for r in range(R):
+            for c in range(C):
+                if (r, c) in cov:
+                    continue
+                rs, cs = (d["spans"].get(f"{r},{c}") or [1, 1])
+                box = QRectF(xs[c], ys[r], xs[min(C, c + cs)] - xs[c], ys[min(R, r + rs)] - ys[r])
+                head = d.get("header") and r == 0
+                if head and d.get("head_fill"):
+                    p.fillRect(box, QColor(d["head_fill"]))
+                p.setPen(pen)
+                p.setBrush(Qt.NoBrush)
+                p.drawRect(box)
+                txt = vals.get((r, c), "")
+                if not txt:
+                    continue
+                a = al
+                if TB.raw_number(txt) is not None and not head and d.get("align") != "center":
+                    a = Qt.AlignRight
+                p.save()
+                p.setPen(col)
+                p.setFont(fb if head else fn)
+                p.translate(box.left(), box.top())
+                p.scale(k, k)
+                inner = QRectF(1.2 * MM / k, 0, box.width() / k - 2.4 * MM / k, box.height() / k)
+                p.drawText(inner, int(a | Qt.AlignVCenter | Qt.TextWordWrap), txt)
+                p.restore()
+
     def paint_ellipse(self, p, exp):
         p.setPen(self.pen() if self.d["sw"] > 0 else Qt.NoPen)
         fill = self.d.get("fill")
@@ -901,7 +956,7 @@ class PItem(QGraphicsItem):
 
     # ------------------------------------------------------------ agrandissement à la souris
     def resizable(self):
-        return self.typ in ("symbol", "image", "node", "rect", "ellipse", "text") + FIELD_TYPES
+        return self.typ in ("symbol", "image", "node", "rect", "ellipse", "text", "table") + FIELD_TYPES
 
     def proportional(self):
         return self.typ in ("symbol", "image", "node", "text")

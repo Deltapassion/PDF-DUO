@@ -36,7 +36,7 @@ from . import nodes as ND
 CATEGORIES = SYM_CATEGORIES + ND.CATEGORIES
 
 APP_NAME = "PDF DUO"
-APP_VERSION = "1.1.0"
+APP_VERSION = "1.2.1"
 SITE_URL = "https://deltapassion.github.io/PDF-DUO/"
 RELEASES_URL = "https://github.com/Deltapassion/PDF-DUO/releases/latest"
 KOFI_URL = "https://ko-fi.com/djlatinjazz"
@@ -756,7 +756,7 @@ class View(QGraphicsView):
             return
         if self.tool == "select":
             it = self.itemAt(e.position().toPoint())
-            if isinstance(it, PItem) and (it.typ == "node" or it.typ.startswith("field")):
+            if isinstance(it, PItem) and (it.typ in ("node", "table") or it.typ.startswith("field")):
                 self.mw.edit_interactive(it)
                 return
             if isinstance(it, PItem) and it.typ == "text":
@@ -1054,6 +1054,17 @@ class MainWindow(QMainWindow):
         cm.addAction(T("√ sur tout le nombre")).triggered.connect(lambda: self.insert_special("√{}"))
         m.addSeparator()
         act(m, T("GRAFCET : ajouter transition + étape sous la sélection"), self.grafcet_next, "Ctrl+G")
+
+        m = mb.addMenu(T("&Tableau"))
+        act(m, T("Insérer un tableau…"), self.insert_table, "Ctrl+Shift+T")
+        act(m, T("Modifier le tableau (cases, formules, fusion)…"), lambda: self.table_op("edit"))
+        m.addSeparator()
+        act(m, T("Ajouter une ligne à la fin"), lambda: self.table_op("row+"))
+        act(m, T("Ajouter une colonne à la fin"), lambda: self.table_op("col+"))
+        act(m, T("Supprimer la dernière ligne"), lambda: self.table_op("row-"))
+        act(m, T("Supprimer la dernière colonne"), lambda: self.table_op("col-"))
+        m.addSeparator()
+        act(m, T("Calculatrice scientifique et graphique…"), self.open_calculator, "Ctrl+K")
 
         m = mb.addMenu(T("&Conversions"))
         act(m, T("Convertir Word / ODT en PDF…"), self.conv_office_to_pdf)
@@ -1700,6 +1711,9 @@ class MainWindow(QMainWindow):
     def edit_interactive(self, it):
         """Double-clic : modifier le texte d'une forme, remplir un champ, signer, suivre un lien."""
         t, d = it.typ, it.d
+        if t == "table":
+            self.edit_table(it)
+            return
         if t == "node" and d.get("shape") == "cartouche":
             if self.edit_cartouche(d):
                 it.update_geom()
@@ -2121,6 +2135,71 @@ class MainWindow(QMainWindow):
             self.view.set_ghost({"type": "image", "x": 0, "y": 0, "w": w, "h": h, "png": image_to_b64(img), "sw": 0})
             self.statusBar().showMessage(T("Cliquer à l'endroit où placer la signature (taille réglable dans Propriétés)"))
 
+    # ------------------------------------------------------------------ tableaux et calculatrice
+    def insert_table(self):
+        from .table import InsertTableDialog, new_table
+        dlg = InsertTableDialog(self)
+        if not dlg.exec():
+            return
+        R, C = dlg.rows.value(), dlg.cols.value()
+        pg = self.page_items[self.current_page()]
+        w = min(C * 30 * MM, pg.w - 30 * MM)
+        h = R * 8 * MM
+        c = self.view.mapToScene(self.view.viewport().rect().center())
+        d = new_table(R, C, c.x() - w / 2, c.y() - h / 2, w, h, dlg.header.isChecked())
+        self.set_tool("select")
+        self.scene.clearSelection()
+        it = self.add_item(d, select=True)
+        self.commit()
+        self.edit_table(it)
+
+    def edit_table(self, it):
+        from .table import TableDialog
+        dlg = TableDialog(it.d, self)
+        if dlg.exec():
+            it.d.update(dlg.result())
+            it.update_geom()
+            self.commit()
+            self.refresh_props()
+
+    def table_op(self, op):
+        from .table import fix
+        tabs = [i for i in self.selected() if i.typ == "table"]
+        if not tabs:
+            QMessageBox.information(self, APP_NAME, T("Sélectionner d'abord un tableau (clic sur son bord ou dedans)."))
+            return
+        it = tabs[0]
+        d = it.d
+        if op == "edit":
+            self.edit_table(it)
+            return
+        R, C = d["rows"], d["cols"]
+        if op == "row+":
+            d["h"] = d["h"] * (R + 1) / R
+            d["rows"] = R + 1
+        elif op == "col+":
+            d["w"] = d["w"] * (C + 1) / C
+            d["cols"] = C + 1
+            d["colw"] = list(d.get("colw") or [1.0] * C) + [sum(d.get("colw") or [1.0]) / C]
+        elif op == "row-" and R > 1:
+            d["h"] = d["h"] * (R - 1) / R
+            d["rows"] = R - 1
+        elif op == "col-" and C > 1:
+            d["w"] = d["w"] * (C - 1) / C
+            d["cols"] = C - 1
+        fix(d)
+        it.update_geom()
+        self.commit()
+        self.refresh_props()
+
+    def open_calculator(self):
+        from .calculator import CalculatorDialog
+        if getattr(self, "_calc", None) is None:
+            self._calc = CalculatorDialog(self)
+        self._calc.show()
+        self._calc.raise_()
+        self._calc.activateWindow()
+
     def insert_orgchart(self):
         """Pose un organigramme type (rapport de stage) déjà relié, à compléter par double-clic."""
         pg = self.page_items[self.current_page()]
@@ -2356,6 +2435,10 @@ class MainWindow(QMainWindow):
                 sp = QDoubleSpinBox(decimals=1, minimum=1, maximum=5000, value=d[key] / MM, suffix=" mm")
                 sp.valueChanged.connect(lambda v, key=key: changed(key, v * MM))
                 f.addRow(T(lab), sp)
+            if it.typ == "table":
+                eb = QPushButton(T("Modifier le tableau (cases, formules, fusion)…"))
+                eb.clicked.connect(lambda _=False, it=it: self.edit_table(it))
+                f.addRow("", eb)
             if it.typ == "image":
                 ratio = QPushButton(T("Garder les proportions"))
                 def keep():
@@ -2536,7 +2619,7 @@ class MainWindow(QMainWindow):
             s = it.sym()
             return T(s.name) if s else T("Symbole")
         return {"line": "Trait", "wire": "Fil", "wall": "Mur", "freehand": "Dessin", "highlight": "Surlignage",
-                "dim": "Cote", "rect": "Rectangle", "ellipse": "Ellipse", "text": "Texte", "image": "Image",
+                "dim": "Cote", "rect": "Rectangle", "ellipse": "Ellipse", "table": "Tableau", "text": "Texte", "image": "Image",
                 "field_text": "Champ texte", "field_check": "Case à cocher", "field_combo": "Liste déroulante",
                 "field_radio": "Bouton radio", "field_sig": "Zone de signature", "field_link": "Lien",
                 "node": "Forme" if it.d.get("shape") != "cartouche" else "Cartouche"}.get(it.typ, it.typ)

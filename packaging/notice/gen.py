@@ -5,19 +5,19 @@ HERE = os.path.dirname(os.path.abspath(__file__)); sys.path.insert(0, HERE)
 from texts import T
 from figs import F
 from playwright.sync_api import sync_playwright
-ROOT = os.path.abspath(os.environ.get("PDFDUO_ROOT", os.path.join(HERE, "..", "..")))
+ROOT = os.environ.get("PDFDUO_ROOT", "/home/claude/PDF-DUO-depot")
 APP = os.environ.get("PDFDUO_APP", ROOT + "/pdfduo")
 DOCS = ROOT + "/docs"; OUT_WEB = DOCS + "/notice"; OUT_APP = APP + "/notices"
 os.makedirs(OUT_WEB, exist_ok=True); os.makedirs(OUT_APP, exist_ok=True)
 NAMES = dict(fr="Français", en="English", es="Español", pt="Português", de="Deutsch", it="Italiano")
-VER = "1.0.0"
+VER = "1.2.1"
 INTRO = dict(
- fr="PDF DUO sert à lire, remplir et signer des PDF, à dessiner des schémas électriques, pneumatiques et réseau, des GRAFCET et des plans de logement, et à convertir Word / ODF ↔ PDF. Il est pensé pour les élèves et les professeurs de lycée professionnel (MELEC, CIEL), et rend aussi service à la vie du lycée : affiches, formulaires d'adhésion et documents signés de la MDL. Les numéros rouges des captures renvoient aux listes placées dessous.",
- en="PDF DUO lets you read, fill in and sign PDFs, draw electrical, pneumatic and network diagrams, GRAFCETs and floor plans, and convert Word / ODF ↔ PDF. It is designed for vocational-school students and teachers, and is also handy for school life: posters, membership forms and signed documents for the student association. The red numbers on the screenshots refer to the lists below them.",
- es="PDF DUO sirve para leer, rellenar y firmar PDF, dibujar esquemas eléctricos, neumáticos y de red, GRAFCET y planos de vivienda, y convertir Word / ODF ↔ PDF. Está pensado para alumnos y profesores de formación profesional, y también es útil para la vida del centro: carteles, fichas de inscripción y documentos firmados de la asociación de alumnos. Los números rojos de las capturas remiten a las listas de debajo.",
- pt="O PDF DUO serve para ler, preencher e assinar PDF, desenhar esquemas elétricos, pneumáticos e de rede, GRAFCET e plantas de habitação, e converter Word / ODF ↔ PDF. Foi pensado para alunos e professores do ensino profissional, e também é útil para a vida da escola: cartazes, fichas de inscrição e documentos assinados da associação de estudantes. Os números vermelhos das capturas remetem para as listas abaixo.",
- de="PDF DUO dient zum Lesen, Ausfüllen und Unterschreiben von PDFs, zum Zeichnen von Schalt-, Pneumatik- und Netzwerkplänen, GRAFCETs und Grundrissen sowie zum Konvertieren Word / ODF ↔ PDF. Es ist für Schülerinnen, Schüler und Lehrkräfte an Berufsschulen gedacht und hilft auch im Schulleben: Plakate, Mitgliedsformulare und unterschriebene Dokumente der Schülervertretung. Die roten Nummern auf den Bildern verweisen auf die Listen darunter.",
- it="PDF DUO serve a leggere, compilare e firmare PDF, disegnare schemi elettrici, pneumatici e di rete, GRAFCET e piante di abitazioni, e convertire Word / ODF ↔ PDF. È pensato per studenti e docenti degli istituti professionali ed è utile anche per la vita della scuola: manifesti, moduli d'iscrizione e documenti firmati dell'associazione studentesca. I numeri rossi delle immagini rimandano agli elenchi sottostanti.")
+ fr="PDF DUO sert à lire, remplir et signer des PDF, à dessiner des schémas électriques, pneumatiques et réseau, des GRAFCET et des plans de logement, et à convertir Word / ODF ↔ PDF. Il est pensé pour les élèves et les professeurs de toutes les sections de lycée professionnel (par exemple MELEC, CIEL, prothésiste dentaire, logistique, magasinier), et rend aussi service à la vie du lycée : affiches, formulaires d'adhésion et documents signés de la MDL. Les numéros rouges des captures renvoient aux listes placées dessous.",
+ en="PDF DUO lets you read, fill in and sign PDFs, draw electrical, pneumatic and network diagrams, GRAFCETs and floor plans, and convert Word / ODF ↔ PDF. It is designed for students and teachers in all vocational courses (for example electrical, IT, dental technician, logistics, warehouse), and is also handy for school life: posters, membership forms and signed documents for the student association. The red numbers on the screenshots refer to the lists below them.",
+ es="PDF DUO sirve para leer, rellenar y firmar PDF, dibujar esquemas eléctricos, neumáticos y de red, GRAFCET y planos de vivienda, y convertir Word / ODF ↔ PDF. Está pensado para alumnos y profesores de todas las ramas de formación profesional (por ejemplo electricidad, informática, prótesis dental, logística, almacén), y también es útil para la vida del centro: carteles, fichas de inscripción y documentos firmados de la asociación de alumnos. Los números rojos de las capturas remiten a las listas de debajo.",
+ pt="O PDF DUO serve para ler, preencher e assinar PDF, desenhar esquemas elétricos, pneumáticos e de rede, GRAFCET e plantas de habitação, e converter Word / ODF ↔ PDF. Foi pensado para alunos e professores de todos os cursos profissionais (por exemplo eletricidade, informática, prótese dentária, logística, armazém), e também é útil para a vida da escola: cartazes, fichas de inscrição e documentos assinados da associação de estudantes. Os números vermelhos das capturas remetem para as listas abaixo.",
+ de="PDF DUO dient zum Lesen, Ausfüllen und Unterschreiben von PDFs, zum Zeichnen von Schalt-, Pneumatik- und Netzwerkplänen, GRAFCETs und Grundrissen sowie zum Konvertieren Word / ODF ↔ PDF. Es ist für Schülerinnen, Schüler und Lehrkräfte aller Berufsausbildungen gedacht (zum Beispiel Elektro, IT, Zahntechnik, Logistik, Lager) und hilft auch im Schulleben: Plakate, Mitgliedsformulare und unterschriebene Dokumente der Schülervertretung. Die roten Nummern auf den Bildern verweisen auf die Listen darunter.",
+ it="PDF DUO serve a leggere, compilare e firmare PDF, disegnare schemi elettrici, pneumatici e di rete, GRAFCET e piante di abitazioni, e convertire Word / ODF ↔ PDF. È pensato per studenti e docenti di tutti gli indirizzi professionali (per esempio elettrico, informatico, odontotecnico, logistica, magazzino) ed è utile anche per la vita della scuola: manifesti, moduli d'iscrizione e documenti firmati dell'associazione studentesca. I numeri rossi delle immagini rimandano agli elenchi sottostanti.")
 CSS = """
 body{font-family:'DejaVu Sans',Arial,sans-serif;color:#1d2733;font-size:10.5pt;line-height:1.5;margin:0 auto;max-width:900px;padding:0 16px}
 header{display:flex;align-items:center;gap:16px;border-bottom:3px solid #1f6feb;padding:10px 0 12px;margin-bottom:12px}
@@ -45,7 +45,7 @@ footer{margin-top:20px;border-top:1px solid #c8d3df;padding-top:6px;font-size:8.
 """
 def figure(lang, imgs, cap, leg, base):
     imgs = [imgs] if isinstance(imgs, str) else imgs
-    W = {"06-reseau.jpg": 78, "08-signature.jpg": 62, "09-texte.jpg": 62, "10-conversions.jpg": 46, "05-grafcet.jpg": 88}
+    W = {"18-tableau-edition.jpg": 80, "06-reseau.jpg": 78, "08-signature.jpg": 62, "09-texte.jpg": 62, "10-conversions.jpg": 46, "05-grafcet.jpg": 88}
     one = len(imgs) == 1
     tags = "".join(f'<img src="{base}{lang}/{i}" alt="{html.escape(cap)}"' + (f' style="width:{W.get(i, 94)}%;margin:0 auto"' if one else '') + '>' for i in imgs)
     body = f'<div class="row">{tags}</div>' if len(imgs) > 1 else tags
@@ -71,18 +71,14 @@ def page(lang, base, icon):
 <footer>PDF DUO {VER} — GNU GPL v3 — deltapassion.github.io/PDF-DUO — ko-fi.com/djlatinjazz</footer></body></html>"""
 
 # images pour le site
-IMG = HERE + "/img"
-if os.path.isdir(IMG):
-    if os.path.exists(OUT_WEB + "/img"): shutil.rmtree(OUT_WEB + "/img")
-    shutil.copytree(IMG, OUT_WEB + "/img")
-else:
-    IMG = OUT_WEB + "/img"
+if os.path.exists(OUT_WEB + "/img"): shutil.rmtree(OUT_WEB + "/img")
+shutil.copytree(HERE + "/img", OUT_WEB + "/img")
 with sync_playwright() as p:
     b = p.chromium.launch(); pg = b.new_page()
     for lang in T:
         open(f"{OUT_WEB}/notice-{lang}.html", "w", encoding="utf-8").write(page(lang, "img/", "../icon.png"))
         tmp = f"{HERE}/_print-{lang}.html"
-        open(tmp, "w", encoding="utf-8").write(page(lang, "file://" + IMG + "/", "file://" + DOCS + "/icon.png"))
+        open(tmp, "w", encoding="utf-8").write(page(lang, "file://" + HERE + "/img/", "file://" + DOCS + "/icon.png"))
         pg.goto("file://" + tmp); pg.wait_for_load_state("networkidle")
         pdf = pg.pdf(format="A4", print_background=True, display_header_footer=True, header_template="<span></span>",
                      footer_template='<div style="font-size:8px;width:100%;text-align:center;color:#888">PDF DUO ' + VER + ' — <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
