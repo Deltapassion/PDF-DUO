@@ -22,7 +22,7 @@ img{max-width:100%;display:block}
 
 /* ---------- héros : photo des Pyrénées ---------- */
 .hero{position:relative;min-height:92vh;display:flex;flex-direction:column;color:var(--snow);
-  background:url("pyrenees.jpg") center 38%/cover no-repeat;isolation:isolate}
+  background:url("deltaplane.jpg") center 30%/cover no-repeat;isolation:isolate}
 .hero::before{content:"";position:absolute;inset:0;z-index:-1;
   background:linear-gradient(180deg,rgba(9,28,46,.55) 0%,rgba(9,28,46,.18) 38%,rgba(9,28,46,.30) 62%,rgba(8,22,36,.88) 100%)}
 nav{display:flex;align-items:center;gap:22px;padding:18px clamp(16px,5vw,64px)}
@@ -183,6 +183,20 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
 @media (max-width:1240px){nav{gap:16px} nav a.l2{display:none}}
 @media (max-width:980px){.langbtns{display:none}.langsel{display:inline-block}}
 
+/* ---------- zones du milieu : peinture en fond ---------- */
+.zone-sombre{position:relative;isolation:isolate;background:url("splash-sombre.jpg") center/cover no-repeat}
+.zone-sombre::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(12,18,25,.92) 0%,rgba(12,18,25,.55) 45%,rgba(12,18,25,.88) 100%)}
+.zone-sombre .use{background:rgba(19,27,37,.78);backdrop-filter:blur(3px)}
+.zone-clair{position:relative;isolation:isolate;background:url("splash-clair.jpg") center/cover no-repeat;
+  --ink:#16202b;--muted:#3f4b59;--card:#ffffff;--line:#d5dbe3;--lake:#1f6fa8;color:var(--ink)}
+.zone-clair::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(255,255,255,.88) 0%,rgba(255,255,255,.55) 45%,rgba(255,255,255,.88) 100%)}
+.zone-clair .chip{background:rgba(255,255,255,.85);color:var(--ink);border-color:#cfd6df}
+.zone-clair .plates img{box-shadow:0 8px 24px rgba(40,20,80,.18)}
+.zone-clair .use{background:rgba(255,255,255,.86);backdrop-filter:blur(3px)}
+.zone-clair .tag{background:#e3eef8}
+.zone-sombre .chip{background:rgba(19,27,37,.8)}
+.zone-sombre .plates img{box-shadow:0 8px 28px rgba(0,0,0,.45)}
+
 @media (max-width:820px){
   .shots{grid-template-columns:1fr}
   .shots .big{grid-column:auto}
@@ -224,7 +238,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
     </div>
     <p class="osnote" id="heroNote"><a href="#telecharger">Toutes les versions : Windows, macOS, Linux</a></p>
   </div>
-  <span class="photo-credit">Pyrénées</span>
+  <span class="photo-credit">Lac de Génos-Loudenvielle (Pyrénées)</span>
 </header>
 
 <section id="fonctions">
@@ -260,7 +274,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   </div>
 </section>
 
-<section id="lycee">
+<section id="lycee" class="zone-clair">
   <div class="wrap">
     <h2><span data-i="h2l">Pour la classe… et pour tout le lycée</span></h2>
     <p class="sub"><span data-i="subl">Gratuit, sans compte et installable sur tous les postes : PDF DUO sert aux élèves et aux professeurs, mais aussi à la vie du lycée.</span></p>
@@ -275,7 +289,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   </div>
 </section>
 
-<section id="bibliotheques" style="background:#101822;border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+<section id="bibliotheques" class="zone-sombre">
   <div class="wrap">
     <h2><span data-i="h2b">Près de 400 symboles prêts à poser</span></h2>
     <p class="sub"><span data-i="subb">Dessinés d'après les fiches utilisées en lycée professionnel (bacs pro MELEC et CIEL), et complétés au fil des retours d'un enseignant.</span></p>
@@ -419,8 +433,8 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:12px 28px;justify-content:space-bet
   var REPO = "Deltapassion/PDF-DUO";
   // Téléchargements déjà faits sur des fichiers remplacés ou supprimés (GitHub les oublie) :
   // DEJA_TOTAL s'ajoute au total, DEJA[fichier] au compteur de chaque carte. À modifier ici si besoin.
-  var DEJA_TOTAL = 43;
-  var DEJA = {"pdf-duo_amd64.deb": 1, "PDF-DUO-x86_64.AppImage": 1};
+  var DEJA_TOTAL = 0;
+  var DEJA = {"PDF-DUO-Windows-Setup.exe": 43, "pdf-duo_amd64.deb": 1, "PDF-DUO-x86_64.AppImage": 1};
   var BASE = "https://github.com/" + REPO + "/releases/latest/download/";
   var NAMES = {win:"Windows", "win-zip":"Windows", deb:"Linux (.deb)", appimage:"Linux", targz:"Linux",
                "mac-arm":"Mac Apple Silicon", "mac-intel":"Mac Intel"};
