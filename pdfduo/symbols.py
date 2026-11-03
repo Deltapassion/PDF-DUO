@@ -1513,6 +1513,341 @@ add("ae_wire_id", "Repère de fil (ex. W1001-22)", AE, 60, 20,
     '<path d="M0 12 H60"/><rect x="14" y="3" width="32" height="7" fill="#ffffff" stroke-width="0.6"/>' + t(30, 8.6, "W1001-22", 4.5),
     pins=[(0, 12), (60, 12)])
 
+# ---------------------------------------------------------------- énergie solaire photovoltaïque
+SOL = "Énergie solaire – symboles"
+SOLT = "Énergie solaire – schéma technologique"
+_W = lambda s: s.replace('fill="CC"', 'fill="#ffffff"')
+
+add("pv_cellule", "Cellule photovoltaïque", SOL, 20, 40,
+    '<path d="M10 0 V6 M10 34 V40"/><rect x="3" y="6" width="14" height="28"/><path d="M3 6 L10 13 L17 6"/>',
+    pins=[(10, 0), (10, 40)])
+add("pv_module", "Module / panneau photovoltaïque (symbole)", SOL, 40, 60,
+    '<path d="M20 0 V8 M20 52 V60"/><rect x="8" y="8" width="24" height="44"/><path d="M8 8 L20 20 L32 8"/>'
+    + t(28, 6, "+", 7, "bold") + t(28, 60, "−", 7, "bold"),
+    pins=[(20, 0), (20, 60)], pin_names="+ −")
+add("pv_chaine", "Chaîne de modules PV (string)", SOL, 100, 60,
+    "".join(f'<rect x="{x}" y="10" width="16" height="40"/><path d="M{x} 10 L{x + 8} 18 L{x + 16} 10"/>' for x in (6, 30, 78))
+    + '<path d="M0 30 H6 M22 30 H30 M46 30 H52 M72 30 H78 M94 30 H100"/><path d="M54 30 H70" stroke-dasharray="2 3"/>'
+    + t(4, 24, "+", 7, "bold") + t(96, 24, "−", 7, "bold"),
+    pins=[(0, 30), (100, 30)], pin_names="+ −")
+
+
+def _conv(a, b, name):
+    def f(p):
+        return (40, 40, '<path d="M0 20 H6 M34 20 H40"/><rect x="6" y="6" width="28" height="28"/><path d="M6 34 L34 6"/>' + a + b)
+    return f
+
+
+_DC_TL = '<path d="M10 12 H20" stroke-width="1.2"/><path d="M10 16 H20" stroke-width="1.2" stroke-dasharray="3 2"/>'
+_DC_BR = '<path d="M20 26 H30" stroke-width="1.2"/><path d="M20 30 H30" stroke-width="1.2" stroke-dasharray="3 2"/>'
+_AC_TL = '<path d="M10 15 Q12.5 10 15 15 T20 15" stroke-width="1.2"/>'
+_AC_BR = '<path d="M20 28 Q22.5 23 25 28 T30 28" stroke-width="1.2"/>'
+add("pv_onduleur", "Onduleur (continu → alternatif)", SOL, 40, 40, func=_conv(_DC_TL, _AC_BR, ""), pins=[(0, 20), (40, 20)])
+add("pv_dcdc", "Convertisseur continu / continu", SOL, 40, 40, func=_conv(_DC_TL, _DC_BR, ""), pins=[(0, 20), (40, 20)])
+add("pv_chargeur", "Chargeur / redresseur (alternatif → continu)", SOL, 40, 40, func=_conv(_AC_TL, _DC_BR, ""), pins=[(0, 20), (40, 20)])
+
+
+def _regul(p):
+    ty = p.get("type", "MPPT")
+    return (80, 60,
+            '<rect x="10" y="10" width="60" height="40"/><path d="M10 50 L70 10" stroke-width="0.8"/>'
+            '<path d="M16 17 H28" stroke-width="1.2"/><path d="M16 21 H28" stroke-width="1.2" stroke-dasharray="3 2"/>'
+            '<path d="M52 39 H64" stroke-width="1.2"/><path d="M52 43 H64" stroke-width="1.2" stroke-dasharray="3 2"/>'
+            + t(40, 33, ty, 7, "bold")
+            + '<path d="M0 20 H10 M0 40 H10 M70 20 H80 M70 40 H80 M30 50 V60 M50 50 V60"/>'
+            + t(4, 17, "+", 6) + t(4, 37, "−", 6) + t(76, 17, "+", 6) + t(76, 37, "−", 6)
+            + t(18, 8, "PV", 5) + t(62, 8, "BAT", 5) + t(40, 59, "U", 5))
+
+
+add("pv_regulateur", "Régulateur de charge (MPPT / PWM)", SOL,
+    params=[("type", "Type", "MPPT", ["MPPT", "PWM"])], func=_regul,
+    pins=[(0, 20), (0, 40), (80, 20), (80, 40), (30, 60), (50, 60)], pin_names="")
+
+
+def _bat_sym(p):
+    v = p.get("tension", "12 V")
+    n = {"2 V": 1, "6 V": 3, "12 V": 6, "24 V": 12, "48 V": 24}.get(v, 6)
+    if n == 1:
+        body = '<path d="M0 20 H36 M44 20 H80 M36 8 V32"/><path d="M44 13 V27" stroke-width="3"/>'
+    else:
+        body = ('<path d="M0 20 H12 M68 20 H80"/>'
+                '<path d="M12 8 V32"/><path d="M18 13 V27" stroke-width="3"/><path d="M18 20 H24"/>'
+                '<path d="M24 8 V32"/><path d="M30 13 V27" stroke-width="3"/>'
+                '<path d="M32 20 H48" stroke-dasharray="2 2.5"/>'
+                '<path d="M50 8 V32"/><path d="M56 13 V27" stroke-width="3"/><path d="M56 20 H62"/>'
+                '<path d="M62 8 V32"/><path d="M68 13 V27" stroke-width="3"/>')
+    x1, x2 = (34, 48) if n == 1 else (8, 74)
+    return (80, 40, body + t(x1, 6, "+", 7, "bold") + t(x2, 6, "−", 7, "bold")
+            + t(40, 39, v + (f" ({n} × 2 V)" if n > 1 else ""), 6))
+
+
+add("pv_batterie", "Batterie d'accumulateurs (2 / 12 / 24 / 48 V)", SOL,
+    params=[("tension", "Tension", "12 V", ["2 V", "6 V", "12 V", "24 V", "48 V"])], func=_bat_sym,
+    pins=[(0, 20), (80, 20)], pin_names="+ −")
+add("pv_shunt", "Shunt de mesure de courant", SOL, 40, 20,
+    '<path d="M0 12 H8 M32 12 H40"/><rect x="8" y="8" width="24" height="8"/><path d="M14 8 V2 M26 8 V2"/>' + t(20, 20, "shunt", 4.5),
+    pins=[(0, 10), (40, 10)])
+add("pv_capteur_i", "Capteur de courant (pince / effet Hall)", SOL, 40, 40,
+    '<path d="M0 20 H40"/><ellipse cx="20" cy="20" rx="7" ry="13"/><path d="M20 7 V0"/>' + t(31, 9, "I", 7, "bold"),
+    pins=[(0, 20), (40, 20)])
+add("pv_ampere_dc", "Ampèremètre continu (A ⎓)", SOL, 40, 20,
+    '<path d="M0 10 H11 M29 10 H40"/><circle cx="20" cy="10" r="9"/>' + t(20, 11.5, "A", 7, "bold")
+    + '<path d="M16 15.5 H24" stroke-width="0.7"/><path d="M16 17 H24" stroke-width="0.7" stroke-dasharray="1.5 1"/>',
+    pins=[(0, 10), (40, 10)])
+add("pv_volt_dc", "Voltmètre continu (V ⎓)", SOL, 40, 20,
+    '<path d="M0 10 H11 M29 10 H40"/><circle cx="20" cy="10" r="9"/>' + t(20, 11.5, "V", 7, "bold")
+    + '<path d="M16 15.5 H24" stroke-width="0.7"/><path d="M16 17 H24" stroke-width="0.7" stroke-dasharray="1.5 1"/>',
+    pins=[(0, 10), (40, 10)])
+add("pv_compteur", "Compteur d'énergie (Wh)", SOL, 40, 40,
+    '<path d="M20 0 V6 M20 34 V40"/><rect x="8" y="6" width="24" height="28" rx="4"/><path d="M8 13 H32"/>' + t(20, 27, "Wh", 7, "bold"),
+    pins=[(20, 0), (20, 40)])
+add("pv_fusible", "Fusible PV (gPV)", SOL, 20, 40,
+    '<path d="M10 0 V40"/><rect x="5" y="10" width="10" height="20"/>' + t(19, 8, "gPV", 4.5),
+    pins=[(10, 0), (10, 40)])
+add("pv_sect_dc", "Interrupteur-sectionneur continu (DC)", SOL, 40, 40,
+    '<path d="M20 0 V12 M20 28 V40 M20 28 L11 13 M17 12 H23"/>'
+    '<path d="M26 18 H34" stroke-width="1"/><path d="M26 21 H34" stroke-width="1" stroke-dasharray="2 1.5"/>',
+    pins=[(20, 0), (20, 40)])
+add("pv_parafoudre", "Parafoudre (protection surtension)", SOL, 20, 60,
+    '<path d="M10 0 V6 M10 54 V60"/><rect x="3" y="6" width="14" height="22"/><rect x="3" y="32" width="14" height="22"/>'
+    '<path d="M3 11 H17 M3 49 H17"/><path d="M10 14 V25 M7 21 L10 25 L13 21"/><path d="M10 47 V36 M7 40 L10 36 L13 40"/>',
+    pins=[(10, 0), (10, 60)])
+add("pv_mc4", "Connecteur photovoltaïque (MC4)", SOL, 40, 20,
+    '<path d="M0 10 H12 M28 10 H40"/><path d="M12 3 L19 10 L12 17"/><path d="M20 3 L27 10 L20 17"/><path d="M27 10 H28"/>',
+    pins=[(0, 10), (40, 10)])
+add("pv_diode", "Diode anti-retour (by-pass)", SOL, 40, 20,
+    '<path d="M0 10 H8 M32 10 H40"/><rect x="8" y="4" width="24" height="12"/><path d="M13 10 H27"/>'
+    '<path d="M16 6.5 L22 10 L16 13.5 Z" fill="CC"/><path d="M22 6 V14"/>',
+    pins=[(0, 10), (40, 10)])
+add("pv_thermique", "Capteur solaire thermique", SOL, 80, 80,
+    '<path d="M12 74 L66 20 L76 30 L22 84 Z" transform="translate(-4 -6)"/>'
+    '<circle cx="64" cy="22" r="4"/><path d="M61 19 L67 25 M67 19 L61 25"/>'
+    '<circle cx="21" cy="65" r="4"/><path d="M18 62 L24 68 M24 62 L18 68"/>'
+    + "".join(f'<path d="M{x} {y} L{x + 9} {y + 9} M{x + 9} {y + 5} V{y + 9} H{x + 5}"/>' for x, y in ((4, 30), (16, 18), (28, 6), (40, -4))),
+    pins=[])
+add("pv_soleil", "Soleil (rayonnement)", SOL, 40, 40,
+    '<circle cx="20" cy="20" r="8" fill="#ffca28"/>'
+    + "".join(f'<path d="M{20 + 11 * c:.1f} {20 + 11 * s:.1f} L{20 + 17 * c:.1f} {20 + 17 * s:.1f}"/>'
+              for c, s in ((1, 0), (0.707, 0.707), (0, 1), (-0.707, 0.707), (-1, 0), (-0.707, -0.707), (0, -1), (0.707, -0.707))),
+    pins=[])
+
+
+# ---- schéma technologique (site isolé)
+def _panneau(p):
+    pw = p.get("puissance", "300 Wc")
+    cells = "".join(f'<rect x="{8 + c * 14}" y="{8 + r * 14}" width="13" height="13" fill="#1f4e9a" stroke="#9fb8e0" stroke-width="0.5"/>'
+                    for r in range(9) for c in range(6))
+    return (100, 160,
+            '<rect x="3" y="3" width="94" height="136" rx="1.5" fill="#d7dde5" stroke="#5f6b7a" stroke-width="1.6"/>' + cells
+            + t(50, 137.5, pw, 5, "bold")
+            + '<rect x="40" y="139" width="20" height="7" fill="#263238" stroke="none"/>'
+            + '<path d="M44 146 V160" stroke="#111111" stroke-width="2"/><path d="M56 146 V160" stroke="#d32f2f" stroke-width="2"/>'
+            + t(38, 157, "−", 7, "bold") + t(62, 157, "+", 7, "bold"))
+
+
+add("pvt_panneau", "Panneau solaire (vue)", SOLT,
+    params=[("puissance", "Puissance", "300 Wc", None)], func=_panneau, pins=[(40, 160), (60, 160)], pin_names="")
+
+
+def _regul_vue(p):
+    ty = p.get("type", "MPPT")
+    pv = '<rect x="15" y="62" width="14" height="10" fill="#1f4e9a" stroke="#ffffff" stroke-width="0.6"/><path d="M15 67 H29 M22 62 V72" stroke="#9fb8e0" stroke-width="0.5"/>'
+    bat = '<rect x="64" y="63" width="14" height="9" rx="1" fill="#ffffff" stroke="none"/><rect x="66" y="61" width="3" height="2" fill="#ffffff" stroke="none"/><rect x="73" y="61" width="3" height="2" fill="#ffffff" stroke="none"/>'
+    bulb = '<circle cx="118" cy="66" r="4.5" fill="#ffeb3b" stroke="none"/><rect x="116" y="70" width="4" height="3" fill="#ffffff" stroke="none"/>'
+    term = "".join(f'<rect x="{x - 4}" y="80" width="8" height="8" fill="#9e9e9e" stroke="#424242" stroke-width="0.6"/>'
+                   f'<circle cx="{x}" cy="84" r="1.8" fill="#424242" stroke="none"/>' for x in (12, 32, 62, 82, 112, 132))
+    return (144, 100,
+            '<rect x="2" y="2" width="140" height="88" rx="6" fill="#2b3442" stroke="#111a24" stroke-width="1.4"/>'
+            '<rect x="44" y="12" width="56" height="28" rx="2" fill="#b9f6ca" stroke="#0f2a16" stroke-width="1"/>'
+            + '<text x="72" y="31" font-size="11" fill="#0f3d1f" stroke="none" font-family="DejaVu Sans Mono, monospace" text-anchor="middle">13.6 V</text>'
+            + _W(t(72, 52, ty + " · contrôleur de charge", 6, "bold")) + _W(t(20, 12, "SOLAR", 5)) + pv + bat + bulb + term
+            + t(12, 98, "+", 7, "bold") + t(32, 98, "−", 7, "bold") + t(62, 98, "+", 7, "bold") + t(82, 98, "−", 7, "bold")
+            + t(112, 98, "+", 7, "bold") + t(132, 98, "−", 7, "bold"))
+
+
+add("pvt_regulateur", "Contrôleur de charge (vue)", SOLT,
+    params=[("type", "Type", "MPPT", ["MPPT", "PWM"])], func=_regul_vue,
+    pins=[(12, 90), (32, 90), (62, 90), (82, 90), (112, 90), (132, 90)], pin_names="")
+
+
+def _bat_vue(p):
+    v = p.get("tension", "12 V")
+    ah = p.get("capacite", "100 Ah")
+    return (120, 80,
+            '<rect x="2" y="12" width="116" height="66" rx="4" fill="#37474f" stroke="#1c262b" stroke-width="1.4"/>'
+            '<rect x="2" y="12" width="116" height="12" rx="4" fill="#263238" stroke="none"/>'
+            '<rect x="16" y="4" width="14" height="10" rx="1.5" fill="#d32f2f" stroke="none"/>'
+            '<rect x="90" y="4" width="14" height="10" rx="1.5" fill="#212121" stroke="none"/>'
+            '<circle cx="60" cy="48" r="14" fill="#29b6f6" stroke="#ffffff" stroke-width="1.4"/>'
+            '<path d="M62 37 L54 50 H60 L57 60 L66 46 H60 Z" fill="#ffffff" stroke="none"/>'
+            + _W(t(23, 22, "+", 9, "bold")) + _W(t(97, 22, "−", 9, "bold"))
+            + _W(t(24, 52, v, 9, "bold")) + _W(t(96, 52, ah, 7, "bold")) + _W(t(60, 74, "Batterie solaire", 5)))
+
+
+add("pvt_batterie", "Batterie solaire (vue)", SOLT,
+    params=[("tension", "Tension", "12 V", ["2 V", "6 V", "12 V", "24 V", "48 V"]), ("capacite", "Capacité", "100 Ah", None)],
+    func=_bat_vue, pins=[(20, 0), (100, 0)], pin_names="")
+
+
+def _ond_vue(p):
+    pw = p.get("puissance", "1000 VA")
+    return (90, 140,
+            '<rect x="3" y="3" width="84" height="124" rx="5" fill="#eceff1" stroke="#455a64" stroke-width="1.4"/>'
+            '<rect x="3" y="3" width="84" height="18" rx="5" fill="#455a64" stroke="none"/>'
+            '<rect x="20" y="30" width="50" height="22" rx="2" fill="#263238" stroke="none"/>'
+            '<text x="45" y="45" font-size="9" fill="#80deea" stroke="none" font-family="DejaVu Sans Mono, monospace" text-anchor="middle">230 V~</text>'
+            '<rect x="25" y="62" width="40" height="40" fill="#ffffff" stroke="#455a64" stroke-width="1"/><path d="M25 102 L65 62" stroke="#455a64"/>'
+            '<path d="M30 70 H42" stroke="#455a64" stroke-width="1.4"/><path d="M30 74 H42" stroke="#455a64" stroke-width="1.4" stroke-dasharray="3 2"/>'
+            '<path d="M48 93 Q51 87 54 93 T60 93" stroke="#455a64" stroke-width="1.4"/>'
+            + _W(t(45, 15, "Onduleur cc / ca", 6, "bold")) + t(45, 115, pw, 6, "bold")
+            + '<path d="M15 127 V140" stroke="#d32f2f" stroke-width="2"/><path d="M28 127 V140" stroke="#111111" stroke-width="2"/>'
+            + '<path d="M62 127 V140" stroke="#8b4513" stroke-width="2"/><path d="M75 127 V140" stroke="#1e63c8" stroke-width="2"/>'
+            + t(10, 136, "+", 6, "bold") + t(34, 136, "−", 6, "bold") + t(56, 136, "L", 5, "bold") + t(81, 136, "N", 5, "bold"))
+
+
+add("pvt_onduleur", "Onduleur / convertisseur CC-CA (vue)", SOLT,
+    params=[("puissance", "Puissance", "1000 VA", None)], func=_ond_vue,
+    pins=[(15, 140), (28, 140), (62, 140), (75, 140)], pin_names="")
+
+
+def _moniteur(p):
+    return (80, 50,
+            '<rect x="2" y="2" width="76" height="40" rx="4" fill="#263238" stroke="#111111" stroke-width="1.2"/>'
+            '<rect x="8" y="8" width="64" height="26" rx="2" fill="#0d47a1" stroke="none"/>'
+            f'<text x="40" y="19" font-size="8" fill="#e3f2fd" stroke="none" font-family="DejaVu Sans Mono, monospace" text-anchor="middle">{p.get("tension", "12.8 V")}</text>'
+            f'<text x="40" y="30" font-size="8" fill="#ffeb3b" stroke="none" font-family="DejaVu Sans Mono, monospace" text-anchor="middle">{p.get("courant", "5.2 A")}</text>'
+            '<path d="M30 42 V50 M50 42 V50" stroke="#555555" stroke-width="1.6"/>')
+
+
+add("pvt_moniteur", "Moniteur de batterie (tension / courant)", SOLT,
+    params=[("tension", "Tension affichée", "12.8 V", None), ("courant", "Courant affiché", "5.2 A", None)],
+    func=_moniteur, pins=[(30, 50), (50, 50)], pin_names="")
+add("pvt_shunt", "Shunt de mesure (vue)", SOLT, 80, 30,
+    '<rect x="4" y="10" width="72" height="14" rx="2" fill="#b0bec5" stroke="#455a64" stroke-width="1"/>'
+    '<rect x="26" y="6" width="28" height="22" rx="2" fill="#ffd54f" stroke="#8d6e00" stroke-width="1"/>'
+    '<circle cx="10" cy="17" r="3" fill="#455a64" stroke="none"/><circle cx="70" cy="17" r="3" fill="#455a64" stroke="none"/>'
+    + t(40, 19.5, "500 A / 50 mV", 4),
+    pins=[(10, 30), (70, 30)], pin_names="")
+add("pvt_disj_dc", "Disjoncteur continu / sectionneur (vue)", SOLT, 40, 70,
+    '<rect x="4" y="4" width="32" height="62" rx="3" fill="#f5f5f5" stroke="#424242" stroke-width="1.2"/>'
+    '<rect x="13" y="24" width="14" height="20" rx="2" fill="#1565c0" stroke="none"/><rect x="15" y="26" width="10" height="7" fill="#ffffff" stroke="none"/>'
+    + t(20, 14, "DC", 6, "bold") + t(20, 58, "C16", 5)
+    + '<path d="M20 0 V4 M20 66 V70" stroke-width="1.6"/>',
+    pins=[(20, 0), (20, 70)], pin_names="")
+add("pvt_fusible", "Porte-fusible PV (vue)", SOLT, 30, 70,
+    '<rect x="4" y="4" width="22" height="62" rx="3" fill="#eceff1" stroke="#424242" stroke-width="1.2"/>'
+    '<rect x="9" y="18" width="12" height="34" rx="5" fill="#fff8e1" stroke="#8d6e63" stroke-width="1"/>' + t(15, 38, "15A", 4.5, "bold")
+    + '<path d="M15 0 V4 M15 66 V70" stroke-width="1.6"/>',
+    pins=[(15, 0), (15, 70)], pin_names="")
+add("pvt_ampoule", "Ampoule (charge)", SOLT, 30, 50,
+    '<path d="M15 4 C5 4 3 14 7 20 C10 24 10 27 10 30 H20 C20 27 20 24 23 20 C27 14 25 4 15 4 Z" fill="#fff59d" stroke="#8d6e00" stroke-width="1"/>'
+    '<rect x="10" y="30" width="10" height="8" fill="#9e9e9e" stroke="none"/><path d="M11 38 V50 M19 38 V50" stroke-width="1.4"/>',
+    pins=[(10, 50), (20, 50)], pin_names="")
+add("pvt_prise", "Prise de courant 230 V (vue)", SOLT, 40, 40,
+    '<rect x="3" y="3" width="34" height="34" rx="6" fill="#fafafa" stroke="#616161" stroke-width="1.2"/>'
+    '<circle cx="20" cy="20" r="11" fill="#eeeeee" stroke="#9e9e9e" stroke-width="0.8"/>'
+    '<circle cx="15" cy="20" r="2" fill="#424242" stroke="none"/><circle cx="25" cy="20" r="2" fill="#424242" stroke="none"/>'
+    '<rect x="18.5" y="9" width="3" height="4" fill="#9e9e9e" stroke="none"/>',
+    pins=[(14, 40), (26, 40)], pin_names="")
+
+def _ccpf_vue(p):
+    cal = p.get("calibre", "10 A")
+    pol = p.get("poles", "+ / −")
+    a, b = pol.split(" / ")
+    o = ""
+    for i, (x, lab) in enumerate(((2, a), (22, b))):
+        o += (f'<rect x="{x}" y="6" width="18" height="58" rx="2" fill="#f5f5f5" stroke="#424242" stroke-width="1.1"/>'
+              f'<rect x="{x + 3}" y="16" width="12" height="30" rx="3" fill="#cfd8dc" stroke="#607d8b" stroke-width="0.8"/>'
+              f'<rect x="{x + 5}" y="20" width="8" height="22" rx="3" fill="#fff8e1" stroke="#8d6e63" stroke-width="0.6"/>'
+              f'<circle cx="{x + 9}" cy="11" r="2" fill="#9e9e9e" stroke="none"/><circle cx="{x + 9}" cy="59" r="2" fill="#9e9e9e" stroke="none"/>'
+              + t(x + 9, 53, lab, 6, "bold") + t(x + 9, 33, cal, 3.6, "bold"))
+    return (42, 70, o
+            + '<path d="M11 0 V6 M31 0 V6 M11 64 V70 M31 64 V70" stroke-width="1.4"/>')
+
+
+add("pvt_ccpf2", "Coupe-circuit porte-fusibles 2 pôles (vue)", SOLT,
+    params=[("calibre", "Calibre", "10 A", None), ("poles", "Pôles", "+ / −", ["+ / −", "− / +", "Ph / N"])],
+    func=_ccpf_vue, pins=[(11, 0), (31, 0), (11, 70), (31, 70)], pin_names="")
+
+# ---- sources d'énergie de secours / complémentaires
+add("src_eolienne", "Éolienne (aérogénérateur, symbole)", SOL, 40, 60,
+    '<circle cx="20" cy="40" r="11"/>' + t(20, 43.5, "G", 9, "bold")
+    + '<path d="M20 29 V18"/><circle cx="20" cy="15" r="2.5" fill="CC"/>'
+    '<path d="M20 15 L20 2 M20 15 L8.7 21.5 M20 15 L31.3 21.5" stroke-width="2.2"/>'
+    '<path d="M20 51 V60"/>' + t(34, 55, "∼", 7),
+    pins=[(20, 60)])
+add("src_ge", "Groupe électrogène (moteur + génératrice, symbole)", SOL, 80, 40,
+    '<rect x="3" y="8" width="26" height="24"/>' + t(16, 24, "M", 9, "bold")
+    + '<path d="M29 20 H41" stroke-width="2.4"/><circle cx="53" cy="20" r="12"/>' + t(53, 23, "G", 9, "bold")
+    + t(53, 31, "∼", 6) + '<path d="M65 20 H80"/>' + t(16, 39, "thermique", 4.5),
+    pins=[(80, 20)])
+add("src_alternateur", "Alternateur (voiture / bateau) avec redresseur", SOL, 80, 40,
+    '<circle cx="18" cy="20" r="12"/>' + t(18, 23, "G", 9, "bold") + t(18, 30.5, "3∼", 5)
+    + '<path d="M30 20 H40"/><rect x="40" y="9" width="22" height="22"/><path d="M40 31 L62 9" stroke-width="0.8"/>'
+    + '<path d="M44 15 Q46 12 48 15 T52 15" stroke-width="0.9"/><path d="M50 25 H58" stroke-width="0.9"/><path d="M50 27.5 H58" stroke-width="0.9" stroke-dasharray="2 1.2"/>'
+    + '<path d="M62 14 H80 M62 26 H80"/>' + t(76, 12, "+", 6, "bold") + t(76, 34, "−", 6, "bold"),
+    pins=[(80, 14), (80, 26)], pin_names="B+ B−")
+add("src_regul_eol", "Régulateur éolien (avec résistance de délestage)", SOL, 80, 60,
+    '<rect x="10" y="10" width="44" height="40"/><path d="M10 50 L54 10" stroke-width="0.8"/>'
+    '<path d="M15 18 Q17 14 19 18 T23 18" stroke-width="1.1"/><path d="M40 40 H50" stroke-width="1.1"/><path d="M40 43 H50" stroke-width="1.1" stroke-dasharray="2.5 1.5"/>'
+    '<path d="M0 30 H10 M54 22 H80 M54 38 H80"/><path d="M32 50 V56 H58 M74 56 H78"/><rect x="58" y="52" width="16" height="8"/>'
+    + t(5, 27, "∼", 6) + t(76, 20, "+", 6, "bold") + t(76, 36, "−", 6, "bold") + t(66, 49, "délestage", 4),
+    pins=[(0, 30), (80, 22), (80, 38)], pin_names="")
+
+
+def _eol_vue(p):
+    blades = "".join(f'<path d="M40 30 L{40 + 34 * c:.1f} {30 + 34 * s:.1f}" stroke="#eceff1" stroke-width="5" stroke-linecap="round"/>'
+                     f'<path d="M40 30 L{40 + 34 * c:.1f} {30 + 34 * s:.1f}" stroke="#90a4ae" stroke-width="1"/>'
+                     for c, s in ((0, -1), (-0.866, 0.5), (0.866, 0.5)))
+    return (80, 170,
+            '<path d="M37 34 L35 160 H45 L43 34 Z" fill="#cfd8dc" stroke="#78909c" stroke-width="1"/>'
+            + blades + '<ellipse cx="40" cy="30" rx="8" ry="6" fill="#ffffff" stroke="#607d8b" stroke-width="1"/>'
+            '<circle cx="40" cy="30" r="2.5" fill="#607d8b" stroke="none"/>'
+            '<rect x="26" y="156" width="28" height="6" fill="#9e9e9e" stroke="none"/>'
+            + t(40, 154, p.get("puissance", "400 W"), 5, "bold")
+            + '<path d="M34 162 V170" stroke="#8b4513" stroke-width="2"/><path d="M40 162 V170" stroke="#111111" stroke-width="2"/>'
+            '<path d="M46 162 V170" stroke="#7f7f7f" stroke-width="2"/>')
+
+
+add("pvt_eolienne", "Éolienne (vue)", SOLT, params=[("puissance", "Puissance", "400 W", None)], func=_eol_vue,
+    pins=[(34, 170), (40, 170), (46, 170)], pin_names="")
+
+
+def _ge_vue(p):
+    return (130, 90,
+            '<rect x="6" y="14" width="118" height="60" rx="6" fill="#f9a825" stroke="#6d4c00" stroke-width="1.4"/>'
+            '<path d="M10 14 V6 H120 V14 M10 74 V82 H120 V74" stroke="#424242" stroke-width="2.4" fill="none"/>'
+            '<rect x="16" y="22" width="52" height="40" rx="4" fill="#424242" stroke="none"/>'
+            + "".join(f'<path d="M22 {y} H62" stroke="#757575" stroke-width="1.6"/>' for y in range(28, 60, 6))
+            + '<rect x="78" y="24" width="38" height="36" rx="3" fill="#eceff1" stroke="#455a64" stroke-width="1"/>'
+            '<circle cx="88" cy="36" r="5" fill="#ffffff" stroke="#455a64" stroke-width="1"/><circle cx="86.5" cy="36" r="0.9" fill="#424242" stroke="none"/><circle cx="89.5" cy="36" r="0.9" fill="#424242" stroke="none"/>'
+            '<rect x="100" y="31" width="10" height="10" rx="1" fill="#e53935" stroke="none"/>'
+            + t(97, 54, p.get("puissance", "3 kVA"), 6, "bold") + _W(t(42, 70, "Groupe électrogène", 5, "bold"))
+            + '<path d="M100 82 V90" stroke="#8b4513" stroke-width="2"/><path d="M110 82 V90" stroke="#1e63c8" stroke-width="2"/>'
+            + t(95, 89, "L", 5, "bold") + t(116, 89, "N", 5, "bold"))
+
+
+add("pvt_ge", "Groupe électrogène (vue)", SOLT, params=[("puissance", "Puissance", "3 kVA", None)], func=_ge_vue,
+    pins=[(100, 90), (110, 90)], pin_names="")
+
+
+def _alt_vue(p):
+    return (100, 70,
+            '<circle cx="46" cy="34" r="26" fill="#b0bec5" stroke="#455a64" stroke-width="1.4"/>'
+            + "".join(f'<path d="M{46 + 9 * c:.1f} {34 + 9 * s:.1f} L{46 + 23 * c:.1f} {34 + 23 * s:.1f}" stroke="#78909c" stroke-width="2.2"/>'
+                      for c, s in ((1, 0), (0.5, 0.866), (-0.5, 0.866), (-1, 0), (-0.5, -0.866), (0.5, -0.866)))
+            + '<circle cx="46" cy="34" r="8" fill="#90a4ae" stroke="#455a64" stroke-width="1"/>'
+            '<rect x="2" y="27" width="16" height="14" rx="2" fill="#424242" stroke="none"/>'
+            + "".join(f'<path d="M{x} 27 V41" stroke="#757575" stroke-width="0.8"/>' for x in range(5, 18, 3))
+            + '<rect x="70" y="18" width="18" height="10" rx="2" fill="#d32f2f" stroke="none"/>' + _W(t(79, 25.5, "B+", 5, "bold"))
+            + '<rect x="80" y="50" width="14" height="9" rx="2" fill="#212121" stroke="none"/>' + _W(t(87, 57, "−", 6, "bold"))
+            + '<path d="M87 59 V70" stroke="#111111" stroke-width="1.6"/>' + t(46, 68, p.get("modele", "14 V – 90 A"), 5, "bold")
+            + '<path d="M88 23 H100" stroke="#d32f2f" stroke-width="2"/>')
+
+
+add("pvt_alternateur", "Alternateur voiture / bateau (vue)", SOLT, params=[("modele", "Modèle", "14 V – 90 A", None)],
+    func=_alt_vue, pins=[(100, 23), (87, 70)], pin_names="")
+
 # ---------------------------------------------------------------- repères et tailles par défaut
 DEFAULT_LABELS = {
     "km_puissance": "KM1", "km_complet": "KM1", "sect_fus": "Q1", "disj_moteur": "Q1", "rt_puissance": "F1",
@@ -1525,11 +1860,14 @@ DEFAULT_LABELS = {
     "vv_dom": "S1", "va_et_vient": "S1", "verin_se": "1A", "verin_de": "1A", "verin_de_amorti": "1A",
     "verin_de_dt": "1A", "d52_mono_ev": "1V1", "d52_bi_ev": "1V1", "d53_cf": "1V1", "d32_ev": "1V1",
     "d32_bp": "1S1", "d32_galet": "1S2", "d32_au": "0S1", "frl": "0Z1", "limiteur_debit": "1V2", "inter_dom": "S1", "bp_dom": "S1", "lampe_dom": "E1", "lampe": "H1",
+    "pv_module": "PV1", "pv_chaine": "PV1", "pv_onduleur": "U1", "pv_regulateur": "U1", "pv_batterie": "G1",
+    "pv_fusible": "F1", "pv_sect_dc": "Q1", "pv_parafoudre": "F2", "pv_shunt": "R1", "pv_compteur": "P1", "pvt_ccpf2": "F1", "src_ge": "G2", "src_eolienne": "G3", "src_alternateur": "G4",
 }
 DEFAULT_SCALES = {"conv_fibre": 1.5, "chassis_conv": 1.5, "switch_poe": 1.5, "camera_bullet": 1.5,
                   "nvr": 1.5, "poste_supervision": 2.0, "moniteur": 1.5, "camera_dome": 1.5, "plaque_bornes": 2.0, "plaque_etoile": 2.0, "plaque_triangle": 2.0, "barrette": 2.0,
                   "barrette_etoile": 2.0, "multimetre": 1.6, "oscilloscope": 1.6, "gbf": 1.6, "alim_stab": 1.6,
-                  "pile9v": 1.4, "pile15": 1.4, "pile45": 1.4}
+                  "pile9v": 1.4, "pile15": 1.4, "pile45": 1.4,
+                  "pvt_panneau": 1.0, "pvt_regulateur": 1.0, "pvt_batterie": 1.0, "pvt_onduleur": 1.0}
 for _x in SYMBOLS:
     _x.default_label = DEFAULT_LABELS.get(_x.id, "")
     _x.default_scale = DEFAULT_SCALES.get(_x.id, 1.0)

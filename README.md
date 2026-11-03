@@ -12,7 +12,7 @@ Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
 
 ![PDF DUO](docs/captures/interface-schema.jpg)
 
-## Fonctions (version 1.0.0)
+## Fonctions (version 1.1.0)
 
 - **PDF** : ouvrir, zoomer, faire défiler, imprimer ; PDF protégés par mot de passe.
 - **Annoter / dessiner** : texte, trait, flèche, fil de schéma à angles droits, rectangle, ellipse,
@@ -20,7 +20,7 @@ Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
 - **Rotation libre sur 360°** et **miroir** horizontal / vertical de tout élément
   (R = 90°, E = 15°, H / V = miroir, angle précis au dixième de degré dans Propriétés).
 - **Grille et aimantation** (pas de 2,5 mm pour les schémas, 1 mm, 5 mm, ou pas réels de 10 / 25 / 50 cm pour les plans).
-- **Bibliothèques de symboles** (364 symboles et 31 formes avec texte) :
+- **Bibliothèques de symboles** (près de 400 symboles et 42 formes avec texte) :
   - Électricité – schémas : contacts NO / NF, boutons poussoirs, bobine KM, relais thermique,
     fusible, disjoncteur, lampe, résistance, condensateurs, diodes, LED, transistors, moteur,
     transformateur, appareils de mesure, masse, terre…
@@ -93,6 +93,15 @@ Pensé pour l'enseignement en lycée professionnel (bacs pro MELEC et CIEL).
 - **Recherche dans toute la bibliothèque** : taper un mot (« urgence », « vérin »…) cherche dans toutes les catégories.
 - **Aéronautique – câblage** : disjoncteurs à bouton, connecteurs P / J, connecteur multibroches et circulaire, épissure,
   masse structure GD, métallisation, fil blindé, paires torsadées, cosse, bornier, barre bus, relais, générateur, batterie…
+- **Énergie solaire photovoltaïque** : symboles normalisés (cellule, module, chaîne PV, onduleur, convertisseurs,
+  régulateur MPPT / PWM, batterie 2 / 6 / 12 / 24 / 48 V, shunt, ampèremètre et voltmètre continus, compteur Wh,
+  fusible gPV, sectionneur DC, parafoudre, MC4, diode anti-retour, capteur thermique) et **schéma technologique**
+  d'une installation en site isolé (panneau, contrôleur de charge, batterie, onduleur, moniteur, protections, charges) ;
+  exemple : `exemples/exemple-solaire.pdf` (avec coupe-circuits F1 champ PV, F2 batterie, F3 utilisation).
+- **Sources de secours** : éolienne et son régulateur à délestage, groupe électrogène, alternateur de voiture ou de bateau,
+  en symbole et en vue réaliste.
+- **Organigramme d'entreprise** pour le rapport de stage : *Insertion › Organigramme d'entreprise* pose un modèle relié
+  (direction, services, tuteur, stagiaire) à compléter ; exemple : `exemples/exemple-organigramme.pdf`.
 - **Annuler / rétablir** illimité (150 étapes).
 - **Mode présentation** (F11 ou bouton ⛶) : plein écran avec la page seule, zoom à la molette ; les menus réapparaissent
   quand la souris touche le haut de l'écran, Échap pour quitter.

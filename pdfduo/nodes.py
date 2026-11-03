@@ -72,5 +72,34 @@ add("n_label", "Étiquette de câble / repère", NETW, shape="rect", w=30 * MM, 
     fill="#ffffff", sw=0.5)
 add("n_note", "Légende (texte encadré)", NETW, shape="round", w=40 * MM, h=12 * MM, text="Légende", size=8, fill="#eef6fb", sw=0.6)
 
+# Organigramme d'entreprise (rapport de stage)
+ORG = "Organigramme"
+add("o_titre", "Titre de l'organigramme", ORG, shape="rect", w=120 * MM, h=10 * MM, text="Organigramme de l'entreprise",
+    size=14, bold=True, sw=0.0, color="#ffffff", text_color="#000000")
+add("o_direction", "Direction (gérant, directeur)", ORG, shape="round", w=60 * MM, h=16 * MM,
+    text="Direction\nNom Prénom", size=11, bold=True, fill="#ffcc80", sw=1.4)
+add("o_adjoint", "Direction adjointe / associé", ORG, shape="round", w=50 * MM, h=14 * MM,
+    text="Directeur adjoint\nNom Prénom", size=10, bold=True, fill="#ffe0b2", sw=1.2)
+add("o_service", "Service / pôle", ORG, shape="round", w=48 * MM, h=14 * MM,
+    text="Service\nResponsable", size=10, bold=True, fill="#9fd3ff", sw=1.2)
+add("o_service2", "Service / pôle (vert)", ORG, shape="round", w=48 * MM, h=14 * MM,
+    text="Service\nResponsable", size=10, bold=True, fill="#c5e1a5", sw=1.2)
+add("o_service3", "Service / pôle (violet)", ORG, shape="round", w=48 * MM, h=14 * MM,
+    text="Service\nResponsable", size=10, bold=True, fill="#d1c4e9", sw=1.2)
+add("o_poste", "Poste / salarié", ORG, shape="rect", w=44 * MM, h=12 * MM,
+    text="Fonction\nNom Prénom", size=9, fill="#ffffff", sw=1.0)
+add("o_equipe", "Équipe (plusieurs personnes)", ORG, shape="rect", w=44 * MM, h=12 * MM,
+    text="Techniciens (3)\nNoms", size=9, fill="#f5f5f5", sw=1.0)
+add("o_stagiaire", "Stagiaire (moi)", ORG, shape="round", w=44 * MM, h=12 * MM,
+    text="Stagiaire\nPrénom NOM", size=9, bold=True, fill="#a5f3a1", sw=1.6)
+add("o_tuteur", "Tuteur de stage", ORG, shape="rect", w=44 * MM, h=12 * MM,
+    text="Tuteur de stage\nNom Prénom", size=9, bold=True, fill="#fff59d", sw=1.4)
+add("o_assistant", "Assistant(e) / secrétariat", ORG, shape="rect", w=44 * MM, h=12 * MM,
+    text="Assistante de direction\nNom Prénom", size=9, fill="#f3e5f5", sw=1.0)
+add("o_externe", "Partenaire / sous-traitant (pointillé)", ORG, shape="round", w=44 * MM, h=12 * MM,
+    text="Sous-traitant\nNom de l'entreprise", size=9, fill="#ffffff", sw=1.0, dash="dash")
+add("o_legende", "Légende de l'organigramme", ORG, shape="note", w=50 * MM, h=16 * MM,
+    text="Légende :\nvert = mon poste de stage", size=8, fill="#fff8c4")
+
 BY_ID = {p.id: p for p in PRESETS}
-CATEGORIES = [G, ALG, MAP]
+CATEGORIES = [G, ALG, MAP, ORG]

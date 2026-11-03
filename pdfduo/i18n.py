@@ -3524,3 +3524,102 @@ _SEC = {
 for _k, _v in _SEC.items():
     for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
         TR.setdefault(_l, {})[_k] = _t
+
+# --- 1.1.0 : énergie solaire, organigramme
+_V110 = {
+    'Énergie solaire – symboles': ('Solar energy – symbols', 'Energía solar – símbolos', 'Energia solar – símbolos', 'Solarenergie – Symbole', 'Energia solare – simboli'),
+    'Énergie solaire – schéma technologique': ('Solar energy – wiring diagram', 'Energía solar – esquema tecnológico', 'Energia solar – esquema tecnológico', 'Solarenergie – Anschlussplan', 'Energia solare – schema tecnologico'),
+    'Organigramme': ('Organisation chart', 'Organigrama', 'Organograma', 'Organigramm', 'Organigramma'),
+    'Cellule photovoltaïque': ('Photovoltaic cell', 'Célula fotovoltaica', 'Célula fotovoltaica', 'Solarzelle', 'Cella fotovoltaica'),
+    'Module / panneau photovoltaïque (symbole)': ('PV module / panel (symbol)', 'Módulo / panel fotovoltaico (símbolo)', 'Módulo / painel fotovoltaico (símbolo)', 'PV-Modul (Symbol)', 'Modulo / pannello fotovoltaico (simbolo)'),
+    'Chaîne de modules PV (string)': ('PV string', 'Cadena de módulos FV (string)', 'Fileira de módulos FV (string)', 'PV-Strang', 'Stringa di moduli FV'),
+    'Onduleur (continu → alternatif)': ('Inverter (DC → AC)', 'Inversor (continua → alterna)', 'Inversor (contínua → alternada)', 'Wechselrichter (DC → AC)', 'Inverter (continua → alternata)'),
+    'Convertisseur continu / continu': ('DC/DC converter', 'Convertidor continua / continua', 'Conversor contínua / contínua', 'Gleichspannungswandler (DC/DC)', 'Convertitore DC/DC'),
+    'Chargeur / redresseur (alternatif → continu)': ('Charger / rectifier (AC → DC)', 'Cargador / rectificador (alterna → continua)', 'Carregador / retificador (alternada → contínua)', 'Ladegerät / Gleichrichter (AC → DC)', 'Caricabatterie / raddrizzatore (AC → DC)'),
+    'Régulateur de charge (MPPT / PWM)': ('Charge controller (MPPT / PWM)', 'Regulador de carga (MPPT / PWM)', 'Regulador de carga (MPPT / PWM)', 'Laderegler (MPPT / PWM)', 'Regolatore di carica (MPPT / PWM)'),
+    "Batterie d'accumulateurs (2 / 12 / 24 / 48 V)": ('Storage battery (2 / 12 / 24 / 48 V)', 'Batería de acumuladores (2 / 12 / 24 / 48 V)', 'Bateria de acumuladores (2 / 12 / 24 / 48 V)', 'Akkubatterie (2 / 12 / 24 / 48 V)', 'Batteria di accumulatori (2 / 12 / 24 / 48 V)'),
+    'Tension': ('Voltage', 'Tensión', 'Tensão', 'Spannung', 'Tensione'),
+    'Shunt de mesure de courant': ('Current measuring shunt', 'Shunt de medida de corriente', 'Shunt de medição de corrente', 'Strommess-Shunt', 'Shunt di misura della corrente'),
+    'Capteur de courant (pince / effet Hall)': ('Current sensor (clamp / Hall effect)', 'Sensor de corriente (pinza / efecto Hall)', 'Sensor de corrente (pinça / efeito Hall)', 'Stromsensor (Zange / Hall-Effekt)', 'Sensore di corrente (pinza / effetto Hall)'),
+    'Ampèremètre continu (A ⎓)': ('DC ammeter (A ⎓)', 'Amperímetro de continua (A ⎓)', 'Amperímetro de contínua (A ⎓)', 'Gleichstrom-Amperemeter (A ⎓)', 'Amperometro in continua (A ⎓)'),
+    'Voltmètre continu (V ⎓)': ('DC voltmeter (V ⎓)', 'Voltímetro de continua (V ⎓)', 'Voltímetro de contínua (V ⎓)', 'Gleichspannungs-Voltmeter (V ⎓)', 'Voltmetro in continua (V ⎓)'),
+    "Compteur d'énergie (Wh)": ('Energy meter (Wh)', 'Contador de energía (Wh)', 'Contador de energia (Wh)', 'Energiezähler (Wh)', 'Contatore di energia (Wh)'),
+    'Fusible PV (gPV)': ('PV fuse (gPV)', 'Fusible FV (gPV)', 'Fusível FV (gPV)', 'PV-Sicherung (gPV)', 'Fusibile FV (gPV)'),
+    'Interrupteur-sectionneur continu (DC)': ('DC switch-disconnector', 'Interruptor-seccionador de continua (DC)', 'Interruptor-seccionador de contínua (DC)', 'DC-Lasttrennschalter', 'Interruttore-sezionatore in continua (DC)'),
+    'Parafoudre (protection surtension)': ('Surge protector', 'Protector contra sobretensiones', 'Descarregador de sobretensões', 'Überspannungsschutz', 'Scaricatore di sovratensioni'),
+    'Connecteur photovoltaïque (MC4)': ('PV connector (MC4)', 'Conector fotovoltaico (MC4)', 'Conector fotovoltaico (MC4)', 'PV-Steckverbinder (MC4)', 'Connettore fotovoltaico (MC4)'),
+    'Diode anti-retour (by-pass)': ('Blocking / bypass diode', 'Diodo antirretorno (by-pass)', 'Díodo antirretorno (by-pass)', 'Sperr- / Bypassdiode', 'Diodo di blocco (by-pass)'),
+    'Capteur solaire thermique': ('Solar thermal collector', 'Captador solar térmico', 'Coletor solar térmico', 'Solarthermischer Kollektor', 'Collettore solare termico'),
+    'Soleil (rayonnement)': ('Sun (radiation)', 'Sol (radiación)', 'Sol (radiação)', 'Sonne (Einstrahlung)', 'Sole (irraggiamento)'),
+    'Panneau solaire (vue)': ('Solar panel (picture)', 'Panel solar (vista)', 'Painel solar (vista)', 'Solarmodul (Ansicht)', 'Pannello solare (vista)'),
+    'Puissance': ('Power', 'Potencia', 'Potência', 'Leistung', 'Potenza'),
+    'Contrôleur de charge (vue)': ('Charge controller (picture)', 'Regulador de carga (vista)', 'Regulador de carga (vista)', 'Laderegler (Ansicht)', 'Regolatore di carica (vista)'),
+    'Batterie solaire (vue)': ('Solar battery (picture)', 'Batería solar (vista)', 'Bateria solar (vista)', 'Solarbatterie (Ansicht)', 'Batteria solare (vista)'),
+    'Capacité': ('Capacity', 'Capacidad', 'Capacidade', 'Kapazität', 'Capacità'),
+    'Onduleur / convertisseur CC-CA (vue)': ('Inverter DC-AC (picture)', 'Inversor CC-CA (vista)', 'Inversor CC-CA (vista)', 'Wechselrichter DC-AC (Ansicht)', 'Inverter CC-CA (vista)'),
+    'Moniteur de batterie (tension / courant)': ('Battery monitor (voltage / current)', 'Monitor de batería (tensión / corriente)', 'Monitor de bateria (tensão / corrente)', 'Batteriemonitor (Spannung / Strom)', 'Monitor batteria (tensione / corrente)'),
+    'Shunt de mesure (vue)': ('Measuring shunt (picture)', 'Shunt de medida (vista)', 'Shunt de medição (vista)', 'Mess-Shunt (Ansicht)', 'Shunt di misura (vista)'),
+    'Disjoncteur continu / sectionneur (vue)': ('DC breaker / disconnector (picture)', 'Interruptor automático de continua (vista)', 'Disjuntor de contínua (vista)', 'DC-Leitungsschutzschalter (Ansicht)', 'Interruttore automatico in continua (vista)'),
+    'Porte-fusible PV (vue)': ('PV fuse holder (picture)', 'Portafusibles FV (vista)', 'Porta-fusível FV (vista)', 'PV-Sicherungshalter (Ansicht)', 'Portafusibili FV (vista)'),
+    'Ampoule (charge)': ('Light bulb (load)', 'Bombilla (carga)', 'Lâmpada (carga)', 'Glühbirne (Last)', 'Lampadina (carico)'),
+    'Prise de courant 230 V (vue)': ('230 V socket (picture)', 'Enchufe 230 V (vista)', 'Tomada 230 V (vista)', 'Steckdose 230 V (Ansicht)', 'Presa 230 V (vista)'),
+    "Titre de l'organigramme": ('Chart title', 'Título del organigrama', 'Título do organograma', 'Titel des Organigramms', "Titolo dell'organigramma"),
+    'Direction (gérant, directeur)': ('Management (manager, director)', 'Dirección (gerente, director)', 'Direção (gerente, diretor)', 'Geschäftsleitung', 'Direzione (titolare, direttore)'),
+    'Direction adjointe / associé': ('Deputy director / partner', 'Dirección adjunta / socio', 'Direção adjunta / sócio', 'Stellvertretung / Teilhaber', 'Vicedirezione / socio'),
+    'Service / pôle': ('Department', 'Departamento', 'Departamento', 'Abteilung', 'Reparto'),
+    'Service / pôle (vert)': ('Department (green)', 'Departamento (verde)', 'Departamento (verde)', 'Abteilung (grün)', 'Reparto (verde)'),
+    'Service / pôle (violet)': ('Department (purple)', 'Departamento (violeta)', 'Departamento (violeta)', 'Abteilung (violett)', 'Reparto (viola)'),
+    'Poste / salarié': ('Job / employee', 'Puesto / empleado', 'Posto / funcionário', 'Stelle / Mitarbeiter', 'Ruolo / dipendente'),
+    'Équipe (plusieurs personnes)': ('Team (several people)', 'Equipo (varias personas)', 'Equipa (várias pessoas)', 'Team (mehrere Personen)', 'Squadra (più persone)'),
+    'Stagiaire (moi)': ('Intern (me)', 'Alumno en prácticas (yo)', 'Estagiário (eu)', 'Praktikant (ich)', 'Stagista (io)'),
+    'Tuteur de stage': ('Internship supervisor', 'Tutor de prácticas', 'Tutor de estágio', 'Praktikumsbetreuer', 'Tutor aziendale'),
+    'Assistant(e) / secrétariat': ('Assistant / secretariat', 'Asistente / secretaría', 'Assistente / secretariado', 'Assistenz / Sekretariat', 'Assistente / segreteria'),
+    'Partenaire / sous-traitant (pointillé)': ('Partner / subcontractor (dashed)', 'Socio / subcontratista (punteado)', 'Parceiro / subcontratado (tracejado)', 'Partner / Subunternehmer (gestrichelt)', 'Partner / subappaltatore (tratteggiato)'),
+    "Légende de l'organigramme": ('Chart legend', 'Leyenda del organigrama', 'Legenda do organograma', 'Legende des Organigramms', "Legenda dell'organigramma"),
+    "Organigramme d'entreprise (modèle à compléter)": ('Company organisation chart (template)', 'Organigrama de empresa (plantilla)', 'Organograma da empresa (modelo)', 'Firmenorganigramm (Vorlage)', 'Organigramma aziendale (modello)'),
+    "Organigramme de l'entreprise": ('Company organisation chart', 'Organigrama de la empresa', 'Organograma da empresa', 'Organigramm des Unternehmens', "Organigramma dell'azienda"),
+    'Direction': ('Management', 'Dirección', 'Direção', 'Geschäftsleitung', 'Direzione'),
+    'Nom Prénom': ('First name Surname', 'Nombre Apellido', 'Nome Apelido', 'Vorname Name', 'Nome Cognome'),
+    'Assistante de direction': ('Executive assistant', 'Asistente de dirección', 'Assistente de direção', 'Assistenz der Geschäftsleitung', 'Assistente di direzione'),
+    'Administratif et commercial': ('Administration and sales', 'Administración y ventas', 'Administrativo e comercial', 'Verwaltung und Vertrieb', 'Amministrazione e vendite'),
+    'Service technique': ('Technical department', 'Departamento técnico', 'Serviço técnico', 'Technische Abteilung', 'Ufficio tecnico'),
+    'Logistique / magasin': ('Logistics / store', 'Logística / almacén', 'Logística / armazém', 'Logistik / Lager', 'Logistica / magazzino'),
+    'Responsable': ('Manager', 'Responsable', 'Responsável', 'Leitung', 'Responsabile'),
+    'Stagiaire': ('Intern', 'Alumno en prácticas', 'Estagiário', 'Praktikant', 'Stagista'),
+    'Prénom NOM': ('First name SURNAME', 'Nombre APELLIDO', 'Nome APELIDO', 'Vorname NAME', 'Nome COGNOME'),
+    'Fonction': ('Job title', 'Puesto', 'Função', 'Funktion', 'Mansione'),
+    'Légende :': ('Legend:', 'Leyenda:', 'Legenda:', 'Legende:', 'Legenda:'),
+    'vert = mon poste de stage': ('green = my internship position', 'verde = mi puesto de prácticas', 'verde = o meu posto de estágio', 'grün = meine Praktikumsstelle', 'verde = il mio posto di stage'),
+    'Double-cliquez sur une case pour écrire les noms ; les liaisons suivent les cases déplacées.': ('Double-click a box to type the names; links follow the boxes when moved.', 'Doble clic en una casilla para escribir los nombres; las conexiones siguen a las casillas.', 'Duplo clique numa caixa para escrever os nomes; as ligações seguem as caixas.', 'Doppelklick auf ein Feld, um Namen einzugeben; Verbindungen folgen verschobenen Feldern.', 'Doppio clic su un riquadro per scrivere i nomi; i collegamenti seguono i riquadri spostati.'),
+}
+for _k, _v in _V110.items():
+    for _l, _t in zip(('en', 'es', 'pt', 'de', 'it'), _v):
+        TR.setdefault(_l, {})[_k] = _t
+_ORGT = {
+ "Service": ("Department", "Departamento", "Departamento", "Abteilung", "Reparto"),
+ "Directeur adjoint": ("Deputy director", "Director adjunto", "Diretor adjunto", "Stellvertretender Leiter", "Vicedirettore"),
+ "Techniciens (3)": ("Technicians (3)", "Técnicos (3)", "Técnicos (3)", "Techniker (3)", "Tecnici (3)"),
+ "Noms": ("Names", "Nombres", "Nomes", "Namen", "Nomi"),
+ "Sous-traitant": ("Subcontractor", "Subcontratista", "Subcontratado", "Subunternehmer", "Subappaltatore"),
+ "Nom de l'entreprise": ("Company name", "Nombre de la empresa", "Nome da empresa", "Firmenname", "Nome dell'azienda"),
+ "Légende :": ("Legend:", "Leyenda:", "Legenda:", "Legende:", "Legenda:"),
+}
+for _k, _v in _ORGT.items():
+    for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
+        TR.setdefault(_l, {}).setdefault(_k, _t)
+_SRC = {
+ "Coupe-circuit porte-fusibles 2 pôles (vue)": ("2-pole fuse holder (picture)", "Portafusibles de 2 polos (vista)", "Porta-fusíveis de 2 polos (vista)", "2-poliger Sicherungshalter (Ansicht)", "Portafusibili a 2 poli (vista)"),
+ "Calibre": ("Rating", "Calibre", "Calibre", "Nennstrom", "Calibro"),
+ "Pôles": ("Poles", "Polos", "Polos", "Pole", "Poli"),
+ "Éolienne (aérogénérateur, symbole)": ("Wind turbine (symbol)", "Aerogenerador (símbolo)", "Aerogerador (símbolo)", "Windkraftanlage (Symbol)", "Aerogeneratore (simbolo)"),
+ "Groupe électrogène (moteur + génératrice, symbole)": ("Generator set (engine + generator, symbol)", "Grupo electrógeno (motor + generador, símbolo)", "Gerador (motor + gerador, símbolo)", "Stromaggregat (Motor + Generator, Symbol)", "Gruppo elettrogeno (motore + generatore, simbolo)"),
+ "Alternateur (voiture / bateau) avec redresseur": ("Alternator (car / boat) with rectifier", "Alternador (coche / barco) con rectificador", "Alternador (automóvel / barco) com retificador", "Lichtmaschine (Auto / Boot) mit Gleichrichter", "Alternatore (auto / barca) con raddrizzatore"),
+ "Régulateur éolien (avec résistance de délestage)": ("Wind charge controller (with dump load)", "Regulador eólico (con resistencia de disipación)", "Regulador eólico (com resistência de dissipação)", "Windladeregler (mit Lastwiderstand)", "Regolatore eolico (con resistenza di dissipazione)"),
+ "Éolienne (vue)": ("Wind turbine (picture)", "Aerogenerador (vista)", "Aerogerador (vista)", "Windkraftanlage (Ansicht)", "Aerogeneratore (vista)"),
+ "Groupe électrogène (vue)": ("Generator set (picture)", "Grupo electrógeno (vista)", "Gerador (vista)", "Stromaggregat (Ansicht)", "Gruppo elettrogeno (vista)"),
+ "Alternateur voiture / bateau (vue)": ("Car / boat alternator (picture)", "Alternador de coche / barco (vista)", "Alternador de automóvel / barco (vista)", "Lichtmaschine Auto / Boot (Ansicht)", "Alternatore auto / barca (vista)"),
+ "Modèle": ("Model", "Modelo", "Modelo", "Modell", "Modello"),
+}
+for _k, _v in _SRC.items():
+    for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
+        TR.setdefault(_l, {}).setdefault(_k, _t)

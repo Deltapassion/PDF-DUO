@@ -1,15 +1,18 @@
 import sys, os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 os.environ['QT_QPA_PLATFORM'] = 'offscreen'
-import faulthandler; faulthandler.dump_traceback_later(150, exit=True)
+import faulthandler; faulthandler.dump_traceback_later(500, exit=True)
 LANG = sys.argv[1]
 from PySide6.QtWidgets import QApplication, QDockWidget, QToolBar, QWidget
 from PySide6.QtCore import QPoint, QRect, QRectF, QPointF, Qt, QTimer
 from PySide6.QtGui import QPainter, QPen, QColor, QFont, QImage, QIcon
 app = QApplication([])
 app.setWindowIcon(QIcon(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'pdfduo', 'icon.png')))
+from PySide6.QtCore import QSettings
+QSettings("Jacques Branas", "PDF DUO").clear()
 from pdfduo import i18n; i18n.set_language(LANG)
 import pdfduo.app as A
+A.MainWindow.maybe_save = lambda self: True
 A.install_qt_translator(app)
 from pdfduo.items import MM
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'img', LANG) + '/'; os.makedirs(OUT, exist_ok=True)
@@ -218,6 +221,17 @@ pump(5); w.render_visible(); pump(3)
 img = w.grab().toImage()
 save(callouts(img, [(rect_of(w, w.menuBar(), 1), 1)]), '14-plein-ecran-menu.jpg')
 w.close()
+
+
+# 15 — solaire
+w = win(EX + 'exemple-solaire.pdf', theme='bleu nuit', cat='Énergie solaire – schéma technologique')
+img = w.grab().toImage()
+save(callouts(img, [(rect_of(w, dock(w, 'biblio')), 1)]), '15-solaire.jpg'); w.close()
+# 16 — organigramme
+w = win(None, theme='bleu nuit', cat='Organigramme')
+w.new_doc((595.28, 841.89), 1, ask=False); pump()
+w.insert_orgchart(); pump(); w.view.set_zoom(1.15); w.view.centerOn(QPointF(105 * MM, 80 * MM)); pump(); w.render_visible(); pump()
+save(w.grab(), '16-organigramme.jpg'); w.close()
 
 # 12 — don
 def grab_dlg():

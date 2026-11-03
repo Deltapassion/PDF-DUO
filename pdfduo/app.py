@@ -36,7 +36,7 @@ from . import nodes as ND
 CATEGORIES = SYM_CATEGORIES + ND.CATEGORIES
 
 APP_NAME = "PDF DUO"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.1.0"
 SITE_URL = "https://deltapassion.github.io/PDF-DUO/"
 RELEASES_URL = "https://github.com/Deltapassion/PDF-DUO/releases/latest"
 KOFI_URL = "https://ko-fi.com/djlatinjazz"
@@ -1046,6 +1046,7 @@ class MainWindow(QMainWindow):
         act(m, T("Signature…"), self.insert_signature, "Ctrl+Shift+G")
         act(m, T("Image…"), self.insert_image_dialog)
         act(m, T("Cartouche (titre, auteur, date, échelle)"), self.insert_title_block)
+        act(m, T("Organigramme d'entreprise (modèle à compléter)"), self.insert_orgchart)
         cm = m.addMenu(T("Caractère spécial (Ω, φ, π, √…)"))
         for ch in SPECIAL_CHARS:
             cm.addAction(ch).triggered.connect(lambda _=False, c=ch: self.insert_special(c))
@@ -1439,6 +1440,8 @@ class MainWindow(QMainWindow):
         if sid.startswith("node:"):
             d = json.loads(json.dumps(ND.BY_ID[sid[5:]].d))
             d.update(x=0, y=0)
+            if ND.BY_ID[sid[5:]].cat == ND.ORG and d.get("text"):
+                d["text"] = "\n".join(T(x) for x in d["text"].split("\n"))
             if d.get("shape") in ("step", "step_init"):
                 nums = [int(i.d["text"]) for i in self.items() if i.typ == "node"
                         and i.d.get("shape") in ("step", "step_init", "step_cond") and str(i.d.get("text", "")).isdigit()]
@@ -2117,6 +2120,46 @@ class MainWindow(QMainWindow):
             self.set_tool("image_place")
             self.view.set_ghost({"type": "image", "x": 0, "y": 0, "w": w, "h": h, "png": image_to_b64(img), "sw": 0})
             self.statusBar().showMessage(T("Cliquer à l'endroit où placer la signature (taille réglable dans Propriétés)"))
+
+    def insert_orgchart(self):
+        """Pose un organigramme type (rapport de stage) déjà relié, à compléter par double-clic."""
+        pg = self.page_items[self.current_page()]
+        x0, y0, pw = pg.pos().x(), pg.pos().y(), pg.w
+        cx = x0 + pw / 2
+
+        def node(pid, x, y, text=None):
+            d = json.loads(json.dumps(ND.BY_ID[pid].d))
+            d.update(x=x - d["w"] / 2, y=y)
+            if text is not None:
+                d["text"] = text
+            return self.add_item(d)
+
+        title = node("o_titre", cx, y0 + 12 * MM, T("Organigramme de l'entreprise"))
+        direc = node("o_direction", cx, y0 + 30 * MM, T("Direction") + "\n" + T("Nom Prénom"))
+        assist = node("o_assistant", cx + 64 * MM, y0 + 32 * MM, T("Assistante de direction") + "\n" + T("Nom Prénom"))
+        col = min(58 * MM, (pw - 20 * MM) / 3)
+        ys, yp1, yp2 = y0 + 78 * MM, y0 + 104 * MM, y0 + 124 * MM
+        services = [("o_service", T("Administratif et commercial")), ("o_service2", T("Service technique")),
+                    ("o_service3", T("Logistique / magasin"))]
+        self.add_link(direc, 1, assist, 3, "ortho")
+        for k, (pid, name) in enumerate(services):
+            x = cx + (k - 1) * col
+            sv = node(pid, x, ys, name + "\n" + T("Responsable"))
+            self.add_link(direc, 2, sv, 0, "ortho")
+            if k == 1:
+                tut = node("o_tuteur", x, yp1, T("Tuteur de stage") + "\n" + T("Nom Prénom"))
+                sta = node("o_stagiaire", x, yp2, T("Stagiaire") + "\n" + T("Prénom NOM"))
+                self.add_link(sv, 2, tut, 0, "ortho")
+                self.add_link(tut, 2, sta, 0, "ortho")
+            else:
+                p1 = node("o_poste", x, yp1, T("Fonction") + "\n" + T("Nom Prénom"))
+                p2 = node("o_poste", x, yp2, T("Fonction") + "\n" + T("Nom Prénom"))
+                self.add_link(sv, 2, p1, 0, "ortho")
+                self.add_link(p1, 2, p2, 0, "ortho")
+        node("o_legende", cx - col, y0 + 146 * MM, T("Légende :") + "\n" + T("vert = mon poste de stage"))
+        self.update_junctions() if hasattr(self, "update_junctions") else None
+        self.commit()
+        self.statusBar().showMessage(T("Double-cliquez sur une case pour écrire les noms ; les liaisons suivent les cases déplacées."), 10000)
 
     def insert_title_block(self):
         """Cartouche d'un seul bloc, posé en bas à droite de la page courante."""
@@ -3542,6 +3585,8 @@ class MainWindow(QMainWindow):
         if not self.maybe_save():
             e.ignore()
             return
+        if getattr(self, "presenting", False):
+            self.toggle_presentation(False)     # sinon les palettes resteraient cachées au prochain lancement
         try:
             self.scene.selectionChanged.disconnect(self.refresh_props)
         except (RuntimeError, TypeError):
