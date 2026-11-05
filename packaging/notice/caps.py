@@ -308,6 +308,31 @@ it = w.add_item(dd); w.commit(); it.setSelected(True); pump(); w.zoom_page(); pu
 img = w.grab().toImage()
 save(callouts(img, [(rect_of(w, dock(w, 'props')), 1)]), '23-etats.jpg'); w.close()
 
+# 24-25 — correcteur orthographique
+from pdfduo import spell as _sp
+_sp.configure(enabled=True, lang="auto")
+PH = {"fr": "Le disjonteur protège l'installtion électrique.", "en": "The circuit braker protects the electrical instalation.",
+      "es": "El interuptor protege la instalasión eléctrica.", "pt": "O disjuntor proteje a instalação elétrica.",
+      "de": "Der Schalter schüzt die elektrische Anlage.", "it": "L'interuttore protegge l'impianto eletrico."}[LANG]
+w = win(None, theme='bleu nuit')
+td = A.TextDialog(w, i18n.T("Texte"), i18n.T("Saisissez le texte :"), PH)
+td.show(); pump(5); save(td.grab(), '24-orthographe.jpg')
+from PySide6.QtGui import QContextMenuEvent
+import re as _re
+mis = _sp.misspelled(PH)
+if mis:
+    start = mis[0][0] + 2
+    cur = td.edit.textCursor(); cur.setPosition(start); r = td.edit.cursorRect(cur)
+    def _grab_menu():
+        from PySide6.QtWidgets import QMenu
+        for m in app.topLevelWidgets():
+            if isinstance(m, QMenu) and m.isVisible():
+                pump(2); save(m.grab(), '25-orthographe-menu.jpg'); m.close(); return
+    QTimer.singleShot(400, _grab_menu)
+    pt = r.center()
+    td.edit.contextMenuEvent(QContextMenuEvent(QContextMenuEvent.Mouse, pt, td.edit.viewport().mapToGlobal(pt)))
+td.close(); w.close()
+
 # 12 — don
 def grab_dlg():
     from PySide6.QtWidgets import QDialog

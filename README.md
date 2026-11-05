@@ -12,7 +12,7 @@ Pensé pour l'enseignement dans toutes les sections de lycée professionnel : pa
 
 ![PDF DUO](docs/captures/interface-schema.jpg)
 
-## Fonctions (version 1.3.0)
+## Fonctions (version 1.3.1)
 
 - **PDF** : ouvrir, zoomer, faire défiler, imprimer ; PDF protégés par mot de passe.
 - **Annoter / dessiner** : texte, trait, flèche, fil de schéma à angles droits, rectangle, ellipse,
@@ -122,7 +122,7 @@ Pensé pour l'enseignement dans toutes les sections de lycée professionnel : pa
 - **Tableaux avec calculs** (menu *Tableau*) : lignes et colonnes, ajout et suppression, fusion de cases, en-tête coloré ;
   formules comme dans un tableur : `=B2*C2`, `=B3 x C3`, `=(A1+A2)/2`, `=√(144)`, `=A1^2`, `=SOMME(D2:D4)`,
   `=MOYENNE(…)`, `=MAX(…)`, `=MIN(…)`, pourcentages ; les résultats se mettent à jour dans la page.
-- **Calculatrice scientifique et graphique** (Ctrl+K) : sin, cos, tan et inverses, ln, log, √, puissances, π, degrés ou
+- **Calculatrice scientifique et graphique** (bouton *Calc* en haut ou Ctrl+K) : sin, cos, tan et inverses, ln, log, √, puissances, π, degrés ou
   radians, historique ; tracé de trois courbes, zoom à la molette, et insertion du graphique dans la page.
   Les calculs passent par un évaluateur sûr (aucun code n'est exécuté).
 - **Gestes qui sauvent** : panneaux (premiers secours, DAE, lavage oculaire, douche), protéger, alerter, PLS, massage cardiaque,
@@ -146,7 +146,11 @@ Pensé pour l'enseignement dans toutes les sections de lycée professionnel : pa
 - **Métiers de la sécurité** : sapeurs-pompiers (équipement, points d'eau, triangle du feu, classes de feu), sûreté et
   surveillance (contrôle d'accès, vidéosurveillance, rondes), police et maintien de l'ordre (tenue complète, texte modifiable).
 - **Favoris** : clic droit sur un symbole › *Ajouter aux favoris* ; les favoris passent en tête de chaque catégorie et ont leur
-  propre catégorie « ★ Favoris », ouverte au démarrage.
+  propre catégorie « ★ Favoris », ouverte au démarrage ; le bouton ☆ met une bibliothèque entière en tête de liste.
+- **Correcteur orthographique** en français, anglais, espagnol, portugais, allemand et italien, sans Internet : mots inconnus
+  soulignés en rouge dans la fenêtre de texte et les cases des tableaux, suggestions au clic droit, dictionnaire personnel
+  (*Affichage › Correcteur orthographique*). Dictionnaires : pyspellchecker (MIT) et FrequencyWords (CC BY-SA 4.0).
+- **Clic droit sur un élément de la page** : premier plan, arrière-plan, rotation, miroir, copier, dupliquer, supprimer, favoris.
 - **Annuler / rétablir** illimité (150 étapes).
 - **Mode présentation** (F11 ou bouton ⛶) : plein écran avec la page, les outils à gauche et la bibliothèque (2 colonnes) à droite ; les menus réapparaissent
   quand la souris touche le haut de l'écran, Échap pour quitter.

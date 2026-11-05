@@ -36,7 +36,7 @@ from . import nodes as ND
 CATEGORIES = SYM_CATEGORIES + ND.CATEGORIES
 
 APP_NAME = "PDF DUO"
-APP_VERSION = "1.3.0"
+APP_VERSION = "1.3.1"
 SITE_URL = "https://deltapassion.github.io/PDF-DUO/"
 RELEASES_URL = "https://github.com/Deltapassion/PDF-DUO/releases/latest"
 KOFI_URL = "https://ko-fi.com/djlatinjazz"
@@ -132,7 +132,8 @@ class TextDialog(QDialog):
         self.setWindowTitle(title)
         lay = QVBoxLayout(self)
         lay.addWidget(QLabel(label))
-        self.edit = QPlainTextEdit(text)
+        from .spell import SpellTextEdit
+        self.edit = SpellTextEdit(text)
         self.edit.setMinimumSize(420, 110)
         lay.addWidget(self.edit)
         grid = QWidget()
@@ -766,6 +767,38 @@ class View(QGraphicsView):
         mw.add_item(d)
         mw.commit()
 
+    def contextMenuEvent(self, e):
+        """Clic droit sur un élément (outil Sélection) : ordre, rotation, copier, favoris…"""
+        if self.tool != "select":
+            return
+        it = self.itemAt(e.pos())
+        if not isinstance(it, PItem):
+            return
+        mw = self.mw
+        if not it.isSelected():
+            mw.scene.clearSelection()
+            it.setSelected(True)
+        m = QMenu(self)
+        m.addAction("⬆ " + T("Premier plan")).triggered.connect(lambda: mw.z_selected(1))
+        m.addAction("⬇ " + T("Arrière-plan")).triggered.connect(lambda: mw.z_selected(-1))
+        m.addSeparator()
+        m.addAction(T("Tourner de 90° (sens trigonométrique)    R")).triggered.connect(lambda: mw.rotate_selected(90))
+        m.addAction(T("Miroir horizontal (gauche ↔ droite)    H")).triggered.connect(lambda: mw.mirror_selected("fh"))
+        m.addSeparator()
+        m.addAction(T("Copier")).triggered.connect(mw.copy)
+        m.addAction(T("Dupliquer")).triggered.connect(mw.duplicate)
+        m.addAction(T("Supprimer")).triggered.connect(mw.delete_selected)
+        key = it.d.get("sym") if it.typ == "symbol" else None
+        if key:
+            m.addSeparator()
+            fav = key in mw.favs
+            m.addAction(("☆ " + T("Retirer des favoris")) if fav else ("★ " + T("Ajouter aux favoris"))).triggered.connect(
+                lambda: mw.toggle_favorite(key))
+        if it.typ == "table":
+            m.addSeparator()
+            m.addAction(T("Modifier le tableau (cases, formules, fusion)…")).triggered.connect(lambda: mw.edit_table(it))
+        m.exec(e.globalPos())
+
     def mouseDoubleClickEvent(self, e):
         if self.tool in ("wire", "wall") and self.temp is not None:
             self.finish_poly()
@@ -1007,6 +1040,8 @@ class MainWindow(QMainWindow):
         act(o, T("Arrière-plan"), lambda: self.z_selected(-1))
 
         m = mb.addMenu(T("&Affichage"))
+        self.build_spell_menu(m)
+        m.addSeparator()
         act(m, T("Zoom +"), lambda: self.view.set_zoom(self.view.zoom() * 1.25), "Ctrl++")
         act(m, T("Zoom −"), lambda: self.view.set_zoom(self.view.zoom() / 1.25), "Ctrl+-")
         act(m, T("Taille réelle (100 %)"), self.zoom_real, "Ctrl+0")
@@ -1175,8 +1210,12 @@ class MainWindow(QMainWindow):
         sm.addSeparator()
         sm.addAction(T("√ sur tout le nombre")).triggered.connect(lambda: self.insert_special("√{}"))
         sym_btn.setMenu(sm)
+        calc_btn = QToolButton(text=" " + T("Calc") + " ")
+        calc_btn.setToolTip(T("Calculatrice scientifique et graphique…") + "  (Ctrl+K)")
+        calc_btn.clicked.connect(self.open_calculator)
         qb.addSeparator()
         qb.addWidget(sym_btn)
+        qb.addWidget(calc_btn)
         qb.addWidget(pres_btn)
 
         st = QToolBar(T("Style"))
@@ -1334,8 +1373,9 @@ class MainWindow(QMainWindow):
         lay = QVBoxLayout(w)
         lay.setContentsMargins(4, 4, 4, 4)
         self.favs = [x for x in (self.settings.value("favoris") or []) if isinstance(x, str)]
+        self.fav_cats = [x for x in (self.settings.value("categories_favorites") or []) if x in CATEGORIES]
         self.cat_combo = QComboBox()
-        self.cat_combo.addItems([T("Tous les symboles"), "★ " + T("Favoris")] + [T(c) for c in CATEGORIES])
+        self.fill_categories()
         self.cat_combo.setCurrentIndex(1 if self.favs else 2)
         self.cat_combo.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
         self.cat_combo.setMinimumContentsLength(12)
@@ -1356,7 +1396,14 @@ class MainWindow(QMainWindow):
         self._icons = {}
         self.cat_combo.currentIndexChanged.connect(self.fill_symbols)
         self.search.textChanged.connect(self.fill_symbols)
-        lay.addWidget(self.cat_combo)
+        crow = QHBoxLayout()
+        crow.setSpacing(2)
+        crow.addWidget(self.cat_combo, 1)
+        self.cat_star = QToolButton(text="☆")
+        self.cat_star.setToolTip(T("Mettre cette bibliothèque en favori (en tête de liste)"))
+        self.cat_star.clicked.connect(self.toggle_fav_category)
+        crow.addWidget(self.cat_star)
+        lay.addLayout(crow)
         lay.addWidget(self.search)
         lay.addWidget(self.sym_list)
         hint = QLabel(T("Cliquer puis poser sur la page (R : tourner 90°, E : 15°, H / V : miroir, Échap : fin), "
@@ -1444,8 +1491,12 @@ class MainWindow(QMainWindow):
     def fill_symbols(self):
         """Remplit la bibliothèque : les favoris passent toujours en tête (catégorie ★ Favoris à part)."""
         self.sym_list.clear()
-        cat = self.cat_combo.currentText()
-        only_favs = self.cat_combo.currentIndex() == 1
+        data = self.cat_combo.currentData()
+        only_favs = data == "__fav__"
+        cat = T(data) if data and data != "__fav__" else T("Tous les symboles")
+        if hasattr(self, "cat_star"):
+            self.cat_star.setText("★" if data in getattr(self, "fav_cats", []) else "☆")
+            self.cat_star.setEnabled(bool(data) and data != "__fav__")
         q = self.search.text().strip().lower()
         favs = getattr(self, "favs", [])
         rows = []
@@ -1484,6 +1535,35 @@ class MainWindow(QMainWindow):
             it = QListWidgetItem(T("Aucun favori : clic droit sur un symbole › Ajouter aux favoris"))
             it.setFlags(Qt.NoItemFlags)
             self.sym_list.addItem(it)
+
+    def fill_categories(self, keep=None):
+        """Liste des bibliothèques : Tous, ★ Favoris, puis les bibliothèques favorites, puis les autres."""
+        cb = self.cat_combo
+        cb.blockSignals(True)
+        cb.clear()
+        cb.addItem(T("Tous les symboles"), None)
+        cb.addItem("★ " + T("Favoris"), "__fav__")
+        for c in self.fav_cats:
+            cb.addItem("★ " + T(c), c)
+        for c in CATEGORIES:
+            if c not in self.fav_cats:
+                cb.addItem(T(c), c)
+        if keep is not None:
+            i = cb.findData(keep)
+            cb.setCurrentIndex(i if i >= 0 else 0)
+        cb.blockSignals(False)
+
+    def toggle_fav_category(self):
+        c = self.cat_combo.currentData()
+        if not c or c == "__fav__":
+            return
+        if c in self.fav_cats:
+            self.fav_cats.remove(c)
+        else:
+            self.fav_cats.append(c)
+        self.settings.setValue("categories_favorites", list(self.fav_cats))
+        self.fill_categories(keep=c)
+        self.fill_symbols()
 
     def symbol_menu(self, pos):
         it = self.sym_list.itemAt(pos)
@@ -2193,6 +2273,55 @@ class MainWindow(QMainWindow):
             self.set_tool("image_place")
             self.view.set_ghost({"type": "image", "x": 0, "y": 0, "w": w, "h": h, "png": image_to_b64(img), "sw": 0})
             self.statusBar().showMessage(T("Cliquer à l'endroit où placer la signature (taille réglable dans Propriétés)"))
+
+    # ------------------------------------------------------------------ correcteur orthographique
+    def build_spell_menu(self, parent):
+        from . import spell
+        st = self.settings
+        spell.configure(enabled=st.value("ortho_actif", "true") in (True, "true", "1", 1),
+                        lang=st.value("ortho_langue", "auto") or "auto",
+                        personal=[x for x in (st.value("dico_perso") or []) if isinstance(x, str)])
+        sm = parent.addMenu(T("Correcteur orthographique"))
+        a = sm.addAction(T("Souligner les fautes d'orthographe"))
+        a.setCheckable(True)
+        a.setChecked(spell.is_enabled())
+        a.toggled.connect(lambda on: (spell.configure(enabled=on), st.setValue("ortho_actif", "true" if on else "false")))
+        sm.addSeparator()
+        from PySide6.QtGui import QActionGroup
+        g = QActionGroup(self)
+        names = [("auto", T("Langue du logiciel")), ("fr", "Français"), ("en", "English"), ("es", "Español"),
+                 ("pt", "Português"), ("de", "Deutsch"), ("it", "Italiano")]
+        cur = st.value("ortho_langue", "auto") or "auto"
+        for code, name in names:
+            b = sm.addAction(name)
+            b.setCheckable(True)
+            b.setChecked(code == cur)
+            g.addAction(b)
+            b.triggered.connect(lambda _=False, c=code: (spell.configure(lang=c), st.setValue("ortho_langue", c)))
+        sm.addSeparator()
+        sm.addAction(T("Dictionnaire personnel…")).triggered.connect(self.edit_personal_dict)
+
+    def save_personal_dict(self):
+        from . import spell
+        self.settings.setValue("dico_perso", spell.personal_words())
+
+    def edit_personal_dict(self):
+        from . import spell
+        dlg = QDialog(self)
+        dlg.setWindowTitle(T("Dictionnaire personnel"))
+        lay = QVBoxLayout(dlg)
+        lay.addWidget(QLabel(T("Un mot par ligne (mots techniques, noms propres…) :")))
+        ed = QPlainTextEdit("\n".join(spell.personal_words()))
+        ed.setMinimumSize(320, 300)
+        lay.addWidget(ed)
+        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.accepted.connect(dlg.accept)
+        bb.rejected.connect(dlg.reject)
+        lay.addWidget(bb)
+        if dlg.exec():
+            words = [w.strip().lower() for w in ed.toPlainText().split("\n") if w.strip()]
+            spell.configure(personal=words)
+            self.save_personal_dict()
 
     # ------------------------------------------------------------------ tableaux et calculatrice
     def insert_table(self):

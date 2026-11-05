@@ -4159,3 +4159,19 @@ _V130 = {
 for _k, _v in _V130.items():
     for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
         TR.setdefault(_l, {})[_k] = _t
+_V131 = {
+ "Calc": ("Calc", "Calc", "Calc", "Rechner", "Calc"),
+ "Mettre cette bibliothèque en favori (en tête de liste)": ("Make this library a favourite (top of the list)", "Marcar esta biblioteca como favorita (al principio de la lista)", "Marcar esta biblioteca como favorita (no topo da lista)", "Diese Bibliothek als Favorit markieren (oben in der Liste)", "Mettere questa libreria tra i preferiti (in cima all'elenco)"),
+ "Correcteur orthographique": ("Spell checker", "Corrector ortográfico", "Corretor ortográfico", "Rechtschreibprüfung", "Correttore ortografico"),
+ "Souligner les fautes d'orthographe": ("Underline spelling mistakes", "Subrayar las faltas de ortografía", "Sublinhar os erros ortográficos", "Rechtschreibfehler unterstreichen", "Sottolineare gli errori di ortografia"),
+ "Langue du logiciel": ("Program language", "Idioma del programa", "Língua do programa", "Sprache des Programms", "Lingua del programma"),
+ "Dictionnaire personnel…": ("Personal dictionary…", "Diccionario personal…", "Dicionário pessoal…", "Persönliches Wörterbuch…", "Dizionario personale…"),
+ "Dictionnaire personnel": ("Personal dictionary", "Diccionario personal", "Dicionário pessoal", "Persönliches Wörterbuch", "Dizionario personale"),
+ "Un mot par ligne (mots techniques, noms propres…) :": ("One word per line (technical terms, proper names…):", "Una palabra por línea (términos técnicos, nombres propios…):", "Uma palavra por linha (termos técnicos, nomes próprios…):", "Ein Wort pro Zeile (Fachbegriffe, Eigennamen…):", "Una parola per riga (termini tecnici, nomi propri…):"),
+ "(aucune suggestion)": ("(no suggestions)", "(sin sugerencias)", "(sem sugestões)", "(keine Vorschläge)", "(nessun suggerimento)"),
+ "Ajouter au dictionnaire": ("Add to dictionary", "Añadir al diccionario", "Adicionar ao dicionário", "Zum Wörterbuch hinzufügen", "Aggiungi al dizionario"),
+ "Ignorer": ("Ignore", "Ignorar", "Ignorar", "Ignorieren", "Ignora"),
+}
+for _k, _v in _V131.items():
+    for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
+        TR.setdefault(_l, {})[_k] = _t

@@ -174,6 +174,8 @@ class TableDialog(QDialog):
 
         self.tw = QTableWidget(self.d["rows"], self.d["cols"])
         self.tw.setSelectionMode(QAbstractItemView.ContiguousSelection)
+        from .spell import SpellDelegate
+        self.tw.setItemDelegate(SpellDelegate(self.tw))
         self.tw.setHorizontalHeaderLabels([calc.col_name(c) for c in range(self.d["cols"])])
         for k, v in self.d["cells"].items():
             r, c = _rc(k)
