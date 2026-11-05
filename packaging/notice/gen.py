@@ -10,7 +10,7 @@ APP = os.environ.get("PDFDUO_APP", ROOT + "/pdfduo")
 DOCS = ROOT + "/docs"; OUT_WEB = DOCS + "/notice"; OUT_APP = APP + "/notices"
 os.makedirs(OUT_WEB, exist_ok=True); os.makedirs(OUT_APP, exist_ok=True)
 NAMES = dict(fr="Français", en="English", es="Español", pt="Português", de="Deutsch", it="Italiano")
-VER = "1.2.1"
+VER = "1.3.0"
 INTRO = dict(
  fr="PDF DUO sert à lire, remplir et signer des PDF, à dessiner des schémas électriques, pneumatiques et réseau, des GRAFCET et des plans de logement, et à convertir Word / ODF ↔ PDF. Il est pensé pour les élèves et les professeurs de toutes les sections de lycée professionnel (par exemple MELEC, CIEL, prothésiste dentaire, logistique, magasinier), et rend aussi service à la vie du lycée : affiches, formulaires d'adhésion et documents signés de la MDL. Les numéros rouges des captures renvoient aux listes placées dessous.",
  en="PDF DUO lets you read, fill in and sign PDFs, draw electrical, pneumatic and network diagrams, GRAFCETs and floor plans, and convert Word / ODF ↔ PDF. It is designed for students and teachers in all vocational courses (for example electrical, IT, dental technician, logistics, warehouse), and is also handy for school life: posters, membership forms and signed documents for the student association. The red numbers on the screenshots refer to the lists below them.",

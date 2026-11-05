@@ -204,16 +204,20 @@ w._pres_timer.stop()
 w.showNormal(); w.resize(1680, 980); pump(5)
 w.menuBar().hide()
 for b in w.findChildren(QToolBar):
-    b.hide()
+    if b.objectName() != "outils":
+        b.hide()
 for d in w.findChildren(QDockWidget):
-    d.hide()
+    if d.objectName() != "biblio":
+        d.hide()
+w.resizeDocks([dock(w, 'biblio')], [2 * w.sym_list.gridSize().width() + 34], Qt.Horizontal)
 w.statusBar().hide(); pump(5)
 w.zoom_page(); pump(3); w.render_visible(); pump(3)
 hint = getattr(w, "_pres_hint", None)
 if hint:
     hint.setFixedWidth(760); hint.adjustSize(); hint.move((w.width() - hint.width()) // 2, 40); hint.show(); hint.raise_()
 pump(3)
-save(w.grab(), '13-plein-ecran.jpg')
+img = w.grab().toImage()
+save(callouts(img, [(rect_of(w, bar(w, 'outils')), 1), (rect_of(w, dock(w, 'biblio')), 2)]), '13-plein-ecran.jpg')
 if hint: hint.hide()
 w.menuBar().show()
 for b in w._pres_bars: b.show()
@@ -286,6 +290,23 @@ for k, sid in enumerate(ids):
 w.commit(); pump(); w.zoom_page(); pump(); w.render_visible(); pump()
 img = w.grab().toImage()
 save(callouts(img, [(rect_of(w, dock(w, 'biblio')), 1)]), '21-prevention.jpg'); w.close()
+
+# 22 — favoris
+QSettings("Jacques Branas", "PDF DUO").setValue("favoris", ["gqs_pls", "gqs_massage", "ind_barriere", "rob_uno", "rob_led", "inc_exit", "hab_gtl", "contact_no", "node:g_step"])
+w = win(None, theme='bleu nuit')
+w.cat_combo.setCurrentIndex(1); pump()
+img = w.grab().toImage()
+save(callouts(img, [(rect_of(w, w.cat_combo), 1), (rect_of(w, w.sym_list), 2)]), '22-favoris.jpg'); w.close()
+QSettings("Jacques Branas", "PDF DUO").remove("favoris")
+# 23 — équipements à états (pompage)
+w = win(None, theme='bleu nuit', cat='Équipements industriels – électrotechnique')
+w.new_doc((841.89, 595.28), 1, ask=False); pump()
+pg = w.page_items[0]; x0, y0 = pg.pos().x(), pg.pos().y()
+dd = w.symbol_dict("ind_pompage"); dd.update(x=x0 + 20 * MM, y=y0 + 30 * MM, scale=3.2); dd["label"] = ""
+dd["params"].update({"puits": "Haut", "reservoir": "Bas", "pompe": "En marche"})
+it = w.add_item(dd); w.commit(); it.setSelected(True); pump(); w.zoom_page(); pump(); w.render_visible(); pump()
+img = w.grab().toImage()
+save(callouts(img, [(rect_of(w, dock(w, 'props')), 1)]), '23-etats.jpg'); w.close()
 
 # 12 — don
 def grab_dlg():

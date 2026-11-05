@@ -12,7 +12,7 @@ Pensé pour l'enseignement dans toutes les sections de lycée professionnel : pa
 
 ![PDF DUO](docs/captures/interface-schema.jpg)
 
-## Fonctions (version 1.2.1)
+## Fonctions (version 1.3.0)
 
 - **PDF** : ouvrir, zoomer, faire défiler, imprimer ; PDF protégés par mot de passe.
 - **Annoter / dessiner** : texte, trait, flèche, fil de schéma à angles droits, rectangle, ellipse,
@@ -20,7 +20,7 @@ Pensé pour l'enseignement dans toutes les sections de lycée professionnel : pa
 - **Rotation libre sur 360°** et **miroir** horizontal / vertical de tout élément
   (R = 90°, E = 15°, H / V = miroir, angle précis au dixième de degré dans Propriétés).
 - **Grille et aimantation** (pas de 2,5 mm pour les schémas, 1 mm, 5 mm, ou pas réels de 10 / 25 / 50 cm pour les plans).
-- **Bibliothèques de symboles** (plus de 500 symboles et 42 formes avec texte) :
+- **Bibliothèques de symboles** (plus de 700 symboles et 42 formes avec texte) :
   - Électricité – schémas : contacts NO / NF, boutons poussoirs, bobine KM, relais thermique,
     fusible, disjoncteur, lampe, résistance, condensateurs, diodes, LED, transistors, moteur,
     transformateur, appareils de mesure, masse, terre…
@@ -125,8 +125,30 @@ Pensé pour l'enseignement dans toutes les sections de lycée professionnel : pa
 - **Calculatrice scientifique et graphique** (Ctrl+K) : sin, cos, tan et inverses, ln, log, √, puissances, π, degrés ou
   radians, historique ; tracé de trois courbes, zoom à la molette, et insertion du graphique dans la page.
   Les calculs passent par un évaluateur sûr (aucun code n'est exécuté).
+- **Gestes qui sauvent** : panneaux (premiers secours, DAE, lavage oculaire, douche), protéger, alerter, PLS, massage cardiaque,
+  insufflation, électrodes du défibrillateur, compressions, garrot, brûlure, étouffement (claques, Heimlich), électrisation
+  (couper le courant, arrêt d'urgence, ne pas toucher, perche isolante) ; exemple : `exemples/exemple-premiers-secours.pdf`.
+- **Biologie de base** : cellules animale et végétale, bactérie, virus, ADN, chromosome, neurone, organes, plante, fleur,
+  microscope, lame et lamelle, boîte de Petri.
+- **Robotique (technologie au collège)** : cartes Arduino Uno, Raspberry Pi 4/5 et Pico, ESP32, micro:bit, Sense HAT,
+  brochage GPIO 40 broches, plaque d'essai, LED (couleur réglable), résistance (anneaux calculés selon la valeur) et tableau
+  du code des couleurs, capteurs (ultrasons, PIR, DHT11/DHT22, sol, suiveur de ligne), servomoteur, motoréducteur, relais,
+  écrans LCD et OLED, châssis de robot.
+- **Sécurité incendie** : détecteurs, déclencheur manuel, sirène, flash, BAAS, BAES, éclairage « SORTIE / EXIT » à flèche
+  orientable, extincteurs, RIA, porte coupe-feu, ventouse, CMSI, UGA, désenfumage ; panneaux rouges et verts d'évacuation.
+- **Équipements industriels à états réglables** : barrière levante (haut, milieu, bas), tapis roulant, malaxeur, ventilateur,
+  monte-charge, ascenseur 3 niveaux, puits, pompe, réservoir et château d'eau avec capteurs H/M/B, système de pompage complet,
+  four, vérins simple et double effet avec capteurs, fins de course, capteurs magnétique et inductif, boucle magnétique,
+  cellule à miroir, voitures, bras manipulateur, moteur asynchrone et plaque à bornes étoile / triangle ;
+  exemples : `exemples/exemple-pompage.pdf`, `exemples/exemple-parking.pdf`.
+- **Habitat** : GTL avec goulotte du sol au plafond, radiateur à inertie, radiant, convecteur, plancher chauffant, éclairage
+  (spot, tubes, réglette, dalle LED, douille), appareillage étanche, bornes de recharge intérieure et extérieure.
+- **Métiers de la sécurité** : sapeurs-pompiers (équipement, points d'eau, triangle du feu, classes de feu), sûreté et
+  surveillance (contrôle d'accès, vidéosurveillance, rondes), police et maintien de l'ordre (tenue complète, texte modifiable).
+- **Favoris** : clic droit sur un symbole › *Ajouter aux favoris* ; les favoris passent en tête de chaque catégorie et ont leur
+  propre catégorie « ★ Favoris », ouverte au démarrage.
 - **Annuler / rétablir** illimité (150 étapes).
-- **Mode présentation** (F11 ou bouton ⛶) : plein écran avec la page seule, zoom à la molette ; les menus réapparaissent
+- **Mode présentation** (F11 ou bouton ⛶) : plein écran avec la page, les outils à gauche et la bibliothèque (2 colonnes) à droite ; les menus réapparaissent
   quand la souris touche le haut de l'écran, Échap pour quitter.
 
 Les dessins sont enregistrés **en vectoriel** dans le PDF (nets à toutes les échelles et à l'impression).

@@ -36,7 +36,7 @@ from . import nodes as ND
 CATEGORIES = SYM_CATEGORIES + ND.CATEGORIES
 
 APP_NAME = "PDF DUO"
-APP_VERSION = "1.2.1"
+APP_VERSION = "1.3.0"
 SITE_URL = "https://deltapassion.github.io/PDF-DUO/"
 RELEASES_URL = "https://github.com/Deltapassion/PDF-DUO/releases/latest"
 KOFI_URL = "https://ko-fi.com/djlatinjazz"
@@ -216,6 +216,22 @@ def sym_icon(s, size=56, color="#202020"):
     p = QPainter(pm)
     p.setRenderHint(QPainter.Antialiasing)
     r.render(p, QRectF((size - w * k) / 2, (size - h * k) / 2, w * k, h * k))
+    p.end()
+    return QIcon(pm)
+
+
+def star_icon(icon, size=56):
+    """Ajoute une petite étoile dorée en haut à droite d'une icône (symbole favori)."""
+    from PySide6.QtGui import QPolygonF
+    pm = icon.pixmap(size, size)
+    p = QPainter(pm)
+    p.setRenderHint(QPainter.Antialiasing)
+    cx, cy, r1, r2 = size - 9, 9, 8, 3.4
+    pts = [QPointF(cx + (r1 if i % 2 == 0 else r2) * math.sin(i * math.pi / 5), cy - (r1 if i % 2 == 0 else r2) * math.cos(i * math.pi / 5))
+           for i in range(10)]
+    p.setPen(QPen(QColor("#8d6e00"), 1))
+    p.setBrush(QColor("#ffc107"))
+    p.drawPolygon(QPolygonF(pts))
     p.end()
     return QIcon(pm)
 
@@ -1317,9 +1333,12 @@ class MainWindow(QMainWindow):
         w = QWidget()
         lay = QVBoxLayout(w)
         lay.setContentsMargins(4, 4, 4, 4)
+        self.favs = [x for x in (self.settings.value("favoris") or []) if isinstance(x, str)]
         self.cat_combo = QComboBox()
-        self.cat_combo.addItems([T("Tous les symboles")] + [T(c) for c in CATEGORIES])
-        self.cat_combo.setCurrentIndex(1)
+        self.cat_combo.addItems([T("Tous les symboles"), "★ " + T("Favoris")] + [T(c) for c in CATEGORIES])
+        self.cat_combo.setCurrentIndex(1 if self.favs else 2)
+        self.cat_combo.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.cat_combo.setMinimumContentsLength(12)
         self.search = QLineEdit(placeholderText=T("Rechercher (prise, contact, porte…)"))
         self.sym_list = SymbolList()
         self.sym_list.setViewMode(QListView.IconMode)
@@ -1331,6 +1350,9 @@ class MainWindow(QMainWindow):
         self.sym_list.setDragEnabled(True)
         self.sym_list.setDragDropMode(QAbstractItemView.DragOnly)
         self.sym_list.itemClicked.connect(self.pick_symbol)
+        self.sym_list.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.sym_list.customContextMenuRequested.connect(self.symbol_menu)
+        self.sym_list.setToolTip(T("Clic droit sur un symbole : ajouter aux favoris ou les retirer"))
         self._icons = {}
         self.cat_combo.currentIndexChanged.connect(self.fill_symbols)
         self.search.textChanged.connect(self.fill_symbols)
@@ -1420,32 +1442,69 @@ class MainWindow(QMainWindow):
 
     # ------------------------------------------------------------------ bibliothèque
     def fill_symbols(self):
+        """Remplit la bibliothèque : les favoris passent toujours en tête (catégorie ★ Favoris à part)."""
         self.sym_list.clear()
         cat = self.cat_combo.currentText()
+        only_favs = self.cat_combo.currentIndex() == 1
         q = self.search.text().strip().lower()
+        favs = getattr(self, "favs", [])
+        rows = []
         for s in SYMBOLS:
-            if not q and cat != T("Tous les symboles") and T(s.cat) != cat:
+            if only_favs and not q and s.id not in favs:
+                continue
+            if not q and not only_favs and cat != T("Tous les symboles") and T(s.cat) != cat:
                 continue
             if q and q not in s.name.lower() and q not in T(s.name).lower() and q not in s.id:
                 continue
-            if s.id not in self._icons:
-                self._icons[s.id] = sym_icon(s, color=getattr(self, "icon_color", "#202020"))
-            it = QListWidgetItem(self._icons[s.id], T(s.name))
-            it.setData(Qt.UserRole, s.id)
-            it.setToolTip(T(s.name))
-            self.sym_list.addItem(it)
+            rows.append((s.id, T(s.name), lambda s=s: sym_icon(s, color=getattr(self, "icon_color", "#202020"))))
         for pr in ND.PRESETS:
-            if not q and cat != T("Tous les symboles") and T(pr.cat) != cat:
+            key = "node:" + pr.id
+            if only_favs and not q and key not in favs:
+                continue
+            if not q and not only_favs and cat != T("Tous les symboles") and T(pr.cat) != cat:
                 continue
             if q and q not in pr.name.lower() and q not in T(pr.name).lower():
                 continue
-            key = "node:" + pr.id
+            rows.append((key, T(pr.name), lambda pr=pr: node_icon({**pr.d, "color": getattr(self, "icon_color", "#202020")})))
+        order = {k: i for i, k in enumerate(favs)}
+        rows.sort(key=lambda r: (0, order[r[0]]) if r[0] in order else (1, 0))
+        for key, name, make in rows:
             if key not in self._icons:
-                self._icons[key] = node_icon({**pr.d, "color": getattr(self, "icon_color", "#202020")})
-            it = QListWidgetItem(self._icons[key], T(pr.name))
+                self._icons[key] = make()
+            icon = self._icons[key]
+            if key in order:
+                if ("★", key) not in self._icons:
+                    self._icons[("★", key)] = star_icon(icon)
+                icon = self._icons[("★", key)]
+            it = QListWidgetItem(icon, name)
             it.setData(Qt.UserRole, key)
-            it.setToolTip(T(pr.name))
+            it.setToolTip(name + ("  ★" if key in order else ""))
             self.sym_list.addItem(it)
+        if only_favs and not rows:
+            it = QListWidgetItem(T("Aucun favori : clic droit sur un symbole › Ajouter aux favoris"))
+            it.setFlags(Qt.NoItemFlags)
+            self.sym_list.addItem(it)
+
+    def symbol_menu(self, pos):
+        it = self.sym_list.itemAt(pos)
+        key = it.data(Qt.UserRole) if it else None
+        if not key:
+            return
+        m = QMenu(self)
+        if key in self.favs:
+            a = m.addAction("☆ " + T("Retirer des favoris"))
+        else:
+            a = m.addAction("★ " + T("Ajouter aux favoris"))
+        if m.exec(self.sym_list.viewport().mapToGlobal(pos)) is a:
+            self.toggle_favorite(key)
+
+    def toggle_favorite(self, key):
+        if key in self.favs:
+            self.favs.remove(key)
+        else:
+            self.favs.append(key)
+        self.settings.setValue("favoris", list(self.favs))
+        self.fill_symbols()
 
     def symbol_dict(self, sid):
         if sid.startswith("node:"):
@@ -3506,9 +3565,20 @@ class MainWindow(QMainWindow):
             self._pres_max = self.isMaximized()
             self._pres_bars = [b for b in self.findChildren(QToolBar)
                                if b.isVisible() and b is not self.quick_bar and self.toolBarArea(b) == Qt.TopToolBarArea]
+            keep = {self.quick_bar, self.findChild(QToolBar, "outils"), self.findChild(QDockWidget, "biblio")}
             for w in self.findChildren(QDockWidget) + self.findChildren(QToolBar):
-                if w is not self.quick_bar:
+                if w not in keep:
                     w.hide()
+            bib = self.findChild(QDockWidget, "biblio")
+            if bib is not None:
+                bib.show()
+                self._pres_bib_max = bib.maximumWidth()
+                narrow = 2 * self.sym_list.gridSize().width() + 34
+                bib.setMaximumWidth(narrow)
+                self.resizeDocks([bib], [narrow], Qt.Horizontal)
+            tools = self.findChild(QToolBar, "outils")
+            if tools is not None:
+                tools.show()
             self.statusBar().hide()
             self.menuBar().hide()
             self.showFullScreen()
@@ -3524,6 +3594,9 @@ class MainWindow(QMainWindow):
             self.statusBar().show()
             if self.isFullScreen():
                 self.showMaximized() if self._pres_max else self.showNormal()
+            bib = self.findChild(QDockWidget, "biblio")
+            if bib is not None:
+                bib.setMaximumWidth(getattr(self, "_pres_bib_max", 16777215))
             self.restoreState(self._pres_state, 99)
             hint = getattr(self, "_pres_hint", None)
             if hint:
@@ -3552,8 +3625,8 @@ class MainWindow(QMainWindow):
             hint = self._pres_hint = QLabel(self)
             hint.setStyleSheet("QLabel{background:rgba(20,30,45,210);color:white;border-radius:10px;padding:10px 18px;font-size:13px}")
             hint.setAttribute(Qt.WA_TransparentForMouseEvents)
-        hint.setText(T("Mode présentation — touchez le haut de l'écran avec la souris pour les menus et le zoom · "
-                       "Ctrl + molette pour zoomer · F11 ou Échap pour quitter"))
+        hint.setText(T("Mode présentation — les outils (à gauche) et la bibliothèque (à droite) restent visibles · "
+                       "touchez le haut de l'écran pour les menus et le zoom · F11 ou Échap pour quitter"))
         hint.setWordWrap(True)
         hint.setAlignment(Qt.AlignCenter)
 

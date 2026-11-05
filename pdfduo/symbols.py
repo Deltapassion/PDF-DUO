@@ -2616,6 +2616,9 @@ _reorder("Prévention électrique – EPI, EIS, ECS", ["epi_casque"])
 _reorder("Prothésiste dentaire", ["dent_fdi_sup", "dent_fdi_inf", "dent_incisive", "dent_molaire", "dent_couronne", "dent_bridge",
                                   "dent_implant", "dent_prothese", "dent_partielle"])
 
+# ---------------------------------------------------------------- bibliothèques 1.3.0 (module séparé)
+from . import symbols_v130  # noqa: E402,F401
+
 # ---------------------------------------------------------------- repères et tailles par défaut
 DEFAULT_LABELS = {
     "km_puissance": "KM1", "km_complet": "KM1", "sect_fus": "Q1", "disj_moteur": "Q1", "rt_puissance": "F1",
