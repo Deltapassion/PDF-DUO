@@ -6,13 +6,19 @@
 
 Logiciel libre pour **lire, annoter, signer et remplir des PDF**, **dessiner des schémas électriques, pneumatiques,
 réseau, des GRAFCET et des plans de logement**, et **convertir Word / ODF ↔ PDF**.
-Pensé pour l'enseignement dans toutes les sections de lycée professionnel : par exemple les bacs pro MELEC et CIEL, prothésiste dentaire, logistique et magasinier.
+Pensé pour les élèves et les professeurs de sciences et de technologie, du collège au lycée général et au lycée professionnel (bacs pro MELEC, CIEL, cuisine, restauration, métiers de la mode, prothésiste dentaire, logistique…).
 
 *Jacques Branas, en collaboration avec Claude.ai* — licence GNU GPL v3 ou ultérieure.
 
 ![PDF DUO](docs/captures/interface-schema.jpg)
 
-## Fonctions (version 1.3.1)
+## Fonctions (version 1.3.2)
+
+**Nouveau en 1.3.2** : interface en **11 langues** (français, anglais, espagnol, portugais, allemand, italien, grec,
+chinois, russe, ukrainien, arabe), changement de langue **immédiat sans redémarrer** (menu 🌐 en haut),
+**recherche de mise à jour au démarrage**, aimantation des bornes sur les fils, bornier X1, contacteur unipolaire,
+nouvelles bibliothèques (soins infirmiers, cuisine, service en salle, couture, structure réseau),
+carte mentale de base à insérer, calculatrice dans la barre du haut. Détail : `NOUVEAUTES-1.3.2.txt`.
 
 - **PDF** : ouvrir, zoomer, faire défiler, imprimer ; PDF protégés par mot de passe.
 - **Annoter / dessiner** : texte, trait, flèche, fil de schéma à angles droits, rectangle, ellipse,

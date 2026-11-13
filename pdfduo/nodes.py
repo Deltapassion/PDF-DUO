@@ -28,8 +28,8 @@ def add(pid, name, cat, **d):
 
 S10 = 10 * MM
 # GRAFCET (NF EN 60848)
-add("g_step_init", "Étape initiale", G, shape="step_init", w=S10, h=S10, text="0", size=11)
-add("g_step", "Étape", G, shape="step", w=S10, h=S10, text="1", size=11)
+add("g_step_init", "Étape initiale", G, shape="step_init", w=S10, h=S10, text="0", size=11, stubs=True)
+add("g_step", "Étape", G, shape="step", w=S10, h=S10, text="1", size=11, stubs=True)
 add("g_transition", "Transition + réceptivité", G, shape="transition", w=S10, h=8 * MM, text="a", size=9, label="")
 add("g_action", "Action associée", G, shape="action", w=40 * MM, h=S10, text="Action", size=9, qual="")
 add("g_action_s", "Action mémorisée (S / R)", G, shape="action", w=40 * MM, h=S10, text="KM1", size=9, qual="S")
@@ -38,7 +38,7 @@ add("g_action_c", "Action conditionnelle (condition au-dessus)", G, shape="actio
     cond="condition")
 add("g_and_bar", "Divergence / convergence en ET", G, shape="and_bar", w=50 * MM, h=0.9 * MM, text="")
 add("g_or_bar", "Divergence / convergence en OU", G, shape="or_bar", w=50 * MM, h=0.5 * MM, text="")
-add("g_macro", "Macro-étape", G, shape="macro", w=S10, h=S10, text="M1", size=10)
+add("g_macro", "Macro-étape", G, shape="macro", w=S10, h=S10, text="M1", size=10, stubs=True)
 add("g_renvoi", "Renvoi vers étape", G, shape="renvoi", w=12 * MM, h=6 * MM, text="1", size=9)
 add("g_comment", "Commentaire", G, shape="note", w=35 * MM, h=8 * MM, text="Commentaire", size=8,
     fill="#fff8c4")

@@ -27,6 +27,9 @@ class Sym:
         self.kind = kind          # "paper" ou "real"
         self.params = params or []  # [(clé, libellé, défaut, min, max)]
         self.func = func          # func(params) -> (w, h, body)
+        self.texts = []           # textes toujours horizontaux [(x, y, texte, taille, gras)], même en miroir
+        self.label_at = None      # (x, y) : le repère (X1…) s'écrit à cet endroit, dans le dessin
+        self.label_scale = 1.6    # taille du repère écrit dans le dessin (× taille normale)
 
     def defaults(self):
         return {spec[0]: spec[2] for spec in self.params}
@@ -578,7 +581,7 @@ KMX = (30, 50, 70)
 add("km_complet", "Contacteur complet (bobine + 3 pôles + 13-14)", TRI, 100, 60,
     '<path d="M10 0 V22 M10 38 V60"/><rect x="2" y="22" width="16" height="16"/>'
     + "".join(f'<path d="M{x} 0 V22 M{x} 38 V60 M{x} 38 L{x - 8} 21"/>'
-              f'<path d="M{x} 19 A2.5 2.5 0 0 1 {x} 24" />' for x in KMX)
+              f'<path d="M{x} 22 V24 M{x} 19 A2.5 2.5 0 0 0 {x} 24" />' for x in KMX)
     + '<path d="M90 0 V22 M90 38 V60 M90 38 L82 21"/>'
     + '<path d="M18 30 H87" stroke-dasharray="3 2"/>',
     pins=[(10, 0), (10, 60), (30, 0), (50, 0), (70, 0), (90, 0), (30, 60), (50, 60), (70, 60), (90, 60)],
@@ -592,7 +595,8 @@ import math as _m
 
 def _pole(x, mark="", fuse=False, prot="", top=0, bot=60):
     """Un pôle vertical : borne fixe en haut (y=12), lame de (x,30) vers (x-9,11), puis protection."""
-    o = f'<path d="M{x} {top} V12"/>'
+    wire_end = {"semi": 14.5, "circle": 8.2}.get(mark, 12)
+    o = f'<path d="M{x} {top} V{wire_end}"/>'
     if mark in ("bar", "cross", "bar_circle"):
         o += f'<path d="M{x - 3} 12 H{x + 3}"/>'
     if mark == "cross":
@@ -600,7 +604,7 @@ def _pole(x, mark="", fuse=False, prot="", top=0, bot=60):
     if mark in ("circle", "bar_circle"):
         o += f'<circle cx="{x}" cy="{8.5 if mark == "bar_circle" else 10}" r="1.8"/>'
     if mark == "semi":
-        o += f'<path d="M{x} 9.5 A2.5 2.5 0 0 1 {x} 14.5"/>'
+        o += f'<path d="M{x} 9.5 A2.5 2.5 0 0 0 {x} 14.5"/>'      # demi-rond à gauche
     if mark == "flag":
         o += f'<path d="M{x - 9} 11 L{x - 4} 9 L{x - 3} 13 L{x - 8} 15 Z" fill="CC"/>'
     o += f'<path d="M{x} 30 L{x - 9} 11"/>'
@@ -722,9 +726,45 @@ _add_app("sect_fus", "Sectionneur porte-fusibles tripolaire", cat=TRI,
 # ---------------------------------------------------------------- contacteur tripolaire (dessin des fiches)
 SYMBOLS[:] = [x for x in SYMBOLS if x.id != "km_puissance"]
 add("km_puissance", "Contacteur tripolaire (contacts de puissance)", TRI, 60, 60,
-    poles(lambda x: f'<path d="M{x} 0 V16 M{x} 16 A3 3 0 0 1 {x} 22 M{x} 40 V60 M{x} 40 L{x - 10} 15"/>')
+    poles(lambda x: f'<path d="M{x} 0 V22 M{x} 16 A3 3 0 0 0 {x} 22 M{x} 40 V60 M{x} 40 L{x - 10} 15"/>')
     + '<path d="M5 27.5 H45" stroke-dasharray="3 2"/>',
     pins=[(10, 0), (30, 0), (50, 0), (10, 60), (30, 60), (50, 60)], pin_names="1 3 5 2 4 6")
+
+add("km_uni", "Contacteur unipolaire (pôle de puissance)", TRI, 40, 60,
+    '<path d="M20 0 V22 M20 16 A3 3 0 0 0 20 22 M20 40 V60 M20 40 L10 15"/>',
+    pins=[(20, 0), (20, 60)], pin_names="1 2")
+add("inter_uni", "Interrupteur unipolaire", TRI, 40, 60,
+    '<path d="M20 0 V16.5"/><circle cx="20" cy="19" r="2.5"/><path d="M20 40 V60 M20 40 L10 15"/>',
+    pins=[(20, 0), (20, 60)])
+
+# ---------------------------------------------------------------- borniers (repère et numéros toujours horizontaux)
+def _bornier(n=10, terre=True):
+    """Bornier vertical : tête avec le repère (X1), n bornes numérotées, borne de terre en bas.
+    Raccordement à gauche et à droite de chaque borne."""
+    top = 40
+    cells = n + (1 if terre else 0)
+    h = top + 20 * cells
+    o = '<rect x="2" y="2" width="56" height="28" rx="6"/><path d="M20 30 V40 M40 30 V40"/>'
+    o += f'<rect x="10" y="{top}" width="40" height="{20 * cells}" rx="3"/>'
+    o += "".join(f'<path d="M10 {top + 20 * k} H50"/>' for k in range(1, cells))
+    pins = []
+    for k in range(cells):
+        y = top + 10 + 20 * k
+        pins += [(10, y), (50, y)]
+    if terre:
+        y = top + 10 + 20 * n
+        o += (f'<path d="M30 {y - 6} V{y} M20 {y} H40 M23 {y + 3} H37 M26.5 {y + 6} H33.5"/>')
+    sym = add(f"bornier_{n}", f"Bornier X ({n} bornes" + (" + terre)" if terre else ")"), TRI, 60, h, o,
+              pins=pins)
+    sym.texts = [(30, top + 10 + 20 * k, str(k + 1), 8, False) for k in range(n)]
+    sym.label_at = (30, 16)
+    return sym
+
+
+_bornier(10, True)
+add("borne_seule", "Borne seule (X1.1)", TRI, 20, 20,
+    '<path d="M10 0 V6 M10 14 V20"/><circle cx="10" cy="10" r="4"/><path d="M6.5 13.5 L13.5 6.5"/>',
+    pins=[(10, 0), (10, 20)])
 
 # ---------------------------------------------------------------- plaque à bornes moteur + barrettes (couplages)
 PLATE = ('<rect x="2" y="2" width="76" height="56" rx="4" fill="#dce6ef"/>'
@@ -769,7 +809,7 @@ add("vv_dom", "Va-et-vient (L, L1, L2)", DOM, 40, 40,
     '<path d="M13.5 21 L27 29.5" stroke-dasharray="2 1.6"/>',
     pins=[(0, 20), (40, 10), (40, 30)], pin_names="L L1 L2")
 add("inter_dom", "Interrupteur simple allumage (schéma)", DOM, 40, 20,
-    '<path d="M0 10 H10.5 M13 9.4 L27 3.5 M26 10 H40"/><circle cx="12" cy="10" r="1.8"/>',
+    '<path d="M0 10 H11.2"/><circle cx="13" cy="10" r="1.8"/><path d="M26 10 H40 M26 10 L11 17.5"/>',
     pins=[(0, 10), (40, 10)], pin_names="L 1")
 add("bp_dom", "Bouton poussoir (schéma)", DOM, 40, 40,
     '<path d="M0 10 H14 M26 10 H40 M26 10 L12 17"/>'
@@ -2618,13 +2658,15 @@ _reorder("Prothésiste dentaire", ["dent_fdi_sup", "dent_fdi_inf", "dent_incisiv
 
 # ---------------------------------------------------------------- bibliothèques 1.3.0 (module séparé)
 from . import symbols_v130  # noqa: E402,F401
+from . import symbols_soins  # noqa: E402,F401
+from . import symbols_v132  # noqa: E402,F401
 
 # ---------------------------------------------------------------- repères et tailles par défaut
 DEFAULT_LABELS = {
     "km_puissance": "KM1", "km_complet": "KM1", "sect_fus": "Q1", "disj_moteur": "Q1", "rt_puissance": "F1",
     "moteur3": "M1", "bobine_km": "KM1", "bobine": "KA1", "contact_am_1314": "KM1", "contact_no_2324": "KM1",
     "contact_nf_6162": "KM2", "contact_nf_5152": "KM2", "contact_f_9596": "F1", "contact_f_9798": "F1",
-    "au": "S0", "bp_no": "S1", "bp_nf": "S0", "voyant_marche": "H1", "transfo_cmd": "T1", "bornier": "X1",
+    "au": "S0", "bp_no": "S1", "bp_nf": "S0", "voyant_marche": "H1", "transfo_cmd": "T1", "bornier": "X1", "bornier_10": "X1", "rst_ssid": "SSID_Eleves (VLAN 10)", "rst_vlan": "VLAN 10 : postes élèves", "borne_seule": "X1.1", "km_uni": "KM1",
     "pia_1": "Q1", "pia_fn": "Q1", "pia_2": "Q1", "pia_3": "Q1", "pia_4": "Q1", "id_2": "Q1", "id_4": "Q1",
     "dd_2": "Q1", "dd_4": "Q1", "ccpf_1": "F1", "ccpf_pn": "F1", "ccpf_2": "F1", "ccpf_3": "F1", "ccpf_4pc": "Q1",
     "bobine_tl": "KA1", "contact_tl": "KA1", "contact_tl2": "KA1", "bobine_mn": "KA2", "contact_mn": "KA2",

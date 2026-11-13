@@ -11,7 +11,7 @@ import sys
 import tempfile
 
 import pymupdf
-from PySide6.QtCore import (QBuffer, QByteArray, QIODevice, QMarginsF, QMimeData, QPointF, QRectF,
+from PySide6.QtCore import (QLocale, QBuffer, QByteArray, QIODevice, QMarginsF, QMimeData, QPointF, QRectF,
                             QSettings, QSize, QSizeF, Qt, QThread, QTimer, Signal)
 from PySide6.QtGui import (QAction, QActionGroup, QColor, QIcon, QImage, QKeySequence, QPageSize,
                            QPainter, QPdfWriter, QPen, QPixmap, QBrush, QTransform, QFont)
@@ -36,7 +36,7 @@ from . import nodes as ND
 CATEGORIES = SYM_CATEGORIES + ND.CATEGORIES
 
 APP_NAME = "PDF DUO"
-APP_VERSION = "1.3.1"
+APP_VERSION = "1.3.2"
 SITE_URL = "https://deltapassion.github.io/PDF-DUO/"
 RELEASES_URL = "https://github.com/Deltapassion/PDF-DUO/releases/latest"
 KOFI_URL = "https://ko-fi.com/djlatinjazz"
@@ -522,6 +522,7 @@ class View(QGraphicsView):
         if t == "symbol_place" or t == "image_place":
             if self.ghost is not None:
                 d = self.ghost.to_dict()
+                d.pop("uid", None)      # chaque symbole posé a son propre identifiant (sinon les fils sautent d'un appareil à l'autre)
                 mw.add_item(d)
                 mw.commit()
                 if t == "image_place":
@@ -738,6 +739,8 @@ class View(QGraphicsView):
         if t in ("select", "pan"):
             super().mouseReleaseEvent(e)
             if t == "select":
+                if self.moved:
+                    self.mw.magnet_pins()
                 self.mw.commit()
             return
         if self.temp is None or t in ("wire", "wall", "link") or e.button() != Qt.LeftButton:
@@ -982,9 +985,12 @@ class MainWindow(QMainWindow):
         self.workers = []
         self._render_timer = QTimer(self, singleShot=True, interval=80, timeout=self.render_visible)
         self._prop_timer = QTimer(self, singleShot=True, interval=500, timeout=self.commit)
+        from .updater import Updater
+        self.updater = Updater(self, APP_VERSION)
         self.build_ui()
         self.scene.selectionChanged.connect(self.refresh_props)
         self.scene.selectionChanged.connect(self.sync_text_palette)
+        self.scene.selectionChanged.connect(self._presentation_props)
         self.resize(1400, 900)
         self.new_doc(PAPER["A4 portrait"], 1, ask=False)
 
@@ -1070,15 +1076,7 @@ class MainWindow(QMainWindow):
         am.addAction(T("Autre couleur…")).triggered.connect(self.pick_accent)
         act(m, T("Couleur du fond de travail…"), self.pick_workspace)
         act(m, T("Fond de travail par défaut"), lambda: self.set_workspace(None))
-        lm = m.addMenu(T("Langue / Language / Idioma"))
-        lg = QActionGroup(self)
-        for code, name in (("fr", "Français"), ("en", "English"), ("es", "Español"), ("pt", "Português"),
-                           ("de", "Deutsch"), ("it", "Italiano")):
-            a = QAction(name, self, checkable=True)
-            a.setChecked(code == self.settings.value("lang", "fr"))
-            a.triggered.connect(lambda _=False, c=code: self.set_lang(c))
-            lg.addAction(a)
-            lm.addAction(a)
+        self.fill_lang_menu(m.addMenu(T("Langue / Language / Idioma")))
 
         m = mb.addMenu(T("&Pages"))
         act(m, T("Insérer une page blanche après"), self.page_insert_blank)
@@ -1098,6 +1096,7 @@ class MainWindow(QMainWindow):
         act(m, T("Image…"), self.insert_image_dialog)
         act(m, T("Cartouche (titre, auteur, date, échelle)"), self.insert_title_block)
         act(m, T("Organigramme d'entreprise (modèle à compléter)"), self.insert_orgchart)
+        act(m, T("Carte mentale (exemple de base à compléter)"), self.insert_mindmap)
         cm = m.addMenu(T("Caractère spécial (Ω, φ, π, √…)"))
         for ch in SPECIAL_CHARS:
             cm.addAction(ch).triggered.connect(lambda _=False, c=ch: self.insert_special(c))
@@ -1126,13 +1125,26 @@ class MainWindow(QMainWindow):
         act(m, T("Images → PDF…"), self.conv_images_to_pdf)
         act(m, T("Exporter les pages en images PNG…"), self.conv_pdf_to_png)
 
+        top_lang = QMenu("🌐 " + LANG_NAMES.get(i18n_lang(), "Langue"), self)
+        top_lang.setToolTip(T("Langue / Language / Idioma"))
+        self.fill_lang_menu(top_lang)
+        mb.addMenu(top_lang)
+        calc_top = QAction("🖩 " + T("Calculatrice"), self)
+        calc_top.setToolTip(T("Calculatrice scientifique et graphique…") + "  (Ctrl+K)")
+        calc_top.triggered.connect(self.open_calculator)
+        mb.addAction(calc_top)
+
         m = mb.addMenu(T("&Aide"))
         act(m, T("Notice d'utilisation"), self.open_notice, "F1")
         act(m, T("Raccourcis clavier"), self.show_help)
         m.addSeparator()
         act(m, T("Faire un don (Ko-fi)…"), self.donate)
         act(m, T("Site web de PDF DUO"), lambda: self.open_url(SITE_URL))
-        act(m, T("Rechercher une nouvelle version"), lambda: self.open_url(RELEASES_URL))
+        act(m, T("Rechercher une nouvelle version"), lambda: self.updater.check(manual=True))
+        au = QAction(T("Rechercher les mises à jour au démarrage"), self, checkable=True)
+        au.setChecked(self.updater.auto_enabled())
+        au.toggled.connect(self.updater.set_auto)
+        m.addAction(au)
         m.addSeparator()
         act(m, T("À propos de PDF DUO"), self.about)
 
@@ -1744,11 +1756,65 @@ class MainWindow(QMainWindow):
             self.settings.remove("workspace")
         self.apply_theme()
 
+    def fill_lang_menu(self, menu):
+        grp = QActionGroup(menu)
+        for code, name in LANG_NAMES.items():
+            a = QAction(name, menu, checkable=True)
+            a.setChecked(code == i18n_lang())
+            a.triggered.connect(lambda _=False, c=code: self.set_lang(c))
+            grp.addAction(a)
+            menu.addAction(a)
+
     def set_lang(self, code):
+        """Change la langue tout de suite : la fenêtre est reconstruite dans la nouvelle langue
+        en gardant le document ouvert (pages, éléments, nom du fichier, modifications non enregistrées)."""
+        if code == i18n_lang():
+            return
         self.settings.setValue("lang", code)
-        from .i18n import set_language
+        from .i18n import set_language, RTL
         set_language(code)
-        QMessageBox.information(self, APP_NAME, T("La nouvelle langue sera appliquée au prochain démarrage de PDF DUO."))
+        app = QApplication.instance()
+        old_tr = getattr(app, "_qt_tr", None)
+        if old_tr is not None:
+            app.removeTranslator(old_tr)
+            app._qt_tr = None
+        install_qt_translator(app)
+        app.setLayoutDirection(Qt.RightToLeft if code in RTL else Qt.LeftToRight)
+        try:
+            self.rebuild_window()
+        except Exception:
+            # secours : relancer PDF DUO (le document est d'abord proposé à l'enregistrement)
+            if QMessageBox.question(self, APP_NAME, T("PDF DUO doit redémarrer pour changer de langue. Redémarrer maintenant ?")) \
+                    == QMessageBox.Yes and self.maybe_save():
+                restart_app(self.path)
+                self._skip_close_check = True
+                self.close()
+
+    def rebuild_window(self):
+        if getattr(self, "presenting", False):
+            self.toggle_presentation(False)
+        state = dict(doc=self.doc, path=self.path, items=self.gather_items(), denom=self.scene.plan_denom,
+                     dirty=self.is_dirty(), page=self.current_page())
+        self.settings.setValue("geometry", self.saveGeometry())
+        self.settings.setValue("state", self.saveState(4))
+        w = MainWindow()
+        w.restoreGeometry(self.saveGeometry())
+        w.set_document(state["doc"], state["path"], state["items"], state["denom"])
+        if state["dirty"]:
+            w.saved_idx = -2                    # le document reste « modifié »
+            w.update_title()
+        if self.isMaximized():
+            w.showMaximized()
+        else:
+            w.show()
+        QTimer.singleShot(50, lambda p=state["page"]: w.goto_page(p))
+        _WINDOWS.append(w)
+        self._skip_close_check = True
+        self.close()
+        if self in _WINDOWS:
+            _WINDOWS.remove(self)
+        self.deleteLater()
+        w.statusBar().showMessage(T("La langue a été changée."), 5000)
 
     def set_conductor(self, i):
         data = self.cond_combo.itemData(i)
@@ -2001,6 +2067,58 @@ class MainWindow(QMainWindow):
                     w.update_geom()
         finally:
             self._updating = False
+
+    def magnet_pins(self):
+        """Après un déplacement à la souris : si une borne de l'appareil déplacé tombe tout près du bout
+        d'un fil, l'appareil se cale exactement dessus et le fil s'y accroche."""
+        sel = [i for i in self.selected() if i.typ in ("symbol", "node")]
+        if len(sel) != 1:
+            return
+        it = sel[0]
+        pins = it.pins_scene()
+        if not pins:
+            return
+        tol = max(1.6 * MM, self.scene.grid_step * 1.1)
+        best = None
+        for w in self.items():
+            if w.typ != "wire":
+                continue
+            pos = w.pos()
+            P = w.d.get("pts") or []
+            if len(P) < 2:
+                continue
+            for key, idx in (("ca", 0), ("cb", -1)):
+                c = w.d.get(key)
+                if c and c[0] != it.d["uid"]:
+                    continue        # bout déjà accroché à un autre appareil : on n'y touche pas
+                end = QPointF(P[idx][0] + pos.x(), P[idx][1] + pos.y())
+                for k, q in enumerate(pins):
+                    dd = math.hypot(q.x() - end.x(), q.y() - end.y())
+                    if dd <= tol and (best is None or dd < best[0]):
+                        best = (dd, end - q, w, key, k)
+        if best is None:
+            # pas de bout de fil : on cale la borne sur la borne d'un autre élément (étape ↔ transition…)
+            near = None
+            for o in self.items():
+                if o is it or o.typ not in ("symbol", "node"):
+                    continue
+                for q2 in o.pins_scene():
+                    for q in pins:
+                        dd = math.hypot(q.x() - q2.x(), q.y() - q2.y())
+                        if 0.01 < dd <= tol and (near is None or dd < near[0]):
+                            near = (dd, q2 - q)
+            if near is not None:
+                self.scene.no_snap = True
+                it.moveBy(near[1].x(), near[1].y())
+                self.scene.no_snap = False
+            return
+        dd, delta, w, key, k = best
+        if dd > 0.01:
+            self.scene.no_snap = True
+            it.moveBy(delta.x(), delta.y())
+            self.scene.no_snap = False
+        w.d[key] = [it.d["uid"], k]
+        self.statusBar().showMessage(T("Borne calée sur le fil"), 2500)
 
     def update_junctions(self):
         """Points de jonction automatiques là où un fil arrive au milieu d'un autre ou quand 3 fils se rejoignent."""
@@ -2427,6 +2545,32 @@ class MainWindow(QMainWindow):
         self.update_junctions() if hasattr(self, "update_junctions") else None
         self.commit()
         self.statusBar().showMessage(T("Double-cliquez sur une case pour écrire les noms ; les liaisons suivent les cases déplacées."), 10000)
+
+    def insert_mindmap(self):
+        """Pose une carte mentale de base : un sujet au centre, quatre branches, deux idées par branche."""
+        pg = self.page_items[self.current_page()]
+        x0, y0, pw, ph = pg.pos().x(), pg.pos().y(), pg.w, pg.h
+        cx = x0 + pw / 2
+        cy = y0 + min(ph * 0.5, 150 * MM)
+
+        def node(pid, x, y, text):
+            d = json.loads(json.dumps(ND.BY_ID[pid].d))
+            d.update(x=x - d["w"] / 2, y=y - d["h"] / 2, text=text)
+            return self.add_item(d)
+
+        centre = node("m_centre", cx, cy, T("Sujet"))
+        dx = min(62 * MM, pw / 2 - 40 * MM)
+        branches = [(-1, -1, "m_branche", T("Idée 1")), (1, -1, "m_branche2", T("Idée 2")),
+                    (-1, 1, "m_branche3", T("Idée 3")), (1, 1, "m_branche", T("Idée 4"))]
+        for sx, sy, pid, name in branches:
+            b = node(pid, cx + sx * dx, cy + sy * 34 * MM, name)
+            self.add_link(centre, 3 if sx < 0 else 1, b, 1 if sx < 0 else 3, route_mode="curve")
+            bx = cx + sx * dx
+            for k in (-1, 1):
+                sub = node("m_sous", bx + k * 17 * MM, cy + sy * 58 * MM, T("Détail"))
+                self.add_link(b, 2 if sy > 0 else 0, sub, 0 if sy > 0 else 2, route_mode="curve")
+        self.commit()
+        self.statusBar().showMessage(T("Double-cliquez sur une bulle pour écrire ; les liaisons suivent les bulles déplacées."), 10000)
 
     def insert_title_block(self):
         """Cartouche d'un seul bloc, posé en bas à droite de la page courante."""
@@ -2954,11 +3098,52 @@ class MainWindow(QMainWindow):
             if i >= len(self.page_items):
                 continue
             pg = self.page_items[i]
-            for d in lst:
+            # les éléments sont enregistrés du premier plan vers l'arrière : on les recrée dans l'ordre inverse
+            # pour retrouver le même empilement (sinon un tableau ou un mur repasse devant les symboles)
+            for d in reversed(lst):
                 d = dict(d)
                 d["x"] += pg.pos().x()
                 d["y"] += pg.pos().y()
                 self.add_item(d)
+        self.fix_duplicate_uids()
+
+    def fix_duplicate_uids(self):
+        """Répare les documents où plusieurs symboles partagent le même identifiant (versions ≤ 1.3.1) :
+        chaque bout de fil est rattaché au symbole dont la borne est réellement sous ce bout."""
+        import uuid
+        groups = {}
+        for it in self.items():
+            if it.typ in ("symbol", "node"):
+                groups.setdefault(it.d["uid"], []).append(it)
+        dup = {u: g for u, g in groups.items() if len(g) > 1}
+        if not dup:
+            return
+        old = {}
+        for u, g in dup.items():
+            for it in g[1:]:
+                it.d["uid"] = uuid.uuid4().hex[:10]
+            old[u] = g
+        for w in self.items():
+            if w.typ != "wire":
+                continue
+            pos = w.pos()
+            P = w.d.get("pts") or []
+            if not P:
+                continue
+            for key, idx in (("ca", 0), ("cb", -1)):
+                c = w.d.get(key)
+                if not c or c[0] not in old:
+                    continue
+                end = QPointF(P[idx][0] + pos.x(), P[idx][1] + pos.y())
+                best, bd = None, None
+                for it in old[c[0]]:
+                    pins = it.pins_scene()
+                    if c[1] < len(pins):
+                        dd = math.hypot(pins[c[1]].x() - end.x(), pins[c[1]].y() - end.y())
+                        if bd is None or dd < bd:
+                            best, bd = it, dd
+                if best is not None:
+                    w.d[key] = [best.d["uid"], c[1]]
 
     # ------------------------------------------------------------------ annuler / rétablir
     def commit(self, doc_changed=False):
@@ -3731,6 +3916,29 @@ class MainWindow(QMainWindow):
             if hint:
                 hint.hide()
 
+    def _presentation_props(self):
+        """En plein écran, la fenêtre de réglages s'ouvre à droite quand un élément est sélectionné."""
+        if not getattr(self, "presenting", False):
+            return
+        pd = self.findChild(QDockWidget, "props")
+        if pd is None:
+            return
+        try:
+            on = bool(self.selected())
+        except RuntimeError:
+            return
+        if on and not pd.isVisible():
+            pd.setFloating(False)
+            bib = self.findChild(QDockWidget, "biblio")
+            if bib is not None and bib.isVisible():
+                self.splitDockWidget(bib, pd, Qt.Horizontal)     # à droite de la bibliothèque, pas en dessous
+            else:
+                self.addDockWidget(Qt.RightDockWidgetArea, pd)
+            pd.show()
+            self.resizeDocks([pd], [300], Qt.Horizontal)
+        elif not on and pd.isVisible():
+            pd.hide()
+
     def _presentation_hover(self):
         """Affiche le haut quand la souris est contre le bord supérieur, le masque ensuite."""
         from PySide6.QtGui import QCursor
@@ -3867,7 +4075,7 @@ class MainWindow(QMainWindow):
             self.donate()
 
     def closeEvent(self, e):
-        if not self.maybe_save():
+        if not getattr(self, "_skip_close_check", False) and not self.maybe_save():
             e.ignore()
             return
         if getattr(self, "presenting", False):
@@ -3881,13 +4089,33 @@ class MainWindow(QMainWindow):
         e.accept()
 
 
+LANG_NAMES = {"fr": "Français", "en": "English", "es": "Español", "pt": "Português", "de": "Deutsch",
+              "it": "Italiano", "el": "Ελληνικά", "zh": "中文（简体）", "ru": "Русский", "uk": "Українська",
+              "ar": "العربية"}
+_WINDOWS = []          # garde les fenêtres en vie (une nouvelle fenêtre est créée au changement de langue)
+
+
+def i18n_lang():
+    from . import i18n
+    return i18n.LANG
+
+
+def restart_app(path=None):
+    """Relance PDF DUO (exe Windows, lanceur portable ou code source), avec le fichier ouvert."""
+    from PySide6.QtCore import QProcess
+    args = [] if getattr(sys, "frozen", False) else [os.path.abspath(sys.argv[0])]
+    if path and os.path.exists(path):
+        args.append(path)
+    QProcess.startDetached(sys.executable, args)
+
+
 def install_qt_translator(app):
     """Traduit les boutons standard de Qt (OK, Annuler, Oui, Non…) dans la langue choisie."""
     from PySide6.QtCore import QLibraryInfo, QTranslator
     from . import i18n
     path = QLibraryInfo.path(QLibraryInfo.TranslationsPath)
     tr = QTranslator(app)
-    for name in (i18n.LANG, {"pt": "pt_PT"}.get(i18n.LANG, ""), {"pt": "pt_BR"}.get(i18n.LANG, "")):
+    for name in (i18n.LANG, {"pt": "pt_PT", "zh": "zh_CN"}.get(i18n.LANG, ""), {"pt": "pt_BR"}.get(i18n.LANG, "")):
         if name and tr.load("qtbase_" + name, path):
             app.installTranslator(tr)
             app._qt_tr = tr
@@ -3895,21 +4123,56 @@ def install_qt_translator(app):
     return False
 
 
+def startup_language():
+    """Langue au démarrage :
+    1. celle choisie dans l'installeur Windows (fichier langue.ini écrit à côté du programme),
+       appliquée une fois par installation : si on change ensuite de langue dans PDF DUO, ce choix reste ;
+    2. sinon celle réglée dans PDF DUO ;
+    3. sinon (tout premier lancement sans installeur) la langue du système, ou l'anglais."""
+    from . import i18n
+    st = QSettings("Jacques Branas", "PDF DUO")
+    exe_dir = os.path.dirname(os.path.abspath(sys.executable))
+    for d in (exe_dir, os.path.dirname(exe_dir)):
+        ini = os.path.join(d, "langue.ini")
+        if os.path.exists(ini):
+            try:
+                v = QSettings(ini, QSettings.IniFormat).value("PDF DUO/langue", "")
+                stamp = str(int(os.path.getmtime(ini)))
+            except OSError:
+                break
+            if v in i18n.LANGS and st.value("lang_installation", "") != stamp:
+                st.setValue("lang", v)
+                st.setValue("lang_installation", stamp)
+            break
+    code = st.value("lang", "")
+    if code not in i18n.LANGS:
+        sysl = QLocale.system().name()[:2]
+        code = sysl if sysl in i18n.LANGS else ("fr" if sysl == "fr" else "en")
+        st.setValue("lang", code)
+    return code
+
+
 def main():
     app = QApplication(sys.argv)
     app.setApplicationName(APP_NAME)
     app.setOrganizationName("Jacques Branas")
     from .i18n import set_language
-    set_language(QSettings("Jacques Branas", "PDF DUO").value("lang", "fr"))
+    set_language(startup_language())
     install_qt_translator(app)
+    from . import i18n as _i18n
+    if _i18n.LANG in _i18n.RTL:          # arabe : interface de droite à gauche
+        app.setLayoutDirection(Qt.RightToLeft)
     app.setApplicationVersion(APP_VERSION)
     here = os.path.dirname(os.path.abspath(__file__))
     ico = os.path.join(here, "icon.png")
     if os.path.exists(ico):
         app.setWindowIcon(QIcon(ico))
     w = MainWindow()
+    _WINDOWS.append(w)
     w.show()
     w.maybe_donate_reminder()
+    if w.updater.auto_enabled():
+        QTimer.singleShot(4000, lambda: _WINDOWS and _WINDOWS[-1].updater.check())   # sans bloquer ; rien sans internet
     if len(sys.argv) > 1 and os.path.exists(sys.argv[1]):
         w.open_file(sys.argv[1])
     sys.exit(app.exec())

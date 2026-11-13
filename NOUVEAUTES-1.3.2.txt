@@ -1,0 +1,51 @@
+PDF DUO 1.3.2 – nouveautés (version d'essai)
+
+Schémas électriques
+- Interrupteur simple allumage (schéma) redessiné : rond au bout du fil d'arrivée,
+  lame sous le fil qui part de la borne de sortie vers le bas et vers la gauche.
+- Contacteur de puissance : le demi-rond (fonction contacteur) est maintenant à gauche,
+  sur le contacteur tripolaire, le contacteur complet et le pôle de contacteur.
+- Nouveau : contacteur unipolaire (pôle de puissance, bornes 1 / 2, repère KM1).
+- Nouveau : interrupteur unipolaire, dessiné avec un rond, sans repère.
+- Nouveau : bornier X1 de 10 bornes + borne de terre, et borne seule (cercle barré, repère X1.1).
+  Le repère X1 et les numéros des bornes restent horizontaux en miroir et en rotation.
+
+Fils
+- Corrigé : un fil déjà accroché pouvait sauter sur un autre appareil quand on cliquait.
+  Les anciens fichiers sont réparés automatiquement à l'ouverture.
+- Aimant : un appareil lâché près du bout d'un fil se cale exactement dessus et le fil s'y accroche.
+  Même chose entre deux bornes (étape et transition GRAFCET…).
+- Alt pendant le déplacement : déplacement libre, sans la grille.
+  Rappel : flèches = un pas de grille ; Maj + flèches = déplacement très fin.
+
+GRAFCET
+- Les étapes ont un petit fil au-dessus et au-dessous pour accrocher facilement la transition.
+
+Ouvrir / annuler
+- Corrigé : à l'ouverture d'un fichier ou après « Annuler », l'ordre des éléments s'inversait
+  (un tableau ou un mur pouvait repasser devant les symboles, les portes ou les repères).
+
+Mises à jour
+- Au démarrage, s'il y a internet, PDF DUO regarde si une nouvelle version est publiée et propose
+  de l'installer (Windows : téléchargement et lancement de l'installeur ; Mac / Linux : page de
+  téléchargement). Aide › Rechercher une nouvelle version, et option pour désactiver la recherche
+  au démarrage.
+
+Interface
+- « Calculatrice » directement dans la barre de menus du haut.
+- Plein écran : la fenêtre de réglages s'ouvre à droite quand on sélectionne un élément.
+- Insertion › Carte mentale (exemple de base à compléter).
+
+Nouvelles bibliothèques (dessins originaux, sans marque)
+- Soins infirmiers – matériel de soins (27 dessins).
+- Métiers de bouche – cuisine (24 dessins, planche à découper aux couleurs HACCP).
+- Service et restauration – salle (21 dessins).
+- Couture – textile (19 dessins).
+- Réseau – structure (schéma technologique) : box, pare-feu UTM, switch PoE, serveurs, point d'accès
+  Wi-Fi, poste client, cadres SSID et VLAN à nommer, légende des liaisons.
+
+Langues
+- Nouvelles langues : grec, chinois (simplifié), russe, ukrainien, arabe (de droite à gauche).
+  La langue choisie dans l'installeur Windows est celle du logiciel dès le premier démarrage.
+- Menu « 🌐 Langue » directement dans la barre du haut : la langue change tout de suite,
+  sans redémarrer, en gardant le document ouvert.

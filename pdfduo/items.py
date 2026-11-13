@@ -6,7 +6,7 @@ from PySide6.QtCore import QByteArray, QPointF, QRectF, Qt
 from PySide6.QtGui import (QBrush, QColor, QFont, QFontMetricsF, QImage, QPainterPath, QPen,
                            QPolygonF, QTransform)
 from PySide6.QtSvg import QSvgRenderer
-from PySide6.QtWidgets import QGraphicsItem
+from PySide6.QtWidgets import QGraphicsItem, QApplication
 
 from .symbols import BY_ID
 
@@ -224,8 +224,9 @@ class PItem(QGraphicsItem):
         """Numéros de bornes (A1, A2, 13, 14…) placés près de chaque borne, toujours horizontaux."""
         s = self.sym() if self.typ == "symbol" else None
         names = (self.d.get("pins") or "").split()
+        fixed = self.upright_texts(s)
         if not s or not s.pins or not names:
-            return []
+            return fixed
         u = self.sym_unit()
         tr = self.transform()
         fc = tr.map(self.local_rect().center())
@@ -244,6 +245,22 @@ class PItem(QGraphicsItem):
                 x = fp.x() + 1.5
                 y = fp.y() + 0.3 if dy < 0 else fp.y() - h - 0.3
             out.append((name, QRectF(x, y, w, h), fs))
+        return out + fixed
+
+    def upright_texts(self, s):
+        """Textes du symbole écrits horizontalement quelle que soit la rotation ou le miroir."""
+        if not s or not getattr(s, "texts", None):
+            return []
+        u = self.sym_unit()
+        tr = self.transform()
+        out = []
+        for (x, y, txt, size, bold) in s.texts:
+            fs = size * u
+            fm = QFontMetricsF(text_font(fs, bold))
+            w = fm.horizontalAdvance(txt) * fs / 100
+            h = fm.height() * fs / 100
+            c = tr.map(QPointF(x * u, y * u))
+            out.append((txt, QRectF(c.x() - w / 2, c.y() - h / 2, w, h), fs))
         return out
 
     def label_rect_local(self):
@@ -264,6 +281,20 @@ class PItem(QGraphicsItem):
         w = fm.horizontalAdvance(lab) * fs / 100
         h = fm.height() * fs / 100
         pos = self.d.get("label_pos", "auto")
+        s_in = self.sym()
+        if s_in is not None and s_in.label_at and pos == "auto":
+            u = self.sym_unit()
+            c = self.transform().map(QPointF(s_in.label_at[0] * u, s_in.label_at[1] * u))
+            fs2 = fs * getattr(s_in, "label_scale", 1.6)
+            fm2 = QFontMetricsF(text_font(fs2, True))
+            w = fm2.horizontalAdvance(lab) * fs2 / 100
+            h = fm2.height() * fs2 / 100
+            lr = QRectF(c.x() - w / 2, c.y() - h / 2, w, h)
+            self._label_rect = lr
+            self._label_fs = fs2
+            lr2 = inv.mapRect(lr).adjusted(-2, -2, 2, 2)
+            return lr2 if res is None else res.united(lr2)
+        self._label_fs = fs
         if pos == "auto":
             # fils horizontaux -> repère au-dessus ; fils verticaux -> repère à gauche
             s = self.sym()
@@ -296,7 +327,8 @@ class PItem(QGraphicsItem):
     def itemChange(self, change, value):
         if change == QGraphicsItem.ItemPositionChange and self.scene():
             s = self.scene()
-            if getattr(s, "snap", False) and not getattr(s, "no_snap", False):
+            if (getattr(s, "snap", False) and not getattr(s, "no_snap", False)
+                    and not (QApplication.keyboardModifiers() & Qt.AltModifier)):
                 g = s.grid_step
                 return QPointF(round(value.x() / g) * g, round(value.y() / g) * g)
         if change == QGraphicsItem.ItemPositionHasChanged and self.scene():
@@ -340,7 +372,7 @@ class PItem(QGraphicsItem):
         exporting = getattr(self.scene(), "exporting", False)
         t = self.typ
         getattr(self, "paint_" + t)(painter, exporting)
-        if t == "symbol" and (self.d.get("label") or self.d.get("pins")):
+        if t == "symbol" and (self.d.get("label") or self.d.get("pins") or getattr(self.sym(), "texts", None)):
             self.paint_label(painter)
         if self.isSelected() and not exporting:
             painter.save()
@@ -377,7 +409,7 @@ class PItem(QGraphicsItem):
         inv, _ = self.transform().inverted()
         texts = [(n, r, fs, False) for n, r, fs in self.pin_labels()]
         if self.d.get("label") and self._label_rect is not None:
-            texts.append((self.d["label"], self._label_rect, self.d.get("label_size", 7), True))
+            texts.append((self.d["label"], self._label_rect, getattr(self, "_label_fs", self.d.get("label_size", 7)), True))
         base = inv * p.transform()
         for txt, lr, fs, bold in texts:
             p.save()
@@ -751,7 +783,14 @@ class PItem(QGraphicsItem):
             return [QPointF(0, h / 2)]
         if sh == "renvoi":
             return [QPointF(0, h / 2)]
-        return [QPointF(w / 2, 0), QPointF(w, h / 2), QPointF(w / 2, h), QPointF(0, h / 2)]
+        st = self.step_stub()
+        return [QPointF(w / 2, -st), QPointF(w, h / 2), QPointF(w / 2, h + st), QPointF(0, h / 2)]
+
+    def step_stub(self):
+        """Longueur du petit fil dessiné au-dessus et au-dessous d'une étape (pour y accrocher la transition)."""
+        if self.d.get("stubs") and self.d.get("shape") in ("step", "step_init", "macro"):
+            return 2.5 * MM
+        return 0.0
 
     def node_font(self):
         return text_font(self.d.get("size", 9), self.d.get("bold", False), self.d.get("font", "Helvetica"),
@@ -791,6 +830,9 @@ class PItem(QGraphicsItem):
             r = r.united(QRectF(0, -5.5 * MM, self.local_rect().width() + 40 * MM, 5.5 * MM))
         if self.d.get("shape") == "transition" and self.d.get("label"):
             r = r.united(QRectF(-14 * MM, 0, 14 * MM, self.local_rect().height()))
+        st = self.step_stub()
+        if st:
+            r = r.united(self.local_rect().adjusted(0, -st, 0, st))
         return r
 
     def paint_node(self, p, exp):
@@ -807,6 +849,10 @@ class PItem(QGraphicsItem):
             if self.d.get("text"):
                 self._draw_text(p, QRectF(3 * MM, 1.5 * MM, w - 6 * MM, 6 * MM), self.d["text"], Qt.AlignLeft | Qt.AlignVCenter)
             return
+        st = self.step_stub()
+        if st:
+            p.drawLine(QPointF(w / 2, -st), QPointF(w / 2, 0))
+            p.drawLine(QPointF(w / 2, h), QPointF(w / 2, h + st))
         if sh in ("rect", "step"):
             p.drawRect(r)
         elif sh == "cartouche":

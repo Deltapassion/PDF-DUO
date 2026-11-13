@@ -88,7 +88,7 @@ def current_lang():
     if _state["lang"] in LANGS:
         return _state["lang"]
     from . import i18n
-    return i18n.LANG if i18n.LANG in LANGS else "fr"
+    return i18n.LANG if i18n.LANG in LANGS else "en"
 
 
 def is_enabled():

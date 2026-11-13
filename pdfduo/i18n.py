@@ -7,7 +7,8 @@ TR = {
 }
 
 
-LANGS = ("fr", "en", "es", "pt", "de", "it")
+LANGS = ("fr", "en", "es", "pt", "de", "it", "el", "zh", "ru", "uk", "ar")
+RTL = ("ar",)
 
 
 def set_language(code):
@@ -19,7 +20,7 @@ def T(s):
     if LANG == "fr" or not isinstance(s, str):
         return s
     v = TR.get(LANG, {}).get(s)
-    if v is None and LANG in ("pt", "de", "it"):
+    if v is None and LANG != "es":
         v = TR["en"].get(s)      # noms de symboles non traduits : anglais
     return s if v is None else v
 
@@ -4175,3 +4176,11 @@ _V131 = {
 for _k, _v in _V131.items():
     for _l, _t in zip(("en", "es", "pt", "de", "it"), _v):
         TR.setdefault(_l, {})[_k] = _t
+
+
+# ---------------------------------------------------------------- 1.3.2 : nouvelles langues et nouveaux textes
+from .i18n_extra import DATA as _EXTRA  # noqa: E402
+for _l, _m in _EXTRA.items():
+    _d = TR.setdefault(_l, {})
+    for _k, _v in _m.items():
+        _d.setdefault(_k, _v)

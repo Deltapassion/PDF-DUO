@@ -31,6 +31,11 @@ Name: "es"; MessagesFile: "compiler:Languages\Spanish.isl"
 Name: "pt"; MessagesFile: "compiler:Languages\Portuguese.isl"
 Name: "de"; MessagesFile: "compiler:Languages\German.isl"
 Name: "it"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "el"; MessagesFile: "Greek.isl"
+Name: "zh"; MessagesFile: "ChineseSimplified.isl"
+Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
+Name: "uk"; MessagesFile: "compiler:Languages\Ukrainian.isl"
+Name: "ar"; MessagesFile: "Arabic.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -50,6 +55,13 @@ Name: "{autodesktop}\PDF DUO"; Filename: "{app}\PDF DUO.exe"; Tasks: desktopicon
 Root: HKA; Subkey: "Software\Classes\PDFDUO.pdf"; ValueType: string; ValueName: ""; ValueData: "Document PDF (PDF DUO)"; Flags: uninsdeletekey; Tasks: pdfassoc
 Root: HKA; Subkey: "Software\Classes\PDFDUO.pdf\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\PDF DUO.exe"" ""%1"""; Tasks: pdfassoc
 Root: HKA; Subkey: "Software\Classes\.pdf\OpenWithProgids"; ValueType: string; ValueName: "PDFDUO.pdf"; ValueData: ""; Flags: uninsdeletevalue; Tasks: pdfassoc
+
+[INI]
+; langue choisie dans l'installeur : PDF DUO démarre directement dans cette langue
+Filename: "{app}\langue.ini"; Section: "PDF DUO"; Key: "langue"; String: "{language}"
+
+[UninstallDelete]
+Type: files; Name: "{app}\langue.ini"
 
 [Run]
 Filename: "{app}\PDF DUO.exe"; Description: "{cm:LaunchProgram,PDF DUO}"; Flags: nowait postinstall skipifsilent
