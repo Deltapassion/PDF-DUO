@@ -26,7 +26,7 @@ carte mentale de base à insérer, calculatrice dans la barre du haut. Détail :
 - **Rotation libre sur 360°** et **miroir** horizontal / vertical de tout élément
   (R = 90°, E = 15°, H / V = miroir, angle précis au dixième de degré dans Propriétés).
 - **Grille et aimantation** (pas de 2,5 mm pour les schémas, 1 mm, 5 mm, ou pas réels de 10 / 25 / 50 cm pour les plans).
-- **Bibliothèques de symboles** (plus de 700 symboles et 42 formes avec texte) :
+- **Bibliothèques de symboles** (plus de 800 symboles et 42 formes avec texte) :
   - Électricité – schémas : contacts NO / NF, boutons poussoirs, bobine KM, relais thermique,
     fusible, disjoncteur, lampe, résistance, condensateurs, diodes, LED, transistors, moteur,
     transformateur, appareils de mesure, masse, terre…
@@ -58,7 +58,8 @@ carte mentale de base à insérer, calculatrice dans la barre du haut. Détail :
   (vers une page ou une adresse web).
 - **Interface moderne** : thèmes clair, sombre, bleu nuit, sable ; couleur d'accent et fond de travail au choix ;
   palettes affichables / masquables (Affichage › Palettes).
-- **Langues** : français, anglais, espagnol, portugais, allemand, italien (Affichage › Langue).
+- **Langues** : français, anglais, espagnol, portugais, allemand, italien, grec, chinois, russe, ukrainien, arabe
+  (menu 🌐 en haut, changement immédiat sans redémarrer).
 - **Triphasé / puissance** : sectionneur porte-fusibles, contacteur tripolaire, disjoncteur moteur, relais thermique,
   moteur asynchrone 3~, réseau L1 L2 L3 N PE, verrouillage mécanique, contacts de verrouillage électrique 61-62 / 51-52,
   auto-maintien 13-14, contacts F 95-96 / 97-98, arrêt d'urgence, bobines A1/A2, bornier, transformateur de commande.
@@ -179,12 +180,29 @@ Ces versions sont fabriquées automatiquement par GitHub à chaque étiquette `v
 Sur macOS, au premier lancement : clic droit sur l'application › Ouvrir. Pour des conversions Word les plus fidèles et pour l'ODT, installer
 aussi **LibreOffice** (gratuit).
 
-**Notice d'utilisation illustrée de captures d'écran** en six langues : [français](https://deltapassion.github.io/PDF-DUO/notice/?lang=fr) ·
+**Vidéo de présentation** en onze langues : [français](https://www.youtube.com/watch?v=oXPPKiAvMp0) ·
+[English](https://www.youtube.com/watch?v=kTXwMTU6tRg) ·
+[español](https://www.youtube.com/watch?v=vnHaMbehKwI) ·
+[português](https://www.youtube.com/watch?v=Qw_rL4B1X8k) ·
+[Deutsch](https://www.youtube.com/watch?v=KwNSbKjitwA) ·
+[italiano](https://www.youtube.com/watch?v=pnuw2y_WtdQ) ·
+[Ελληνικά](https://www.youtube.com/watch?v=Y7o87z3NJSM) ·
+[中文](https://www.youtube.com/watch?v=yVreVES9zY0) ·
+[Русский](https://www.youtube.com/watch?v=El2x1I2sRRw) ·
+[Українська](https://www.youtube.com/watch?v=jv1A-prtDYs) ·
+[العربية](https://www.youtube.com/watch?v=kJA8bMN6Uuc).
+
+**Notice d'utilisation illustrée de captures d'écran** en onze langues : [français](https://deltapassion.github.io/PDF-DUO/notice/?lang=fr) ·
 [English](https://deltapassion.github.io/PDF-DUO/notice/?lang=en) ·
 [español](https://deltapassion.github.io/PDF-DUO/notice/?lang=es) ·
 [português](https://deltapassion.github.io/PDF-DUO/notice/?lang=pt) ·
 [Deutsch](https://deltapassion.github.io/PDF-DUO/notice/?lang=de) ·
-[italiano](https://deltapassion.github.io/PDF-DUO/notice/?lang=it) — aussi dans le logiciel : *Aide › Notice d'utilisation* (F1).
+[italiano](https://deltapassion.github.io/PDF-DUO/notice/?lang=it) ·
+[Ελληνικά](https://deltapassion.github.io/PDF-DUO/notice/?lang=el) ·
+[中文](https://deltapassion.github.io/PDF-DUO/notice/?lang=zh) ·
+[Русский](https://deltapassion.github.io/PDF-DUO/notice/?lang=ru) ·
+[Українська](https://deltapassion.github.io/PDF-DUO/notice/?lang=uk) ·
+[العربية](https://deltapassion.github.io/PDF-DUO/notice/?lang=ar) — aussi dans le logiciel : *Aide › Notice d'utilisation* (F1).
 
 **Soutenir le projet** : PDF DUO est gratuit ; un don sur [Ko-fi](https://ko-fi.com/djlatinjazz) aide à le faire évoluer.
 
