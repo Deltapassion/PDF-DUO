@@ -180,8 +180,8 @@ Ces versions sont fabriquées automatiquement par GitHub à chaque étiquette `v
 Sur macOS, au premier lancement : clic droit sur l'application › Ouvrir. Pour des conversions Word les plus fidèles et pour l'ODT, installer
 aussi **LibreOffice** (gratuit).
 
-**Vidéo de présentation** en onze langues : [français](https://www.youtube.com/watch?v=oXPPKiAvMp0) ·
-[English](https://www.youtube.com/watch?v=kTXwMTU6tRg) ·
+**Vidéo de présentation** en onze langues : [français](https://www.youtube.com/watch?v=UthYbZMK7jA) ·
+[English](https://www.youtube.com/watch?v=oRkCpgla5Eg) ·
 [español](https://www.youtube.com/watch?v=vnHaMbehKwI) ·
 [português](https://www.youtube.com/watch?v=Qw_rL4B1X8k) ·
 [Deutsch](https://www.youtube.com/watch?v=KwNSbKjitwA) ·
