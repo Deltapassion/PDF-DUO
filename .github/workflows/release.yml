@@ -51,12 +51,14 @@ jobs:
           --add-data "pdfduo/notices:pdfduo/notices"
           --collect-submodules pdf2docx
           --collect-data pymupdf
+          --collect-all ctranslate2
+          --collect-all sentencepiece
+          --hidden-import PySide6.QtTextToSpeech
           --exclude-module PySide6.QtWebEngineCore
           --exclude-module PySide6.QtWebEngineWidgets
           --exclude-module PySide6.QtQuick
           --exclude-module PySide6.QtQml
           --exclude-module PySide6.Qt3DCore
-          --exclude-module PySide6.QtMultimedia
           --exclude-module tkinter
           pdfduo.py
 
