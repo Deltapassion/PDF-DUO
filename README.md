@@ -12,13 +12,24 @@ Pensé pour les élèves et les professeurs de sciences et de technologie, du co
 
 ![PDF DUO](docs/captures/interface-schema.jpg)
 
-## Fonctions (version 1.3.2)
+## Fonctions (version 1.3.3)
 
-**Nouveau en 1.3.2** : interface en **11 langues** (français, anglais, espagnol, portugais, allemand, italien, grec,
-chinois, russe, ukrainien, arabe), changement de langue **immédiat sans redémarrer** (menu 🌐 en haut),
-**recherche de mise à jour au démarrage**, aimantation des bornes sur les fils, bornier X1, contacteur unipolaire,
-nouvelles bibliothèques (soins infirmiers, cuisine, service en salle, couture, structure réseau),
-carte mentale de base à insérer, calculatrice dans la barre du haut. Détail : `NOUVEAUTES-1.3.2.txt`.
+**Nouveau en 1.3.3** :
+- **Loupe de traduction** (🔍 Traduire, Ctrl+L) : le paragraphe sous la souris est traduit dans la langue de l'élève et lu
+  à voix haute (🔊) ; onglet *Écrire* : l'élève écrit dans sa langue, la réponse est traduite au fil de la frappe et s'insère
+  dans la page. En ligne, ou hors ligne après un téléchargement unique des langues (une cinquantaine de langues).
+- **Dossier technique** (*Pages › Assembler des PDF*) : PDF de plusieurs fabricants, pages au choix, un signet par fichier et
+  page de sommaire cliquable ; *Pages › Extraire la page affichée*.
+- **Reconnaissance de texte (OCR)** des documents scannés (*Pages › Reconnaître le texte*) : texte recherchable, copiable et traduisible.
+- **Appareils de mesure** : pince ampèremétrique, wattmètre (appareil 4 bornes et symbole), mégohmmètre (bornes E G L),
+  réglables dans *Propriétés* comme le multimètre, l'oscilloscope et les équipements à états.
+- **Correcteur d'orthographe en 11 langues** (grec, russe, ukrainien, arabe et albanais en plus) et langue reconnue pour chaque paragraphe.
+- Interface, installeur et notice en **12 langues** avec l'**albanais** (Shqip) ; mode présentation : boutons ◀ ▶ pour replier
+  les palettes, zoom conservé. Détail : `NOUVEAUTES-1.3.3.txt`.
+
+*En 1.3.2* : 11 langues avec changement immédiat (menu 🌐), recherche de mise à jour au démarrage, aimantation des bornes,
+bornier X1, contacteur unipolaire, bibliothèques soins infirmiers, cuisine, service en salle, couture, structure réseau,
+carte mentale à insérer, calculatrice dans la barre du haut.
 
 - **PDF** : ouvrir, zoomer, faire défiler, imprimer ; PDF protégés par mot de passe.
 - **Annoter / dessiner** : texte, trait, flèche, fil de schéma à angles droits, rectangle, ellipse,
@@ -154,13 +165,14 @@ carte mentale de base à insérer, calculatrice dans la barre du haut. Détail :
   surveillance (contrôle d'accès, vidéosurveillance, rondes), police et maintien de l'ordre (tenue complète, texte modifiable).
 - **Favoris** : clic droit sur un symbole › *Ajouter aux favoris* ; les favoris passent en tête de chaque catégorie et ont leur
   propre catégorie « ★ Favoris », ouverte au démarrage ; le bouton ☆ met une bibliothèque entière en tête de liste.
-- **Correcteur orthographique** en français, anglais, espagnol, portugais, allemand et italien, sans Internet : mots inconnus
+- **Correcteur orthographique** en onze langues (français, anglais, espagnol, portugais, allemand, italien, grec, russe, ukrainien,
+  arabe, albanais), sans Internet ; en réglage automatique, la langue de chaque paragraphe est reconnue. Mots inconnus
   soulignés en rouge dans la fenêtre de texte et les cases des tableaux, suggestions au clic droit, dictionnaire personnel
   (*Affichage › Correcteur orthographique*). Dictionnaires : pyspellchecker (MIT) et FrequencyWords (CC BY-SA 4.0).
 - **Clic droit sur un élément de la page** : premier plan, arrière-plan, rotation, miroir, copier, dupliquer, supprimer, favoris.
 - **Annuler / rétablir** illimité (150 étapes).
 - **Mode présentation** (F11 ou bouton ⛶) : plein écran avec la page, les outils à gauche et la bibliothèque (2 colonnes) à droite ; les menus réapparaissent
-  quand la souris touche le haut de l'écran, Échap pour quitter.
+  quand la souris touche le haut de l'écran ; les boutons ◀ ▶ replient les palettes, qui réapparaissent au bord de l'écran ; Échap pour quitter.
 
 Les dessins sont enregistrés **en vectoriel** dans le PDF (nets à toutes les échelles et à l'impression).
 Le fichier garde aussi une copie modifiable : en le rouvrant dans PDF DUO, tous les éléments
@@ -176,12 +188,12 @@ se déplacent et se modifient encore. *Fichier › Exporter un PDF final* produi
 | macOS Apple Silicon (M1, M2…) | [PDF-DUO-macOS-AppleSilicon.zip](https://github.com/Deltapassion/PDF-DUO/releases/latest/download/PDF-DUO-macOS-AppleSilicon.zip) |
 | macOS Intel | [PDF-DUO-macOS-Intel.zip](https://github.com/Deltapassion/PDF-DUO/releases/latest/download/PDF-DUO-macOS-Intel.zip) |
 
-Ces versions sont fabriquées automatiquement par GitHub à chaque étiquette `v…` (fichier `.github/workflows/release.yml`).
+Ces versions sont fabriquées automatiquement par GitHub à chaque étiquette `Version_…` ou `v…` (fichier `.github/workflows/release.yml`).
 Sur macOS, au premier lancement : clic droit sur l'application › Ouvrir. Pour des conversions Word les plus fidèles et pour l'ODT, installer
 aussi **LibreOffice** (gratuit).
 
-**Vidéo de présentation** en onze langues : [français](https://www.youtube.com/watch?v=UthYbZMK7jA) ·
-[English](https://www.youtube.com/watch?v=oRkCpgla5Eg) ·
+**Vidéo de présentation** en onze langues (français et anglais : version 1.3.3 complète) : [français](https://www.youtube.com/watch?v=k0h3yKkVYq0) ·
+[English](https://www.youtube.com/watch?v=qxigNcfpqu0) ·
 [español](https://www.youtube.com/watch?v=vnHaMbehKwI) ·
 [português](https://www.youtube.com/watch?v=Qw_rL4B1X8k) ·
 [Deutsch](https://www.youtube.com/watch?v=KwNSbKjitwA) ·
@@ -192,7 +204,7 @@ aussi **LibreOffice** (gratuit).
 [Українська](https://www.youtube.com/watch?v=jv1A-prtDYs) ·
 [العربية](https://www.youtube.com/watch?v=kJA8bMN6Uuc).
 
-**Notice d'utilisation illustrée de captures d'écran** en onze langues : [français](https://deltapassion.github.io/PDF-DUO/notice/?lang=fr) ·
+**Notice d'utilisation illustrée de captures d'écran** en douze langues : [français](https://deltapassion.github.io/PDF-DUO/notice/?lang=fr) ·
 [English](https://deltapassion.github.io/PDF-DUO/notice/?lang=en) ·
 [español](https://deltapassion.github.io/PDF-DUO/notice/?lang=es) ·
 [português](https://deltapassion.github.io/PDF-DUO/notice/?lang=pt) ·
@@ -202,7 +214,8 @@ aussi **LibreOffice** (gratuit).
 [中文](https://deltapassion.github.io/PDF-DUO/notice/?lang=zh) ·
 [Русский](https://deltapassion.github.io/PDF-DUO/notice/?lang=ru) ·
 [Українська](https://deltapassion.github.io/PDF-DUO/notice/?lang=uk) ·
-[العربية](https://deltapassion.github.io/PDF-DUO/notice/?lang=ar) — aussi dans le logiciel : *Aide › Notice d'utilisation* (F1).
+[العربية](https://deltapassion.github.io/PDF-DUO/notice/?lang=ar) ·
+[Shqip](https://deltapassion.github.io/PDF-DUO/notice/?lang=sq) — aussi dans le logiciel : *Aide › Notice d'utilisation* (F1).
 
 **Soutenir le projet** : PDF DUO est gratuit ; un don sur [Ko-fi](https://ko-fi.com/djlatinjazz) aide à le faire évoluer.
 
