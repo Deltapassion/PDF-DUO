@@ -7,7 +7,7 @@ TR = {
 }
 
 
-LANGS = ("fr", "en", "es", "pt", "de", "it", "el", "zh", "ru", "uk", "ar")
+LANGS = ("fr", "en", "es", "pt", "de", "it", "el", "zh", "ru", "uk", "ar", "sq")
 RTL = ("ar",)
 
 
@@ -4184,3 +4184,22 @@ for _l, _m in _EXTRA.items():
     _d = TR.setdefault(_l, {})
     for _k, _v in _m.items():
         _d.setdefault(_k, _v)
+
+# ---------------------------------------------------------------- 1.3.3 : loupe de traduction
+from .i18n_lens import DATA as _LENS  # noqa: E402
+for _l, _m in _LENS.items():
+    _d = TR.setdefault(_l, {})
+    for _k, _v in _m.items():
+        _d[_k] = _v
+
+# ---------------------------------------------------------------- 1.3.3 : albanais
+from .i18n_sq import DATA as _SQ  # noqa: E402
+TR.setdefault("sq", {}).update(_SQ)
+
+# ---------------------------------------------------------------- 1.3.3 : assembler, OCR
+from .i18n_ocr import DATA as _OCR  # noqa: E402
+for _l, _m in _OCR.items():
+    TR.setdefault(_l, {}).update(_m)
+from .i18n_hf import DATA as _HF  # noqa: E402
+for _l, _m in _HF.items():
+    TR.setdefault(_l, {}).update(_m)

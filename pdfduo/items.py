@@ -14,7 +14,7 @@ MM = 72 / 25.4                 # points par millimètre
 GRID_UNIT = 2.5 * MM / 10      # 10 unités de symbole = 2,5 mm
 POLY_TYPES = ("line", "wire", "wall", "freehand", "highlight", "dim")
 FIELD_TYPES = ("field_text", "field_check", "field_combo", "field_radio", "field_sig", "field_link")
-BOX_TYPES = ("rect", "ellipse", "image", "node", "table") + FIELD_TYPES
+BOX_TYPES = ("rect", "ellipse", "image", "node", "table", "textbox") + FIELD_TYPES
 
 _svg_cache = {}
 _img_cache = {}
@@ -34,46 +34,115 @@ def text_font(size, bold=False, family="Helvetica", italic=False, underline=Fals
     return f
 
 
+# ---------------------------------------------------------------------- formules dans les textes
+# √{…}          racine : la barre couvre tout le contenu
+# {haut|bas}    fraction : numérateur au-dessus, dénominateur en dessous, trait aussi long que le plus large, centrés
+# Les deux s'imbriquent : {√{U}|2}, √{{a|b}}, {{1|2}|3}…
+
+def _match(s, i):
+    """Indice de l'accolade fermante qui correspond à s[i] == "{" (ou -1)."""
+    depth = 0
+    for j in range(i, len(s)):
+        if s[j] == "{":
+            depth += 1
+        elif s[j] == "}":
+            depth -= 1
+            if depth == 0:
+                return j
+    return -1
+
+
+def _top_bar(s):
+    depth = 0
+    for j, c in enumerate(s):
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth -= 1
+        elif c == "|" and depth == 0:
+            return j
+    return -1
+
+
+def rich_parse(line):
+    out, buf, i = [], "", 0
+    while i < len(line):
+        if line.startswith("√{", i):
+            j = _match(line, i + 1)
+            if j > 0:
+                if buf:
+                    out.append(("t", buf)); buf = ""
+                out.append(("s", rich_parse(line[i + 2:j])))
+                i = j + 1
+                continue
+        if line[i] == "{":
+            j = _match(line, i)
+            if j > 0:
+                inner = line[i + 1:j]
+                k = _top_bar(inner)
+                if k >= 0:
+                    if buf:
+                        out.append(("t", buf)); buf = ""
+                    out.append(("f", rich_parse(inner[:k].strip()), rich_parse(inner[k + 1:].strip())))
+                    i = j + 1
+                    continue
+        buf += line[i]
+        i += 1
+    if buf:
+        out.append(("t", buf))
+    return out
+
+
 def rich_segments(line):
-    """Découpe une ligne : texte normal et racines √{...} (la barre couvre tout le contenu)."""
-    out, i = [], 0
-    while True:
-        j = line.find("√{", i)
-        if j < 0:
-            out.append(("n", line[i:]))
-            return [x for x in out if x[1]]
-        k = line.find("}", j)
-        if k < 0:
-            out.append(("n", line[i:]))
-            return [x for x in out if x[1]]
-        out.append(("n", line[i:j]))
-        out.append(("s", line[j + 2:k]))
-        i = k + 1
+    """Compatibilité : segments à plat (« n » texte, « s » racine)."""
+    return [("n", n[1]) if n[0] == "t" else ("s", "") for n in rich_parse(line)]
 
 
-def rich_width(fm, line):
-    w = 0.0
-    for kind, txt in rich_segments(line):
-        w += fm.horizontalAdvance(txt) + (fm.height() * 0.62 if kind == "s" else 0)
-    return w
+FRAC_K = 0.8          # taille du numérateur et du dénominateur par rapport au texte
 
 
-def draw_rich(p, fm, x, base, line):
-    for kind, txt in rich_segments(line):
-        if kind == "n":
-            p.drawText(QPointF(x, base), txt)
-            x += fm.horizontalAdvance(txt)
+def _measure(fm, nodes, sc):
+    """(largeur, hauteur au-dessus de la ligne de base, hauteur en dessous) pour la police de 100 px × sc."""
+    a, d, e = fm.ascent(), fm.descent(), fm.height()
+    w, up, dn = 0.0, a * sc, d * sc
+    for n in nodes:
+        if n[0] == "t":
+            w += fm.horizontalAdvance(n[1]) * sc
+        elif n[0] == "s":
+            iw, iu, idn = _measure(fm, n[1], sc)
+            w += iw + e * 0.62 * sc
+            up = max(up, iu + a * 0.12 * sc)
+            dn = max(dn, idn)
         else:
-            e = fm.height()
-            a = fm.ascent()
-            inner = fm.horizontalAdvance(txt)
-            top = base - a * 0.95
-            path = QPainterPath(QPointF(x, base - a * 0.38))
-            path.lineTo(x + e * 0.1, base - a * 0.46)
-            path.lineTo(x + e * 0.24, base + fm.descent() * 0.25)
-            path.lineTo(x + e * 0.44, top)
-            path.lineTo(x + e * 0.5 + inner + e * 0.08, top)
-            pen = QPen(p.pen().color(), max(4.0, e * 0.055))
+            k = max(0.55, sc * FRAC_K)
+            nw, nu, nd = _measure(fm, n[1], k)
+            dw, du, dd = _measure(fm, n[2], k)
+            axis, gap, pad = a * 0.30 * sc, a * 0.10 * sc, a * 0.14 * sc
+            w += max(nw, dw) + 2 * pad
+            up = max(up, axis + gap + nd + nu)
+            dn = max(dn, gap + du + dd - axis)
+    return w, up, dn
+
+
+def _draw(p, fm, nodes, x, base, sc):
+    a, e = fm.ascent(), fm.height()
+    for n in nodes:
+        if n[0] == "t":
+            p.save()
+            p.translate(x, base)
+            p.scale(sc, sc)
+            p.drawText(QPointF(0, 0), n[1])
+            p.restore()
+            x += fm.horizontalAdvance(n[1]) * sc
+        elif n[0] == "s":
+            iw, iu, idn = _measure(fm, n[1], sc)
+            top = base - max(iu + a * 0.08 * sc, a * 0.95 * sc)
+            path = QPainterPath(QPointF(x, base - a * 0.38 * sc))
+            path.lineTo(x + e * 0.1 * sc, base - a * 0.46 * sc)
+            path.lineTo(x + e * 0.24 * sc, base + max(idn, fm.descent() * 0.25 * sc))
+            path.lineTo(x + e * 0.44 * sc, top)
+            path.lineTo(x + e * 0.52 * sc + iw + e * 0.08 * sc, top)
+            pen = QPen(p.pen().color(), max(4.0, e * 0.055) * sc)
             pen.setJoinStyle(Qt.RoundJoin)
             pen.setCapStyle(Qt.RoundCap)
             p.save()
@@ -81,9 +150,67 @@ def draw_rich(p, fm, x, base, line):
             p.setBrush(Qt.NoBrush)
             p.drawPath(path)
             p.restore()
-            p.drawText(QPointF(x + e * 0.52, base), txt)
-            x += inner + e * 0.62
+            _draw(p, fm, n[1], x + e * 0.52 * sc, base, sc)
+            x += iw + e * 0.62 * sc
+        else:
+            k = max(0.55, sc * FRAC_K)
+            nw, nu, nd = _measure(fm, n[1], k)
+            dw, du, dd = _measure(fm, n[2], k)
+            axis, gap, pad = a * 0.30 * sc, a * 0.10 * sc, a * 0.14 * sc
+            bw = max(nw, dw)
+            bar = base - axis
+            pen = QPen(p.pen().color(), max(3.0, e * 0.05) * sc)
+            pen.setCapStyle(Qt.FlatCap)
+            p.save()
+            p.setPen(pen)
+            p.drawLine(QPointF(x + pad * 0.5, bar), QPointF(x + bw + pad * 1.5, bar))
+            p.restore()
+            _draw(p, fm, n[1], x + pad + (bw - nw) / 2, bar - gap - nd, k)
+            _draw(p, fm, n[2], x + pad + (bw - dw) / 2, bar + gap + du, k)
+            x += bw + 2 * pad
     return x
+
+
+def rich_width(fm, line):
+    return _measure(fm, rich_parse(line), 1.0)[0]
+
+
+def rich_extent(fm, line):
+    """(hauteur au-dessus de la ligne de base, en dessous) : plus grandes qu'une ligne normale s'il y a une fraction."""
+    _, up, dn = _measure(fm, rich_parse(line), 1.0)
+    return up, dn
+
+
+def draw_rich(p, fm, x, base, line):
+    return _draw(p, fm, rich_parse(line), x, base, 1.0)
+
+
+def rich_layout(fm, lines):
+    """Lignes de base successives (police 100 px) et hauteur totale, en tenant compte des fractions."""
+    lead = fm.lineSpacing() - fm.ascent() - fm.descent()
+    bases, y = [], 0.0
+    for l in lines:
+        up, dn = rich_extent(fm, l)
+        bases.append(y + up)
+        y += up + dn + lead
+    return bases, y
+
+
+def split_words(para):
+    """Mots séparés par les espaces, sans couper une formule {…|…} ou √{…}."""
+    out, cur, depth = [], "", 0
+    for c in para:
+        if c == "{":
+            depth += 1
+        elif c == "}":
+            depth = max(0, depth - 1)
+        if c == " " and depth == 0:
+            out.append(cur)
+            cur = ""
+        else:
+            cur += c
+    out.append(cur)
+    return out
 
 
 def item_font(d):
@@ -136,6 +263,9 @@ class PItem(QGraphicsItem):
             w, h, _ = s.geometry(self.d.get("params"))
             u = self.sym_unit()
             return QRectF(0, 0, w * u, h * u)
+        if t == "textbox":
+            w = max(10.0, self.d.get("w", 150))
+            return QRectF(0, 0, w, max(self.d.get("h", 20), self.textbox_height(w)))
         if t in BOX_TYPES:
             return QRectF(0, 0, self.d.get("w", 50), self.d.get("h", 30))
         if t == "text":
@@ -156,7 +286,7 @@ class PItem(QGraphicsItem):
         lines = (self.d.get("text") or " ").split("\n")
         k = size / 100
         w = max(rich_width(fm, l) for l in lines) * k
-        h = fm.lineSpacing() * len(lines) * k
+        h = rich_layout(fm, lines)[1] * k
         return QRectF(0, 0, max(w, 2), h)
 
     def apply_transform(self):
@@ -672,7 +802,18 @@ class PItem(QGraphicsItem):
                 p.translate(box.left(), box.top())
                 p.scale(k, k)
                 inner = QRectF(1.2 * MM / k, 0, box.width() / k - 2.4 * MM / k, box.height() / k)
-                p.drawText(inner, int(a | Qt.AlignVCenter | Qt.TextWordWrap), txt)
+                if "√{" in txt or ("{" in txt and "|" in txt):            # formule : racine, fraction
+                    fmc = QFontMetricsF(fb if head else fn)
+                    lines = txt.split("\n")
+                    bases, th = rich_layout(fmc, lines)
+                    y0 = inner.top() + (inner.height() - th) / 2
+                    for line, base in zip(lines, bases):
+                        lw = rich_width(fmc, line)
+                        x = inner.left() if a & Qt.AlignLeft else inner.right() - lw if a & Qt.AlignRight \
+                            else inner.left() + (inner.width() - lw) / 2
+                        draw_rich(p, fmc, x, y0 + base, line)
+                else:
+                    p.drawText(inner, int(a | Qt.AlignVCenter | Qt.TextWordWrap), txt)
                 p.restore()
 
     def paint_ellipse(self, p, exp):
@@ -692,16 +833,78 @@ class PItem(QGraphicsItem):
         p.scale(size / 100, size / 100)
         p.setFont(f)
         bg = self.d.get("bg")
-        for i, line in enumerate(lines):
+        bases, _ = rich_layout(fm, lines)
+        for line, base in zip(lines, bases):
             lw = rich_width(fm, line)
             x = 0 if align == "left" else (width - lw) / 2 if align == "center" else width - lw
-            y = i * fm.lineSpacing()
+            up, dn = rich_extent(fm, line)
             if bg and line:
                 c = QColor(bg)
                 c.setAlphaF(0.55)
-                p.fillRect(QRectF(x - 6, y, lw + 12, fm.lineSpacing()), c)
+                p.fillRect(QRectF(x - 6, base - up, lw + 12, up + dn), c)
             p.setPen(QColor(self.d["color"]))
-            draw_rich(p, fm, x, fm.ascent() + y, line)
+            draw_rich(p, fm, x, base, line)
+        p.restore()
+
+    # ------------------------------------------------------------ zone de texte (retour à la ligne automatique)
+    TB_PAD = 3.0
+
+    def textbox_lines(self, w):
+        """Lignes affichées : retours à la ligne de l'utilisateur + coupure automatique à la largeur de la zone."""
+        size = self.d.get("size", 10)
+        fm = QFontMetricsF(item_font(self.d))
+        k = size / 100
+        maxw = max(1.0, (w - 2 * self.TB_PAD) / k)
+        out = []
+        for para in (self.d.get("text") or "").split("\n"):
+            words = split_words(para)
+            cur = ""
+            for wd in words:
+                trial = wd if not cur else cur + " " + wd
+                if cur and rich_width(fm, trial) > maxw:
+                    out.append(cur)
+                    cur = wd
+                else:
+                    cur = trial
+                while rich_width(fm, cur) > maxw and len(cur) > 1:      # mot plus long que la zone
+                    n = len(cur)
+                    while n > 1 and rich_width(fm, cur[:n]) > maxw:
+                        n -= 1
+                    out.append(cur[:n])
+                    cur = cur[n:]
+            out.append(cur)
+        return out, fm, k
+
+    def textbox_height(self, w):
+        lines, fm, k = self.textbox_lines(w)
+        return rich_layout(fm, lines)[1] * k + 2 * self.TB_PAD
+
+    def paint_textbox(self, p, exp):
+        r = self.local_rect()
+        fill = self.d.get("fill")
+        if fill or self.d.get("frame"):
+            p.setPen(QPen(QColor(self.d["color"]), max(0.3, self.d.get("sw", 1.0) * 0.6)) if self.d.get("frame") else Qt.NoPen)
+            p.setBrush(QColor(fill) if fill else Qt.NoBrush)
+            p.drawRect(r)
+        elif not exp:                                   # repère discret à l'écran, invisible à l'export
+            pen = QPen(QColor(120, 144, 156, 90), 0)
+            pen.setStyle(Qt.DotLine)
+            p.setPen(pen)
+            p.setBrush(Qt.NoBrush)
+            p.drawRect(r)
+        lines, fm, k = self.textbox_lines(r.width())
+        align = self.d.get("align", "left")
+        p.save()
+        p.translate(self.TB_PAD, self.TB_PAD)
+        p.scale(k, k)
+        p.setFont(item_font(self.d))
+        p.setPen(QColor(self.d["color"]))
+        inner = (r.width() - 2 * self.TB_PAD) / k
+        bases, _ = rich_layout(fm, lines)
+        for line, base in zip(lines, bases):
+            lw = rich_width(fm, line)
+            x = 0 if align == "left" else (inner - lw) / 2 if align == "center" else inner - lw
+            draw_rich(p, fm, x, base, line)
         p.restore()
 
     def image(self):
@@ -804,8 +1007,8 @@ class PItem(QGraphicsItem):
             fs = self.d.get("size", 9)
             fm = QFontMetricsF(self.node_font())
             lines = (self.d.get("text") or "").split("\n")
-            tw = max((fm.horizontalAdvance(l) for l in lines), default=0) * fs / 100
-            th = fm.lineSpacing() * len(lines) * fs / 100
+            tw = max((rich_width(fm, l) for l in lines), default=0) * fs / 100
+            th = rich_layout(fm, lines)[1] * fs / 100
             x = r.width() / 2 + 6 * MM
             return QRectF(x, r.height() / 2 - th / 2, tw + 2, th), Qt.AlignLeft | Qt.AlignVCenter
         if sh in ("action", "action_cond"):
@@ -977,7 +1180,8 @@ class PItem(QGraphicsItem):
         fm = QFontMetricsF(f)
         lines = text.split("\n")
         k = fs / 100
-        th = fm.lineSpacing() * len(lines) * k
+        bases, th = rich_layout(fm, lines)
+        th *= k
         p.save()
         p.setPen(QColor(self.d.get("text_color") or self.d["color"]))
         p.setFont(f)
@@ -994,15 +1198,15 @@ class PItem(QGraphicsItem):
             else:
                 x = box.left() + (box.width() - lw) / 2
             p.save()
-            p.translate(x, y0 + i * fm.lineSpacing() * k)
+            p.translate(x, y0)
             p.scale(k, k)
-            draw_rich(p, fm, 0, fm.ascent(), line)
+            draw_rich(p, fm, 0, bases[i], line)
             p.restore()
         p.restore()
 
     # ------------------------------------------------------------ agrandissement à la souris
     def resizable(self):
-        return self.typ in ("symbol", "image", "node", "rect", "ellipse", "text", "table") + FIELD_TYPES
+        return self.typ in ("symbol", "image", "node", "rect", "ellipse", "text", "table", "textbox") + FIELD_TYPES
 
     def proportional(self):
         return self.typ in ("symbol", "image", "node", "text")

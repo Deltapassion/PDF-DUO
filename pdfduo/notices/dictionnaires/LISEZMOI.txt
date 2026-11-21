@@ -1,5 +1,7 @@
 Dictionnaires du correcteur orthographique de PDF DUO (fréquences de mots), un fichier par langue :
-fr, en, es, pt, de, it (JSON compressé : mot -> fréquence).
+fr, en, es, pt, de, it, sq, el, ru, uk, ar (JSON compressé : mot -> fréquence).
 Sources : projet pyspellchecker (https://github.com/barrust/pyspellchecker, licence MIT)
 et listes FrequencyWords de Hermit Dave (https://github.com/hermitdave/FrequencyWords, contenu CC BY-SA 4.0),
 construites à partir du corpus OpenSubtitles.
+Albanais, grec, russe, ukrainien, arabe (1.3.3) : listes FrequencyWords <langue>_50k (CC BY-SA 4.0),
+complétées de vocabulaire technique.

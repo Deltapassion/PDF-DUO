@@ -36,7 +36,7 @@ from . import nodes as ND
 CATEGORIES = SYM_CATEGORIES + ND.CATEGORIES
 
 APP_NAME = "PDF DUO"
-APP_VERSION = "1.3.2"
+APP_VERSION = "1.3.3"
 SITE_URL = "https://deltapassion.github.io/PDF-DUO/"
 RELEASES_URL = "https://github.com/Deltapassion/PDF-DUO/releases/latest"
 KOFI_URL = "https://ko-fi.com/djlatinjazz"
@@ -54,6 +54,7 @@ TOOLS = [
     ("select", "Sélection", "Sélectionner, déplacer (Échap)"),
     ("pan", "Main", "Faire défiler la page"),
     ("text", "Texte", "Cliquer pour écrire un texte"),
+    ("textbox", "Zone de texte", "Dessiner une zone sur la page et écrire directement dedans (caractères spéciaux juste en dessous)"),
     ("line", "Trait", "Trait droit (Maj = angle par pas de 15°)"),
     ("arrow", "Flèche", "Flèche"),
     ("wire", "Fil", "Fil de schéma à angles droits : clic par point ; un clic sur une borne accroche le fil et le termine"),
@@ -132,9 +133,14 @@ class TextDialog(QDialog):
         self.setWindowTitle(title)
         lay = QVBoxLayout(self)
         lay.addWidget(QLabel(label))
-        from .spell import SpellTextEdit
-        self.edit = SpellTextEdit(text)
+        from .textbox import MathTextEdit
+        self.edit = MathTextEdit()
         self.edit.setMinimumSize(420, 110)
+        self.edit.setStyleSheet("QTextEdit { font-size: 18px; }")
+        self.edit.px = 18
+        self.edit.color = self.edit.palette().text().color().name()
+        self.edit.set_code(text)
+        self.edit.on_formula_click = self.formula_clicked
         lay.addWidget(self.edit)
         grid = QWidget()
         g = QHBoxLayout(grid)
@@ -154,6 +160,11 @@ class TextDialog(QDialog):
         sq.setToolTip(T("Écrit √{…} : la barre de la racine couvre tout ce qui est entre les accolades"))
         sq.clicked.connect(self.insert_sqrt)
         row.addWidget(sq)
+        fr = QPushButton("a⁄b " + T("Fraction"))
+        fr.setToolTip(T("Ouvre une petite fenêtre : on écrit le haut, puis le bas ; le trait s'allonge tout seul. "
+                        "Un clic sur une fraction : pour la modifier."))
+        fr.clicked.connect(self.insert_frac)
+        row.addWidget(fr)
         row.addStretch()
         bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         bb.accepted.connect(self.accept)
@@ -163,19 +174,37 @@ class TextDialog(QDialog):
         self.edit.setFocus()
 
     def insert_sqrt(self):
-        cur = self.edit.textCursor()
-        sel = cur.selectedText()
-        cur.insertText("√{" + sel + "}")
-        if not sel:
-            cur.movePosition(cur.MoveOperation.Left)
-            self.edit.setTextCursor(cur)
+        from .textbox import RootDialog
+        code = RootDialog.ask_root(self, SPECIAL_CHARS, self.edit.textCursor().selectedText())
+        if code:
+            self.edit.insert_formula(code)
+        self.edit.setFocus()
+
+    def formula_clicked(self, pos, code):
+        from .textbox import ask_formula
+        from PySide6.QtGui import QTextCursor
+        new = ask_formula(self, SPECIAL_CHARS, code)
+        c = QTextCursor(self.edit.document())
+        c.setPosition(pos)
+        if new:
+            c.movePosition(QTextCursor.NextCharacter, QTextCursor.KeepAnchor)
+            c.removeSelectedText()
+            self.edit.insert_formula(new, c)
+        self.edit.setTextCursor(c)
+        self.edit.setFocus()
+
+    def insert_frac(self):
+        from .textbox import ask_formula
+        code = ask_formula(self, SPECIAL_CHARS, None, self.edit.textCursor().selectedText())
+        if code:
+            self.edit.insert_formula(code)
         self.edit.setFocus()
 
     @staticmethod
     def get(parent, title, label, text=""):
         d = TextDialog(parent, title, label, text)
         ok = d.exec()
-        return d.edit.toPlainText(), bool(ok)
+        return d.edit.code(), bool(ok)
 
 
 def snap_angle(a, b, step=15):
@@ -504,6 +533,9 @@ class View(QGraphicsView):
                 return
         if t in ("select", "pan"):
             self.moved = False
+            hit = self.itemAt(e.position().toPoint()) if t == "select" else None
+            self._tb_click = hit if (isinstance(hit, PItem) and hit.typ == "textbox" and e.button() == Qt.LeftButton
+                                     and not (e.modifiers() & (Qt.ShiftModifier | Qt.ControlModifier))) else None
             super().mousePressEvent(e)
             return
         if e.button() == Qt.RightButton:
@@ -616,9 +648,9 @@ class View(QGraphicsView):
             d.update(type=t, pts=[[p.x(), p.y()]])
             if t == "highlight":
                 d.update(color="#ffeb3b", sw=12)
-        elif t in ("rect", "ellipse", "capture") + FIELD_TOOLS:
-            d.update(type="rect" if t in ("capture",) else t, x=p.x(), y=p.y(), w=1, h=1)
-            if t == "capture":
+        elif t in ("rect", "ellipse", "capture", "textbox") + FIELD_TOOLS:
+            d.update(type="rect" if t in ("capture", "textbox") else t, x=p.x(), y=p.y(), w=1, h=1)
+            if t in ("capture", "textbox"):
                 d.update(color="#1e88e5", sw=0.8, dash="dash")
         self.new_temp(d)
 
@@ -742,6 +774,12 @@ class View(QGraphicsView):
                 if self.moved:
                     self.mw.magnet_pins()
                 self.mw.commit()
+                tb = getattr(self, "_tb_click", None)
+                self._tb_click = None
+                if tb is not None and not self.moved and tb.scene() is not None:
+                    # un seul clic sur une zone de texte : on écrit dedans, curseur à l'endroit cliqué ;
+                    # un clic sur une fraction ou une racine ouvre directement sa fenêtre (glisser = déplacer la zone)
+                    self.edit_inline(tb, click=e.position().toPoint())
             return
         if self.temp is None or t in ("wire", "wall", "link") or e.button() != Qt.LeftButton:
             return
@@ -754,6 +792,15 @@ class View(QGraphicsView):
             r = QRectF(it.pos().x(), it.pos().y(), d["w"], d["h"])
             if r.width() > 3 and r.height() > 3:
                 mw.capture_region(r, e.globalPosition().toPoint())
+            return
+        if t == "textbox":
+            w, h = d["w"], d["h"]
+            if w < 20:                                   # simple clic : zone de 8 cm de large
+                w, h = 80 * MM, 0
+            tb = mw.add_item({"type": "textbox", "x": it.pos().x(), "y": it.pos().y(), "w": w, "h": max(h, 0),
+                              "text": "", "size": mw.cur_text_size, "color": mw.cur_color, **mw.text_style})
+            mw.set_tool("select")
+            self.edit_inline(tb, is_new=True)
             return
         if d["type"] in ("line", "dim", "freehand", "highlight"):
             pts = d["pts"]
@@ -811,6 +858,9 @@ class View(QGraphicsView):
             if isinstance(it, PItem) and (it.typ in ("node", "table") or it.typ.startswith("field")):
                 self.mw.edit_interactive(it)
                 return
+            if isinstance(it, PItem) and it.typ == "textbox":
+                self.edit_inline(it)
+                return
             if isinstance(it, PItem) and it.typ == "text":
                 txt, ok = TextDialog.get(self, T("Texte"), T("Modifier le texte :"), it.d.get("text", ""))
                 if ok:
@@ -820,6 +870,20 @@ class View(QGraphicsView):
                     self.mw.refresh_props()
                 return
         super().mouseDoubleClickEvent(e)
+
+    def edit_inline(self, it, is_new=False, click=None):
+        """Écriture directe dans une zone de texte, palette de caractères spéciaux juste en dessous."""
+        from .textbox import InlineEditor
+        if getattr(self, "inline", None) is not None:
+            self.inline.finish()
+        self.inline = ed = InlineEditor(self, it, SPECIAL_CHARS, is_new)
+        if click is not None:
+            pt = ed.edit.viewport().mapFrom(self.viewport(), click)
+            hit = ed.edit.formula_at(pt)
+            if hit:
+                QTimer.singleShot(0, lambda: ed.formula_clicked(*hit))
+            else:
+                ed.edit.setTextCursor(ed.edit.cursorForPosition(pt))
 
     def set_tool_cursor(self):
         self.viewport().setCursor(Qt.ArrowCursor if self.tool in ("select",) else
@@ -972,6 +1036,8 @@ class MainWindow(QMainWindow):
         self.doc = None
         self.path = None
         self.page_items = []
+        self.hf = None          # en-tête, pied de page et numérotation (module hf)
+        self.hf_items = []
         self.undo_stack, self.undo_idx = [], -1
         self.saved_idx = 0
         self.cur_color, self.cur_sw, self.cur_dash, self.cur_text_size = "#000000", 1.0, "solid", 10.0
@@ -1087,13 +1153,20 @@ class MainWindow(QMainWindow):
         act(m, T("Pivoter la page à droite"), lambda: self.page_rotate(90))
         act(m, T("Pivoter la page à gauche"), lambda: self.page_rotate(-90))
         m.addSeparator()
+        act(m, T("En-tête, pied de page et numérotation…"), self.hf_dialog)
+        m.addSeparator()
         act(m, T("Ajouter un PDF à la fin (fusionner)…"), self.page_merge)
         act(m, T("Extraire des pages vers un nouveau PDF…"), self.page_extract)
         act(m, T("Diviser en un fichier par page…"), self.page_split)
+        act(m, T("Extraire la page affichée…"), self.page_extract_current)
+        m.addSeparator()
+        act(m, T("Assembler des PDF (dossier technique)…"), self.assemble_pdfs)
+        act(m, T("Reconnaître le texte (OCR)…"), self.ocr_dialog)
 
         m = mb.addMenu(T("&Insertion"))
         act(m, T("Signature…"), self.insert_signature, "Ctrl+Shift+G")
         act(m, T("Image…"), self.insert_image_dialog)
+        act(m, T("Zone de texte (écrire directement sur la page)"), lambda: self.set_tool("textbox"), "Ctrl+Alt+T")
         act(m, T("Cartouche (titre, auteur, date, échelle)"), self.insert_title_block)
         act(m, T("Organigramme d'entreprise (modèle à compléter)"), self.insert_orgchart)
         act(m, T("Carte mentale (exemple de base à compléter)"), self.insert_mindmap)
@@ -1102,6 +1175,7 @@ class MainWindow(QMainWindow):
             cm.addAction(ch).triggered.connect(lambda _=False, c=ch: self.insert_special(c))
         cm.addSeparator()
         cm.addAction(T("√ sur tout le nombre")).triggered.connect(lambda: self.insert_special("√{}"))
+        cm.addAction("a⁄b " + T("Fraction")).triggered.connect(lambda: self.insert_special("{|}"))
         m.addSeparator()
         act(m, T("GRAFCET : ajouter transition + étape sous la sélection"), self.grafcet_next, "Ctrl+G")
 
@@ -1133,6 +1207,12 @@ class MainWindow(QMainWindow):
         calc_top.setToolTip(T("Calculatrice scientifique et graphique…") + "  (Ctrl+K)")
         calc_top.triggered.connect(self.open_calculator)
         mb.addAction(calc_top)
+        lens_top = QAction("🔍 " + T("Traduire"), self)
+        lens_top.setToolTip(T("Loupe de traduction : traduit le texte sous la souris") + "  (Ctrl+L)")
+        lens_top.setShortcut("Ctrl+L")
+        lens_top.triggered.connect(self.open_lens)
+        mb.addAction(lens_top)
+        self.addAction(lens_top)
 
         m = mb.addMenu(T("&Aide"))
         act(m, T("Notice d'utilisation"), self.open_notice, "F1")
@@ -1711,13 +1791,36 @@ class MainWindow(QMainWindow):
 
     def insert_special(self, ch):
         w = QApplication.focusWidget()
+        if ch == "{|}":                                  # fraction : petite fenêtre haut / trait / bas
+            from .textbox import FractionDialog, edit_fraction
+            from .textbox import MathTextEdit
+            if isinstance(w, MathTextEdit):
+                code = FractionDialog.ask(self, SPECIAL_CHARS, w.textCursor().selectedText())
+                if code:
+                    w.insert_formula(code)
+                return
+            if isinstance(w, QPlainTextEdit):
+                edit_fraction(self, w, SPECIAL_CHARS)
+                return
+            ch = FractionDialog.ask(self, SPECIAL_CHARS)
+            if not ch:
+                return
         if isinstance(w, QLineEdit):
             w.insert(ch)
+            return
+        from .textbox import MathTextEdit, RootDialog
+        if isinstance(w, MathTextEdit):
+            if ch == "√{}":
+                code = RootDialog.ask_root(self, SPECIAL_CHARS, w.textCursor().selectedText())
+                if code:
+                    w.insert_formula(code)
+            else:
+                w.insertPlainText(ch)
             return
         if isinstance(w, QPlainTextEdit):
             w.insertPlainText(ch)
             return
-        sel = [i for i in self.selected() if i.typ in ("text", "node")]
+        sel = [i for i in self.selected() if i.typ in ("text", "node", "textbox")]
         if sel:
             for it in sel:
                 it.d["text"] = (it.d.get("text") or "") + ch
@@ -2407,8 +2510,9 @@ class MainWindow(QMainWindow):
         sm.addSeparator()
         from PySide6.QtGui import QActionGroup
         g = QActionGroup(self)
-        names = [("auto", T("Langue du logiciel")), ("fr", "Français"), ("en", "English"), ("es", "Español"),
-                 ("pt", "Português"), ("de", "Deutsch"), ("it", "Italiano")]
+        names = [("auto", T("Automatique (langue du texte)")), ("fr", "Français"), ("en", "English"), ("es", "Español"),
+                 ("pt", "Português"), ("de", "Deutsch"), ("it", "Italiano"), ("el", "Ελληνικά"), ("ru", "Русский"), ("uk", "Українська"),
+                 ("ar", "العربية"), ("sq", "Shqip")]
         cur = st.value("ortho_langue", "auto") or "auto"
         for code, name in names:
             b = sm.addAction(name)
@@ -2505,6 +2609,21 @@ class MainWindow(QMainWindow):
         self._calc.show()
         self._calc.raise_()
         self._calc.activateWindow()
+
+    def open_lens(self):
+        from .lens import TranslateLens
+        from . import translate as _tr
+        TR_GEOM_MISSING = lambda lw: _tr.settings().value("trad/geom") is None
+        if getattr(self, "_lens", None) is None:
+            self._lens = TranslateLens(self)
+        if self._lens.isVisible():
+            self._lens.hide()
+            return
+        if TR_GEOM_MISSING(self._lens):
+            g = self.geometry()
+            self._lens.move(g.right() - self._lens.width() - 330, g.top() + 120)
+        self._lens.show()
+        self._lens.raise_()
 
     def insert_orgchart(self):
         """Pose un organigramme type (rapport de stage) déjà relié, à compléter par double-clic."""
@@ -2866,7 +2985,7 @@ class MainWindow(QMainWindow):
             wa.setCurrentIndex(max(0, wa.findData(d.get("arrow", "none"))))
             wa.currentIndexChanged.connect(lambda i: changed("arrow", wa.itemData(i)))
             f.addRow(T("Flèche"), wa)
-        if it.typ == "text":
+        if it.typ in ("text", "textbox"):
             te = QPlainTextEdit(d.get("text", ""))
             te.setMaximumHeight(90)
             te.textChanged.connect(lambda: changed("text", te.toPlainText()))
@@ -2878,6 +2997,20 @@ class MainWindow(QMainWindow):
             bc.setChecked(d.get("bold", False))
             bc.toggled.connect(lambda v: changed("bold", v))
             f.addRow("", bc)
+        if it.typ == "textbox":
+            al = QComboBox()
+            for k, v in (("left", "Aligner à gauche"), ("center", "Centrer"), ("right", "Aligner à droite")):
+                al.addItem(T(v), k)
+            al.setCurrentIndex(max(0, al.findData(d.get("align", "left"))))
+            al.currentIndexChanged.connect(lambda i: changed("align", al.itemData(i)))
+            f.addRow(T("Alignement"), al)
+            fr = QCheckBox(T("Encadrer la zone"))
+            fr.setChecked(bool(d.get("frame")))
+            fr.toggled.connect(lambda v: changed("frame", v))
+            f.addRow("", fr)
+            eb = QPushButton("✎ " + T("Écrire dans la zone"))
+            eb.clicked.connect(lambda _=False, it=it: self.view.edit_inline(it))
+            f.addRow("", eb)
         if it.typ == "wall":
             th = QDoubleSpinBox(decimals=0, minimum=3, maximum=80, value=d.get("thick", 20), suffix=" cm")
             th.valueChanged.connect(lambda v: changed("thick", v))
@@ -2951,7 +3084,7 @@ class MainWindow(QMainWindow):
             s = it.sym()
             return T(s.name) if s else T("Symbole")
         return {"line": "Trait", "wire": "Fil", "wall": "Mur", "freehand": "Dessin", "highlight": "Surlignage",
-                "dim": "Cote", "rect": "Rectangle", "ellipse": "Ellipse", "table": "Tableau", "text": "Texte", "image": "Image",
+                "dim": "Cote", "rect": "Rectangle", "ellipse": "Ellipse", "table": "Tableau", "text": "Texte", "textbox": "Zone de texte", "image": "Image",
                 "field_text": "Champ texte", "field_check": "Case à cocher", "field_combo": "Liste déroulante",
                 "field_radio": "Bouton radio", "field_sig": "Zone de signature", "field_link": "Lien",
                 "node": "Forme" if it.d.get("shape") != "cartouche" else "Cartouche"}.get(it.typ, it.typ)
@@ -2972,12 +3105,34 @@ class MainWindow(QMainWindow):
             y += r.height + GAP
             maxw = max(maxw, r.width)
         self.scene.setSceneRect(QRectF(-200, -100, maxw + 400, y + 200))
+        self.refresh_hf()
         self.schedule_render()
         self.refresh_thumbs()
         self.refresh_forms()
 
     def schedule_render(self):
         self._render_timer.start()
+
+    def refresh_hf(self):
+        """(Re)crée l'en-tête, le pied de page et le numéro sur chaque page."""
+        from . import hf as HF
+        for it in self.hf_items:
+            if it.scene() is not None:
+                self.scene.removeItem(it)
+        self.hf_items = []
+        if HF.active(self.hf):
+            for pg in self.page_items:
+                it = HF.HFItem(self, pg)
+                self.scene.addItem(it)
+                self.hf_items.append(it)
+
+    def hf_dialog(self):
+        from .hf import HFDialog
+        if not self.doc:
+            return
+        d = HFDialog(self)
+        if d.exec():
+            self.commit()
 
     def render_page(self, pg, scale):
         page = self.doc[pg.idx]
@@ -3028,6 +3183,8 @@ class MainWindow(QMainWindow):
 
     def zoom_changed(self):
         self.zoom_label.setText(f" {self.view.zoom() * 100 / (96 / 72):.0f} % ")
+        if getattr(self.view, "inline", None) is not None:
+            self.view.inline.place()
         self.schedule_render()
 
     def zoom_real(self):
@@ -3158,7 +3315,7 @@ class MainWindow(QMainWindow):
         items = json.dumps(self.gather_items(), sort_keys=True)
         last = self.undo_stack[self.undo_idx] if self.undo_idx >= 0 else None
         docb = self.doc.tobytes() if (doc_changed or last is None) else last[0]
-        meta = json.dumps({"denom": self.scene.plan_denom})
+        meta = json.dumps({"denom": self.scene.plan_denom, "hf": self.hf}, sort_keys=True)
         if last and last[1] == items and last[0] is docb and last[2] == meta:
             return
         self.undo_stack = self.undo_stack[: self.undo_idx + 1]
@@ -3180,6 +3337,9 @@ class MainWindow(QMainWindow):
         self.scale_combo.setCurrentText(str(m["denom"]))
         self.scale_combo.blockSignals(False)
         self.scene.plan_denom = m["denom"]
+        if m.get("hf") != self.hf:
+            self.hf = m.get("hf")
+            self.refresh_hf()
         self.undo_idx = idx
         self.restore_items(json.loads(items))
         self.update_title()
@@ -3212,10 +3372,11 @@ class MainWindow(QMainWindow):
             return self.save()
         return r == QMessageBox.Discard
 
-    def set_document(self, doc, path=None, items=None, denom=None):
+    def set_document(self, doc, path=None, items=None, denom=None, hf=None):
         self.view.cancel_temp()
         self.doc = doc
         self.path = path
+        self.hf = hf
         if denom:
             self.scene.plan_denom = denom
             self.scale_combo.blockSignals(True)
@@ -3294,14 +3455,14 @@ class MainWindow(QMainWindow):
             if not ok or not doc.authenticate(pw):
                 QMessageBox.warning(self, APP_NAME, T("Mot de passe incorrect."))
                 return
-        items, denom = None, None
+        items, denom, hfcfg = None, None, None
         try:
             names = doc.embfile_names()
         except Exception:
             names = []
         if EMB_ORIG in names and EMB_ITEMS in names:
             meta = json.loads(doc.embfile_get(EMB_ITEMS).decode())
-            items, denom = meta.get("items"), meta.get("denom")
+            items, denom, hfcfg = meta.get("items"), meta.get("denom"), meta.get("hf")
             # valeurs saisies entre-temps dans Acrobat, un navigateur… : on les reprend
             filled = {}
             for page in doc:
@@ -3324,7 +3485,7 @@ class MainWindow(QMainWindow):
             doc = pymupdf.open("pdf", doc.embfile_get(EMB_ORIG))
         else:
             doc = pymupdf.open("pdf", doc.tobytes())
-        self.set_document(doc, display_path, items, denom)
+        self.set_document(doc, display_path, items, denom, hfcfg)
         if display_path:
             self.add_recent(display_path)
         if title_hint:
@@ -3348,6 +3509,9 @@ class MainWindow(QMainWindow):
         out = pymupdf.open("pdf", self.doc.tobytes())
         by = self.gather_items()
         draw_pages = {int(k) for k, v in by.items() if any(not d["type"].startswith("field") for d in v)}
+        from . import hf as HF
+        if HF.active(self.hf):                  # en-tête, pied de page, numéros : sur toutes les pages
+            draw_pages |= set(range(1 if self.hf.get("skip_first") else 0, len(self.page_items)))
         if draw_pages:
             buf = QBuffer()
             buf.open(QIODevice.WriteOnly)
@@ -3451,8 +3615,8 @@ class MainWindow(QMainWindow):
         except Exception:
             pass
         out.set_metadata({**(self.doc.metadata or {}), "creator": f"{APP_NAME} {APP_VERSION}", "producer": APP_NAME})
-        if not flat and by:
-            meta = json.dumps({"items": by, "denom": self.scene.plan_denom, "version": APP_VERSION})
+        if not flat and (by or self.hf):
+            meta = json.dumps({"items": by, "denom": self.scene.plan_denom, "hf": self.hf, "version": APP_VERSION})
             out.embfile_add(EMB_ORIG, self.doc.tobytes(), filename=EMB_ORIG, desc="PDF DUO : document d'origine")
             out.embfile_add(EMB_ITEMS, meta.encode(), filename=EMB_ITEMS, desc="PDF DUO : éléments modifiables")
         return out.tobytes(garbage=3, deflate=True)
@@ -3653,6 +3817,84 @@ class MainWindow(QMainWindow):
         full.select(pages)
         full.save(f if f.lower().endswith(".pdf") else f + ".pdf", garbage=3, deflate=True)
         self.statusBar().showMessage(f"{len(pages)} page(s) extraite(s)", 5000)
+
+    def page_extract_current(self):
+        if not self.doc:
+            return
+        i = self.current_page()
+        f, _ = QFileDialog.getSaveFileName(self, T("Extraire la page affichée…"), f"page-{i + 1}.pdf", "PDF (*.pdf)")
+        if not f:
+            return
+        full = pymupdf.open("pdf", self.build_output(flat=True))
+        full.select([i])
+        full.save(f if f.lower().endswith(".pdf") else f + ".pdf", garbage=3, deflate=True)
+        self.statusBar().showMessage(T("Page {n} enregistrée :").format(n=i + 1) + " " + f, 6000)
+
+    def assemble_pdfs(self):
+        from .assemble import AssembleDialog
+        AssembleDialog(self).exec()
+
+    def ocr_dialog(self):
+        """Reconnaissance du texte des pages scannées : ajoute une couche de texte invisible."""
+        from . import ocr
+        if not self.doc:
+            return
+        from PySide6.QtWidgets import QDialog, QFormLayout, QComboBox, QDialogButtonBox, QRadioButton, QLineEdit
+        dlg = QDialog(self); dlg.setWindowTitle(T("Reconnaître le texte (OCR)"))
+        lay = QVBoxLayout(dlg)
+        lay.addWidget(QLabel(T("Pour les documents scannés : le texte reconnu est ajouté de façon invisible. On peut ensuite le rechercher, le copier et le traduire avec la loupe.")))
+        lay.itemAt(0).widget().setWordWrap(True)
+        f = QFormLayout()
+        lang = QComboBox()
+        for code, name, ui in ocr.LANGS:
+            lang.addItem(name, code)
+        from . import i18n as _i
+        lang.setCurrentIndex(max(0, next((k for k, x in enumerate(ocr.LANGS) if x[2] == _i.LANG), 0)))
+        f.addRow(T("Langue du document :"), lang)
+        eng = QCheckBox(T("Reconnaître aussi l'anglais (termes techniques)")); eng.setChecked(True)
+        f.addRow("", eng)
+        r_all = QRadioButton(T("Toutes les pages")); r_cur = QRadioButton(T("Page affichée")); r_rng = QRadioButton(T("Pages :"))
+        rng = QLineEdit(); rng.setPlaceholderText("1-3,5")
+        r_all.setChecked(True)
+        f.addRow("", r_all); f.addRow("", r_cur)
+        rr = QHBoxLayout(); rr.addWidget(r_rng); rr.addWidget(rng, 1); f.addRow("", rr)
+        only = QCheckBox(T("Seulement les pages sans texte (scannées)")); only.setChecked(True)
+        f.addRow("", only)
+        lay.addLayout(f)
+        bb = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        bb.accepted.connect(dlg.accept); bb.rejected.connect(dlg.reject); lay.addWidget(bb)
+        if dlg.exec() != QDialog.Accepted:
+            return
+        n = len(self.doc)
+        if r_cur.isChecked():
+            pages = [self.current_page()]
+        elif r_rng.isChecked():
+            try:
+                pages = self.parse_ranges(rng.text(), n)
+            except ValueError:
+                QMessageBox.warning(self, APP_NAME, T("Plage de pages incorrecte."))
+                return
+        else:
+            pages = list(range(n))
+        code = lang.currentData()
+        codes = [code] + (["eng"] if eng.isChecked() and code != "eng" else [])
+        langarg = "+".join(codes)
+        data = self.doc.tobytes()
+        only_empty = only.isChecked()
+
+        def job():
+            ocr.download(codes)
+            return ocr.recognise(data, pages, langarg, only_empty)
+
+        def done(words):
+            if not words:
+                QMessageBox.information(self, APP_NAME, T("Aucune page à reconnaître : ces pages contiennent déjà du texte."))
+                return
+            cnt = [0]
+            self.page_op(lambda d: cnt.__setitem__(0, ocr.apply(d, words)), lambda k: k)
+            QMessageBox.information(self, APP_NAME, T("Texte reconnu sur {p} page(s) ({l} lignes). Enregistrez le document pour le conserver.")
+                                    .format(p=len(words), l=cnt[0]))
+        self.run_task(T("Reconnaissance du texte (OCR)…"), job, (), done)
 
     def page_split(self):
         d = QFileDialog.getExistingDirectory(self, T("Dossier où enregistrer les pages"))
@@ -3874,6 +4116,7 @@ class MainWindow(QMainWindow):
             return
         self.presenting = on
         self.present_action.setChecked(on)
+        self._pres_view = (self.view.transform().m11(), self.view.mapToScene(self.view.viewport().rect().center()))
         if on:
             self._pres_state = self.saveState(99)
             self._pres_max = self.isMaximized()
@@ -3900,7 +4143,10 @@ class MainWindow(QMainWindow):
                 self._pres_timer = QTimer(self, interval=120, timeout=self._presentation_hover)
             self._pres_timer.start()
             self._pres_shown = False
-            QTimer.singleShot(250, self.zoom_page)
+            QTimer.singleShot(250, self._pres_restore_view)    # même zoom qu'avant le plein écran
+            self._pres_side = {"left": False, "right": False}  # palettes réduites ?
+            self._pres_peek = {"left": False, "right": False}  # réapparues en touchant le bord
+            self._pres_side_buttons()
             self._presentation_hint()
         else:
             self._pres_timer.stop()
@@ -3915,6 +4161,9 @@ class MainWindow(QMainWindow):
             hint = getattr(self, "_pres_hint", None)
             if hint:
                 hint.hide()
+            for b in getattr(self, "_pres_btns", {}).values():
+                b.hide()
+            QTimer.singleShot(250, self._pres_restore_view)
 
     def _presentation_props(self):
         """En plein écran, la fenêtre de réglages s'ouvre à droite quand un élément est sélectionné."""
@@ -3939,10 +4188,81 @@ class MainWindow(QMainWindow):
         elif not on and pd.isVisible():
             pd.hide()
 
+    def _pres_restore_view(self):
+        z, c = getattr(self, "_pres_view", (None, None))
+        if z:
+            self.view.set_zoom(z)
+            self.view.centerOn(c)
+
+    def _pres_panels(self):
+        return {"left": self.findChild(QToolBar, "outils"), "right": self.findChild(QDockWidget, "biblio")}
+
+    def _pres_side_buttons(self):
+        """Petits boutons ◀ ▶ pour réduire les outils (gauche) et la bibliothèque (droite) en plein écran."""
+        from PySide6.QtWidgets import QToolButton
+        if not hasattr(self, "_pres_btns"):
+            self._pres_btns = {}
+            for side in ("left", "right"):
+                b = QToolButton(self)
+                b.setAutoRaise(False)
+                b.setFixedSize(18, 56)
+                b.setStyleSheet("QToolButton{background:rgba(20,30,45,170);color:white;border:none;border-radius:6px;font-size:11px}"
+                                "QToolButton:hover{background:rgba(31,111,235,220)}")
+                b.clicked.connect(lambda _=False, s=side: self._pres_toggle_side(s))
+                self._pres_btns[side] = b
+        for b in self._pres_btns.values():
+            b.show(); b.raise_()
+        self._pres_place_buttons()
+
+    def _pres_toggle_side(self, side):
+        self._pres_side[side] = not self._pres_side[side]
+        self._pres_peek[side] = False
+        p = self._pres_panels()[side]
+        if p is not None:
+            p.setVisible(not self._pres_side[side])
+        QTimer.singleShot(60, self._pres_place_buttons)
+
+    def _pres_place_buttons(self):
+        if not getattr(self, "presenting", False) or not hasattr(self, "_pres_btns"):
+            return
+        panels = self._pres_panels()
+        mid = self.height() // 2 - 28
+        for side, b in self._pres_btns.items():
+            p = panels[side]
+            shown = p is not None and p.isVisible()
+            if side == "left":
+                x = p.geometry().right() + 2 if shown else 0
+                b.setText("◀" if shown and not self._pres_side[side] else "▶")
+            else:
+                x = (p.geometry().left() - b.width() - 2) if shown else self.width() - b.width()
+                b.setText("▶" if shown and not self._pres_side[side] else "◀")
+            b.setToolTip(T("Réduire") if shown and not self._pres_side[side] else T("Réafficher"))
+            b.move(x, mid); b.raise_()
+
     def _presentation_hover(self):
-        """Affiche le haut quand la souris est contre le bord supérieur, le masque ensuite."""
+        """Affiche le haut quand la souris est contre le bord supérieur, le masque ensuite.
+        Les palettes réduites réapparaissent quand la souris touche le bord gauche ou droit."""
         from PySide6.QtGui import QCursor
-        y = self.mapFromGlobal(QCursor.pos()).y()
+        gp = self.mapFromGlobal(QCursor.pos())
+        if hasattr(self, "_pres_side"):
+            panels = self._pres_panels()
+            for side in ("left", "right"):
+                p = panels[side]
+                if p is None or not self._pres_side[side]:
+                    continue
+                edge = gp.x() <= 3 if side == "left" else gp.x() >= self.width() - 4
+                if edge and not self._pres_peek[side]:
+                    p.show(); self._pres_peek[side] = True
+                    QTimer.singleShot(60, self._pres_place_buttons)
+                elif self._pres_peek[side] and QApplication.activePopupWidget() is None:
+                    g = p.geometry()
+                    away = gp.x() > g.right() + 40 if side == "left" else gp.x() < g.left() - 40
+                    if away:
+                        p.hide(); self._pres_peek[side] = False
+                        QTimer.singleShot(60, self._pres_place_buttons)
+        if hasattr(self, "_pres_btns"):
+            self._pres_place_buttons()
+        y = gp.y()
         if not self._pres_shown and y <= 4:
             self.menuBar().show()
             for b in self._pres_bars:
@@ -3963,7 +4283,7 @@ class MainWindow(QMainWindow):
             hint.setStyleSheet("QLabel{background:rgba(20,30,45,210);color:white;border-radius:10px;padding:10px 18px;font-size:13px}")
             hint.setAttribute(Qt.WA_TransparentForMouseEvents)
         hint.setText(T("Mode présentation — les outils (à gauche) et la bibliothèque (à droite) restent visibles · "
-                       "touchez le haut de l'écran pour les menus et le zoom · F11 ou Échap pour quitter"))
+                       "touchez le haut de l'écran pour les menus et le zoom · F11 ou Échap pour quitter") + "\n" + T("◀ ▶ réduisent les palettes ; touchez ensuite le bord gauche ou droit pour les faire réapparaître"))
         hint.setWordWrap(True)
         hint.setAlignment(Qt.AlignCenter)
 
@@ -4091,7 +4411,7 @@ class MainWindow(QMainWindow):
 
 LANG_NAMES = {"fr": "Français", "en": "English", "es": "Español", "pt": "Português", "de": "Deutsch",
               "it": "Italiano", "el": "Ελληνικά", "zh": "中文（简体）", "ru": "Русский", "uk": "Українська",
-              "ar": "العربية"}
+              "ar": "العربية", "sq": "Shqip"}
 _WINDOWS = []          # garde les fenêtres en vie (une nouvelle fenêtre est créée au changement de langue)
 
 
@@ -4120,7 +4440,40 @@ def install_qt_translator(app):
             app.installTranslator(tr)
             app._qt_tr = tr
             return True
+    if i18n.LANG in _QT_FALLBACK:          # langue sans traduction Qt officielle (albanais)
+        tr = _DictTranslator(_QT_FALLBACK[i18n.LANG], app)
+        app.installTranslator(tr)
+        app._qt_tr = tr
+        return True
     return False
+
+
+# Boutons standard de Qt pour les langues que Qt ne traduit pas
+_QT_FALLBACK = {"sq": {"OK": "OK", "Cancel": "Anulo", "&Yes": "&Po", "&No": "&Jo", "Yes to &All": "Po për të &gjitha",
+                       "N&o to All": "J&o për të gjitha", "Close": "Mbyll", "Save": "Ruaj", "Save All": "Ruaji të gjitha",
+                       "Discard": "Hidh poshtë", "Don't Save": "Mos e ruaj", "Apply": "Zbato", "Reset": "Rivendos",
+                       "Restore Defaults": "Rikthe parazgjedhjet", "Help": "Ndihmë", "Open": "Hap", "Abort": "Ndërprit",
+                       "Retry": "Riprovo", "Ignore": "Shpërfill",
+                       "&Undo": "&Zhbëj", "&Redo": "&Ribëj", "Cu&t": "Pr&it", "&Copy": "&Kopjo", "&Paste": "&Ngjit",
+                       "Delete": "Fshi", "Select All": "Përzgjidh të gjitha", "Copy &Link Location": "Kopjo &lidhjen"}}
+
+
+from PySide6.QtCore import QTranslator as _QTranslator
+
+
+class _DictTranslator(_QTranslator):
+    def __init__(self, table, parent=None):
+        super().__init__(parent)
+        self.table = table
+
+    def translate(self, context, source, disambiguation=None, n=-1):
+        if context in ("QPlatformTheme", "QDialogButtonBox", "QMessageBox", "QWidgetTextControl", "QLineEdit") \
+                and source in self.table:
+            return self.table[source]
+        return None                     # None = pas de traduction : Qt garde le texte d'origine
+
+    def isEmpty(self):
+        return False
 
 
 def startup_language():

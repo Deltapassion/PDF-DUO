@@ -1,4 +1,4 @@
-"""Correcteur orthographique de PDF DUO (hors ligne, six langues).
+"""Correcteur orthographique de PDF DUO (hors ligne, onze langues : toutes celles de l'interface sauf le chinois).
 
 Dictionnaires : listes de fréquences de mots (pdfduo/notices/dictionnaires/<langue>.json.gz).
 Les mots inconnus sont soulignés en rouge ; clic droit pour les suggestions,
@@ -16,7 +16,7 @@ from PySide6.QtWidgets import QPlainTextEdit, QStyledItemDelegate
 
 from .i18n import T
 
-LANGS = ("fr", "en", "es", "pt", "de", "it")
+LANGS = ("fr", "en", "es", "pt", "de", "it", "sq", "el", "ru", "uk", "ar")
 _WORD = re.compile(r"[^\W\d_]+", re.UNICODE)
 _LETTERS = {
     "fr": "abcdefghijklmnopqrstuvwxyzàâäçéèêëîïôöùûüÿœæ",
@@ -25,6 +25,11 @@ _LETTERS = {
     "pt": "abcdefghijklmnopqrstuvwxyzáàâãçéêíóôõú",
     "de": "abcdefghijklmnopqrstuvwxyzäöüß",
     "it": "abcdefghijklmnopqrstuvwxyzàèéìíòóù",
+    "sq": "abcçdeëfghijklmnopqrstuvxyz",
+    "el": "αβγδεζηθικλμνξοπρστυφχψωάέήίόύώϊϋΐΰς",
+    "ru": "абвгдеёжзийклмнопрстуфхцчшщъыьэюя",
+    "uk": "абвгґдеєжзиіїйклмнопрстуфхцчшщьюя",
+    "ar": "ءآأؤإئابةتثجحخدذرزسشصضطظعغفقكلمنهوىي",
 }
 # vocabulaire technique des sections professionnelles, absent des listes de fréquences
 _TECH = {
@@ -88,7 +93,28 @@ def current_lang():
     if _state["lang"] in LANGS:
         return _state["lang"]
     from . import i18n
-    return i18n.LANG if i18n.LANG in LANGS else "en"
+    return i18n.LANG if i18n.LANG in LANGS else "fr"
+
+
+def detect(text):
+    """Langue utilisée pour un paragraphe. Réglage « Langue du logiciel » : on garde le dictionnaire qui
+    reconnaît le plus de mots parmi la langue du logiciel, le français, l'anglais et l'albanais (un élève peut
+    avoir l'interface dans sa langue et écrire en français, ou l'inverse). Renvoie (langue, part de mots reconnus)."""
+    if _state["lang"] in LANGS:
+        return _state["lang"], 1.0
+    base = current_lang()
+    words = [m.group().lower() for m in _WORD.finditer(text) if len(m.group()) > 1 and not m.group().isupper()]
+    if len(words) < 3:
+        return base, 1.0
+    best, score = base, -1.0
+    for lg in dict.fromkeys((base, "fr", "en", "sq")):
+        d = words_for(lg)
+        if not d:
+            continue
+        r = sum(is_correct(w, lg) for w in words) / len(words)
+        if r > score + 0.05:
+            best, score = lg, r
+    return best, max(score, 0.0)
 
 
 def is_enabled():
@@ -112,23 +138,37 @@ def ignore(word):
     _state["ignored"].add(word.lower())
 
 
-def is_correct(word):
-    if len(word) < 2 or word.isupper():          # sigles (KM1, RIA, GTL…) et lettres seules
+_NO_SPACE = re.compile(r"[\u3000-\u9fff\uac00-\ud7af\uf900-\ufaff]")   # chinois, japonais, coréen : pas de correcteur
+_AR_PREFIX = ("وبال", "فبال", "وكال", "ولل", "وال", "بال", "فال", "كال", "لل", "ال", "و", "ف", "ب", "ل", "ك")
+
+
+def is_correct(word, lang=None):
+    if len(word) < 2 or word.isupper() or _NO_SPACE.search(word):   # sigles (KM1, RIA…), lettres seules, chinois
         return True
     w = word.lower()
     if w in _state["personal"] or w in _state["ignored"]:
         return True
-    d = words_for(current_lang())
+    lang = lang or current_lang()
+    d = words_for(lang)
     if not d:
         return True                               # dictionnaire absent : on ne souligne rien
-    return w in d
+    if w in d:
+        return True
+    if lang == "ar":                              # arabe : préfixes collés au mot (و، ف، ب، ل، ك، ال)
+        for p in _AR_PREFIX:
+            if w.startswith(p) and len(w) - len(p) >= 2 and (w[len(p):] in d or "ال" + w[len(p):] in d):
+                return True
+    return False
 
 
 def misspelled(text):
     """Liste (début, longueur, mot) des mots inconnus d'un texte."""
     if not _state["enabled"]:
         return []
-    return [(m.start(), len(m.group()), m.group()) for m in _WORD.finditer(text) if not is_correct(m.group())]
+    lang, score = detect(text)
+    if score < 0.4:                               # langue sans dictionnaire : on ne souligne pas tout
+        return []
+    return [(m.start(), len(m.group()), m.group()) for m in _WORD.finditer(text) if not is_correct(m.group(), lang)]
 
 
 def _edits1(w, letters):
@@ -140,8 +180,8 @@ def _edits1(w, letters):
     return set(deletes + transposes + replaces + inserts)
 
 
-def suggestions(word, n=6):
-    lang = current_lang()
+def suggestions(word, n=6, lang=None):
+    lang = lang or current_lang()
     d = words_for(lang)
     if not d:
         return []
@@ -189,9 +229,10 @@ class SpellTextEdit(QPlainTextEdit):
         cur = self.cursorForPosition(e.pos())
         cur.select(QTextCursor.WordUnderCursor)
         word = cur.selectedText().strip("'’-")
-        if word and _WORD.fullmatch(word) and is_enabled() and not is_correct(word):
+        lang = detect(cur.block().text())[0]
+        if word and _WORD.fullmatch(word) and is_enabled() and not is_correct(word, lang):
             first = menu.actions()[0] if menu.actions() else None
-            sugg = suggestions(word)
+            sugg = suggestions(word, lang=lang)
             acts = []
             for s in sugg:
                 a = menu.addAction(s)

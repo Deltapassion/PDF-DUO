@@ -861,6 +861,118 @@ add("multimetre", "Multimètre (grandeur réglable)", SP,
     func=multimetre, pins=[(9, 88), (23, 88), (37, 88), (51, 88)], pin_names="")
 
 
+PINCE_MODES = ["A~", "A=", "V~", "V=", "Ω"]
+
+
+def _modelabel(m, x, y, col, size=5):
+    """Lettre + signe continu (trait plein / pointillé) ou alternatif (~)."""
+    o = f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{col}" stroke="none" font-family="Helvetica" text-anchor="middle">{m[0] if m[-1] in "=~" else m}</text>'
+    gx, gy = x + 2.2, y - 2.2
+    if m.endswith("="):
+        o += (f'<path d="M{gx:.1f} {gy - 1:.1f} h4" stroke="{col}" stroke-width="0.7"/>'
+              f'<path d="M{gx:.1f} {gy + 0.8:.1f} h4" stroke="{col}" stroke-width="0.7" stroke-dasharray="1 0.6"/>')
+    elif m.endswith("~"):
+        o += f'<path d="M{gx:.1f} {gy:.1f} q1 -1.6 2 0 t2 0" stroke="{col}" stroke-width="0.7"/>'
+    return o
+
+
+def pince_amperemetrique(p):
+    mode = p.get("mode", "A~")
+    disp = p.get("affichage", "8.42")
+    ouverte = p.get("pince", "fermée") == "ouverte"
+    # mâchoires (anneau) + gâchette, corps, écran, sélecteur, bornes COM / VΩ
+    o = ''
+    if ouverte:
+        o += ('<path d="M30 6 A20 20 0 0 0 12 34 L20 34 A12 12 0 0 1 30 14 Z" fill="#c62828"/>'
+              '<path d="M36 3 A20 20 0 0 1 49 33 L41 32 A12 12 0 0 0 34 11 Z" fill="#c62828"/>')
+    else:
+        o += ('<path d="M30 2 A20 20 0 1 1 29.9 2 Z M30 10 A12 12 0 1 0 30.1 10 Z" fill="#c62828" fill-rule="evenodd"/>'
+              '<path d="M30 2 V10" stroke="#5d0f0f" stroke-width="0.8"/>')
+    o += ('<circle cx="30" cy="22" r="11" fill="none" stroke="#ef9a9a" stroke-width="0.5" stroke-dasharray="1.5 1"/>'
+          '<path d="M14 36 H46 L50 118 Q50 124 44 124 H16 Q10 124 10 118 Z" fill="#ffca28"/>'
+          '<path d="M46 44 L54 50 L52 56 L46 52 Z" fill="#37474f"/>'
+          '<rect x="15" y="44" width="30" height="16" rx="2" fill="#cfe3c8"/>'
+          f'<text x="42" y="56" font-size="9" font-family="DejaVu Sans Mono, monospace" text-anchor="end" fill="#1b1b1b" stroke="none">{disp}</text>'
+          '<circle cx="30" cy="84" r="10" fill="#37474f"/><circle cx="30" cy="84" r="4" fill="#90a4ae"/>')
+    angs = [-70, -35, 0, 35, 70]
+    for m, a in zip(PINCE_MODES, angs):
+        r = _m.radians(a)
+        lx, ly = 30 + 15.5 * _m.sin(r) - (1.5 if m[-1] in "=~" else 0), 84 - 15.5 * _m.cos(r) + 2
+        col = "#c62828" if m == mode else "#1b1b1b"
+        o += _modelabel(m, lx, ly, col, 5.2 if m == mode else 4.6)
+    a = _m.radians(angs[PINCE_MODES.index(mode)] if mode in PINCE_MODES else 0)
+    o += f'<path d="M30 84 L{30 + 9 * _m.sin(a):.1f} {84 - 9 * _m.cos(a):.1f}" stroke="#ffffff" stroke-width="2"/>'
+    for x, nm, col in ((22, "COM", "#1b1b1b"), (38, "VΩ", "#c62828")):
+        o += (f'<circle cx="{x}" cy="114" r="3.2" fill="{col}"/>'
+              f'<text x="{x}" y="107.5" font-size="3.8" fill="#1b1b1b" stroke="none" font-family="Helvetica" text-anchor="middle">{nm}</text>')
+    return 60, 126, o
+
+
+add("pince_amperemetrique", "Pince ampèremétrique (grandeur réglable)", SP,
+    params=[("mode", "Grandeur mesurée", "A~", PINCE_MODES), ("affichage", "Valeur affichée", "8.42", None),
+            ("pince", "Mâchoires", "fermée", ["fermée", "ouverte"])],
+    func=pince_amperemetrique, pins=[(22, 114), (38, 114)], pin_names="")   # COM / VΩ dessinés sur l'appareil
+
+
+def wattmetre_app(p):
+    disp = p.get("affichage", "1150")
+    o = ('<rect x="2" y="2" width="96" height="66" rx="5" fill="#eceff1"/>'
+         '<rect x="2" y="2" width="96" height="12" rx="5" fill="#455a64"/>'
+         '<text x="50" y="11" font-size="7" fill="#ffffff" stroke="none" font-family="Helvetica" text-anchor="middle" font-weight="bold">P (W)</text>'
+         '<rect x="14" y="19" width="72" height="20" rx="2" fill="#1b2a1b"/>'
+         f'<text x="72" y="34" font-size="13" font-family="DejaVu Sans Mono, monospace" text-anchor="end" fill="#7CFC00" stroke="none">{disp}</text>'
+         '<text x="80" y="34" font-size="8" fill="#7CFC00" stroke="none" font-family="Helvetica" text-anchor="middle">W</text>'
+         '<path d="M8 44 H48 M52 44 H92" stroke="#90a4ae" stroke-width="0.6"/>'
+         '<text x="28" y="50" font-size="5" fill="#1b1b1b" stroke="none" font-family="Helvetica" text-anchor="middle">I</text>'
+         '<text x="72" y="50" font-size="5" fill="#1b1b1b" stroke="none" font-family="Helvetica" text-anchor="middle">U</text>')
+    for x, nm, col in ((16, "I*", "#c62828"), (40, "I", "#1b1b1b"), (60, "U*", "#c62828"), (84, "U", "#1b1b1b")):
+        o += (f'<circle cx="{x}" cy="60" r="3.6" fill="{col}"/>'
+              f'<text x="{x + 7}" y="61.5" font-size="4.5" fill="#1b1b1b" stroke="none" font-family="Helvetica" text-anchor="middle">{nm}</text>')
+    return 100, 70, o
+
+
+add("wattmetre_app", "Wattmètre (appareil, 4 bornes)", SP,
+    params=[("affichage", "Valeur affichée", "1150", None)],
+    func=wattmetre_app, pins=[(16, 60), (40, 60), (60, 60), (84, 60)], pin_names="")   # bornes marquées sur l'appareil
+add("wattmetre_sch", "Wattmètre (schéma, circuit courant + circuit tension)", SP, 40, 40,
+    '<circle cx="20" cy="20" r="11"/><path d="M0 20 H9 M31 20 H40 M20 9 V0 M20 31 V40"/>'
+    + t(20, 24, "W", 11, "bold") + t(6, 17, "*", 7) + t(23, 6, "*", 7),
+    pins=[(0, 20), (40, 20), (20, 0), (20, 40)], pin_names="I* I U* U")
+
+
+def megohmmetre(p):
+    tens = p.get("tension", "500 V")
+    disp = p.get("affichage", "> 500")
+    o = ('<rect x="2" y="2" width="76" height="106" rx="7" fill="#ff8f00"/>'
+         '<rect x="7" y="7" width="66" height="96" rx="4" fill="#263238"/>'
+         '<rect x="12" y="12" width="56" height="22" rx="2" fill="#cfe3c8"/>'
+         f'<text x="56" y="28" font-size="11" font-family="DejaVu Sans Mono, monospace" text-anchor="end" fill="#1b1b1b" stroke="none">{disp}</text>'
+         '<text x="64" y="28" font-size="5.5" fill="#1b1b1b" stroke="none" font-family="Helvetica" text-anchor="middle">MΩ</text>'
+         f'<text x="16" y="18.5" font-size="4" fill="#c62828" stroke="none" font-family="Helvetica">⚡ {tens}</text>'
+         '<circle cx="28" cy="56" r="11" fill="#37474f" stroke="#90a4ae" stroke-width="0.6"/><circle cx="28" cy="56" r="4.5" fill="#90a4ae"/>')
+    tl = ["OFF", "250 V", "500 V", "1000 V"]
+    angs = [-80, -30, 20, 70]
+    for m, a in zip(tl, angs):
+        r = _m.radians(a)
+        col = "#ffca28" if m == tens else "#eceff1"
+        o += (f'<text x="{28 + 17 * _m.sin(r):.1f}" y="{56 - 17 * _m.cos(r) + 2:.1f}" font-size="{4.4 if m == tens else 3.8}" '
+              f'fill="{col}" stroke="none" font-family="Helvetica" text-anchor="middle">{m}</text>')
+    a = _m.radians(angs[tl.index(tens)] if tens in tl else 0)
+    o += (f'<path d="M28 56 L{28 + 10 * _m.sin(a):.1f} {56 - 10 * _m.cos(a):.1f}" stroke="#ffffff" stroke-width="2"/>'
+          '<circle cx="59" cy="56" r="7" fill="#c62828" stroke="#ffcdd2" stroke-width="0.6"/>'
+          '<text x="59" y="58" font-size="4.6" fill="#ffffff" stroke="none" font-family="Helvetica" text-anchor="middle" font-weight="bold">TEST</text>')
+    for x, nm, col in ((18, "E", "#1b1b1b"), (40, "G", "#1565c0"), (62, "L", "#c62828")):
+        o += (f'<circle cx="{x}" cy="92" r="4" fill="{col}" stroke="#eceff1" stroke-width="0.6"/>'
+              f'<text x="{x}" y="84" font-size="5" fill="#eceff1" stroke="none" font-family="Helvetica" text-anchor="middle">{nm}</text>')
+    return 80, 110, o
+
+
+add("megohmmetre", "Mégohmmètre / contrôleur d'isolement (tension réglable)", SP,
+    params=[("tension", "Tension d'essai", "500 V", ["OFF", "250 V", "500 V", "1000 V"]),
+            ("affichage", "Valeur affichée", "> 500", None)],
+    func=megohmmetre, pins=[(18, 92), (40, 92), (62, 92)], pin_names="")   # E G L marqués sur l'appareil
+
+
 OSC_SIGNALS = ["sinusoïdale (alternative)", "continue", "triangle", "créneau (0 / +U)", "carrée (alternative ±U)",
                "dent de scie", "redressée simple alternance", "redressée double alternance", "continue négative",
                "aucun"]
@@ -2678,7 +2790,7 @@ DEFAULT_LABELS = {
 }
 DEFAULT_SCALES = {"conv_fibre": 1.5, "chassis_conv": 1.5, "switch_poe": 1.5, "camera_bullet": 1.5,
                   "nvr": 1.5, "poste_supervision": 2.0, "moniteur": 1.5, "camera_dome": 1.5, "plaque_bornes": 2.0, "plaque_etoile": 2.0, "plaque_triangle": 2.0, "barrette": 2.0,
-                  "barrette_etoile": 2.0, "multimetre": 1.6, "oscilloscope": 1.6, "gbf": 1.6, "alim_stab": 1.6,
+                  "barrette_etoile": 2.0, "multimetre": 1.6, "pince_amperemetrique": 1.6, "wattmetre_app": 1.4, "megohmmetre": 1.6, "oscilloscope": 1.6, "gbf": 1.6, "alim_stab": 1.6,
                   "pile9v": 1.4, "pile15": 1.4, "pile45": 1.4,
                   "pvt_panneau": 1.0, "pvt_regulateur": 1.0, "pvt_batterie": 1.0, "pvt_onduleur": 1.0}
 for _x in SYMBOLS:

@@ -8,6 +8,7 @@ P = {
     "pan": '<path d="M12 3 V21 M3 12 H21 M12 3 L9.5 5.5 M12 3 L14.5 5.5 M12 21 L9.5 18.5 M12 21 L14.5 18.5 '
            'M3 12 L5.5 9.5 M3 12 L5.5 14.5 M21 12 L18.5 9.5 M21 12 L18.5 14.5"/>',
     "text": '<path d="M5 5 H19 M12 5 V20 M9 20 H15"/>',
+    "textbox": '<rect x="3" y="4" width="18" height="16" rx="1.5" stroke-dasharray="2.5 1.8"/><path d="M7.5 8.5 H16.5 M12 8.5 V16"/>',
     "line": '<path d="M4 20 L20 4"/>',
     "arrow": '<path d="M4 20 L19 5 M11 5 H19 V13"/>',
     "wire": '<path d="M3 17 H10 V7 H21"/><circle cx="3" cy="17" r="1.6" fill="CC"/><circle cx="21" cy="7" r="1.6" fill="CC"/>',
