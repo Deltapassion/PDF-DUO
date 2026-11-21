@@ -36,6 +36,7 @@ Name: "zh"; MessagesFile: "ChineseSimplified.isl"
 Name: "ru"; MessagesFile: "compiler:Languages\Russian.isl"
 Name: "uk"; MessagesFile: "compiler:Languages\Ukrainian.isl"
 Name: "ar"; MessagesFile: "Arabic.isl"
+Name: "sq"; MessagesFile: "Albanian.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"

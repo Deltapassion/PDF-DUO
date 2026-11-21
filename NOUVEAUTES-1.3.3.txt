@@ -1,0 +1,47 @@
+PDF DUO 1.3.3 — nouveautés
+
+• Loupe de traduction (menu du haut « 🔍 Traduire », ou Ctrl+L)
+  - Laissez la souris immobile sur un paragraphe du PDF, ou sur un texte écrit dans PDF DUO :
+    la fenêtre montre la zone agrandie, le texte et sa traduction.
+  - Plus de 45 langues, dont l'albanais, le turc, le roumain, l'arabe, l'ukrainien…
+  - Onglet « Écrire » : la traduction se fait au fil de la frappe, dans le sens choisi en haut
+    (⇄ pour inverser), et s'insère dans le document juste sous la question.
+  - Fenêtre redimensionnable librement, taille et position mémorisées.
+  - Molette de la souris sur un texte : agrandir ou réduire les caractères.
+  - Bouton 🔊 : écouter la phrase d'origine ou sa traduction, avec les voix installées sur l'ordinateur.
+  - En ligne (instantané, rien à installer) ou hors ligne (aucun texte envoyé sur internet) :
+    au choix dans « ⚙ Réglages ». En mode automatique, PDF DUO passe tout seul en hors ligne
+    quand internet ne répond pas.
+  - Hors ligne : bouton « 💾 Hors ligne… », téléchargement unique d'environ 100 Mo par langue.
+• En-tête, pied de page et numérotation automatique (menu Pages) : 7 modèles de numéros (1, – 1 –, Page 1,
+  1 / 5, Page 1 / 5, Page 1 sur 5, p. 1), position au choix ; en-tête et pied de page découpables en tableau
+  (1 à 4 colonnes, 1 ou 2 lignes) pour des zones distinctes : établissement, titre du TP, nom, date…
+  Champs automatiques {page}, {pages}, {date}, {titre}. Tout suit l'ajout et la suppression de pages.
+• Zone de texte (menu Insertion ou outil « Zone de texte ») : on la dessine sur la page et on écrit directement
+  dedans, sans fenêtre ; retour à la ligne automatique. Les caractères spéciaux s'affichent juste en dessous,
+  sur un fond clair légèrement translucide : le caractère survolé est surligné en jaune et montré en grand.
+• Fractions et racines : boutons « a⁄b Fraction » et « √ Racine » (palette de la zone de texte, fenêtre Texte,
+  menu Insertion) : une petite fenêtre avec une case pour le haut, un trait, une case pour le bas, et l'aperçu.
+  La formule s'affiche directement mise en forme pendant l'écriture ; un clic dessus la rouvre pour la modifier.
+  Le trait s'allonge tout seul, haut et bas sont centrés. Fonctionne aussi dans les tableaux.
+• Zone de texte : un seul clic dedans pour écrire, un seul clic sur une fraction pour la modifier ; glisser pour la déplacer.
+• Assembler des PDF (menu Pages) : composer son propre dossier technique à partir de documentations
+  de fabricants différents — choix des pages de chaque fichier, ordre, un signet par fichier
+  et page de sommaire cliquable au début.
+• Extraire la page affichée (menu Pages) : une seule page en un clic.
+• Reconnaissance de texte OCR (menu Pages) pour les PDF scannés : le texte devient recherchable,
+  copiable et traduisible avec la loupe (16 langues ; fichier de langue de 1 à 5 Mo téléchargé une fois).
+• Interface en albanais (Shqip) : 12 langues au choix dans le menu 🌐 et dans l'installeur
+  (boutons OK / Annuler / Oui / Non traduits eux aussi).
+• Correcteur d'orthographe en 11 langues : grec, russe, ukrainien, arabe et albanais s'ajoutent.
+  Réglage « Automatique (langue du texte) » : la langue de chaque paragraphe est reconnue ; un élève
+  avec l'interface en albanais qui écrit en français est corrigé en français.
+• Appareils de mesure : pince ampèremétrique (mâchoires ouvertes / fermées), wattmètre
+  (appareil 4 bornes et symbole de schéma), mégohmmètre / contrôleur d'isolement (bornes E G L).
+• Notice d'utilisation intégrée (touche F1) en 12 langues, avec de nouveaux chapitres : loupe de traduction,
+  dossier technique, OCR, appareils réglables, insertion de carte mentale, d'organigramme et de GRAFCET.
+• L'installeur met à jour la version déjà installée ; au démarrage, PDF DUO propose les nouvelles versions.
+• Mode présentation (plein écran, F11)
+  - Le zoom reste celui d'avant le plein écran, à l'entrée comme à la sortie.
+  - Boutons ◀ ▶ pour réduire les outils (à gauche) et la bibliothèque (à droite) ;
+    une fois réduits, ils réapparaissent quand la souris touche le bord de l'écran.
